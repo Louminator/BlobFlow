@@ -534,7 +534,7 @@ double build_psi_xxx(dx,dy,str,s2,s4,a2,eps,r,t,
   
   psi_xxx = str*expint(psi_xxx_c,s2,r[0]);
 
-  /* Leibnitz rule correction for axisymmetric solution.*/
+  /* Leibnitz rule correction.*/
 
   psi_xxx += str/4.0/s4*exp(-r[0]/4.0/s2)*
     dx/a2*
@@ -578,7 +578,7 @@ double build_psi_xxy(dx,dy,str,s2,s4,a2,eps,r,t,
   
   psi_xxy = str*expint(psi_xxy_c,s2,r[0]);
 
-  /* Leibnitz rule correction for axisymmetric solution.*/
+  /* Leibnitz rule correction.*/
 
   psi_xxy += str/4.0/s4*exp(-r[0]/4.0/s2)*
     dy*a2*
@@ -622,7 +622,7 @@ double build_psi_xyy(dx,dy,str,s2,s4,a2,eps,r,t,
   
   psi_xyy = str*expint(psi_xyy_c,s2,r[0]);
 
-  /* Leibnitz rule correction for axisymmetric solution.*/
+  /* Leibnitz rule correction.*/
 
   psi_xyy += str/4.0/s4*exp(-r[0]/4.0/s2)*
     dx/a2*
