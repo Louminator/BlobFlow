@@ -89,7 +89,9 @@ void vel_field()
    N /= 2;
 #endif   
 
+#ifdef CORRECTVEL4
    correct_vel_4();
+#endif
    Release_Links(mplevels);
 }
 
@@ -238,7 +240,7 @@ blobparms *parms;
 	    2.0*(*parms).du11*(*parms).sincos )*
 	  (1.0/SQR((*the_blobguts).a2) - SQR((*the_blobguts).a2))/
 	  (SQR(1.0/(*the_blobguts).a2 - (*the_blobguts).a2) +
-	   SQR(dth_regularize)) );
+	   SQR(dtth_delta)) );
 
   /* Non-regularized code. */
   /*

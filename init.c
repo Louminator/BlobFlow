@@ -57,17 +57,18 @@ static char *inputs[] =
   "TimeStep:",
 
   "MaxOrder:",
+  "DtThDelta",
   "l2Tol:",
   "alpha:",
   "SplitMethod:",
-  "MergeErrorEstimator:",
 
+  "MergeErrorEstimator:",
   "MergeBudget:",
   "MergeStep:",
   "ClusterRadius:",
   "Mergea2Tol:",
-  "MergeThTol:",
 
+  "MergeThTol:",
   "MergeMom3Wt:",
   "MergeMom4Wt:",
   "MergeC:",
@@ -80,7 +81,7 @@ static char *inputs[] =
 
 enum ScriptItems 
 {FRAME_STEP,END_TIME,VISCOSITY,VTX_INIT,TIME_STEP,
- MAX_ORDER,L2_TOL,ALPHA,SPLIT_METHOD,MERGE_ERROR_ESTIMATOR,
+ MAX_ORDER,DTTH_DELTA,L2_TOL,ALPHA,SPLIT_METHOD,MERGE_ERROR_ESTIMATOR,
  MERGE_BUDGET,MERGE_STEP,CLUSTER_RADIUS,MERGE_A2_TOL,MERGE_TH_TOL,
  MERGE_MOM3_WT,MERGE_MOM4_WT,MERGE_C,MERGE_GROWTH_RATE
 };
@@ -233,6 +234,7 @@ void check_ctl()
   if ( (PrefStep <= 0.0) ||
        (MergeStep<FrameStep) ||
        (MaxOrder <= 0) ||
+       (dtth_delta <= 0.0) ||
        (l2tol <= 0.0) ||
        (alpha <= 0.0) || (alpha >= 1.0) ||
        (split_method == 0) ||
@@ -253,6 +255,8 @@ void check_ctl()
 	printf("Warning!  Mergestep should not be less than FrameStep!\n");
       if (MaxOrder <= 0)
 	printf("MaxOrder not set properly.\n");
+      if (dtth_delta <= 0.0)
+	printf("DtThDelta not set properly.\n");
       if ((alpha <= 0.0) || (alpha >= 1.0))
 	printf("Alpha not set properly.\n");
       if (split_method == 0)
@@ -330,6 +334,10 @@ void read_ctl()
 		      break;
 		    case MAX_ORDER:
 		      fscanf(control_file,"%d",&MaxOrder);
+		      i=inputs_size+1;
+		      break;
+		    case DTTH_DELTA:
+		      fscanf(control_file,"%lf",&dtth_delta);
 		      i=inputs_size+1;
 		      break;
 		    case L2_TOL:
@@ -798,7 +806,9 @@ void init(int argc, char *argv[])
   char      sim_name[Title],control_name[Title],temp[Title],*p1;
   int       i;
 
-  dth_regularize = 1.0e-3;
+  /* Defaults */
+  dtth_delta = 1.0e-3;
+  MaxOrder   = 3;
    
   /*Allocate memory for multipole coefficients.*/
   for (i=0; i<LMax; ++i)
@@ -873,6 +883,11 @@ void init(int argc, char *argv[])
 #ifdef XANTISYMM
   fprintf(comp_log,"X anti-symmetry imposed.\n");
 #endif 
+
+#ifdef CORRECTVEL4
+  fprintf(comp_log,"Using fourth order curvature corrections.\n");
+#endif 
+
    
 #ifdef LINEAR
   fprintf(comp_log,"Operating as a particle tracking code with a known velocity field\n");

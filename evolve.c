@@ -45,7 +45,7 @@ int N,oldN;
 metablob mblob[NMax];
 blob_internal blobguts[NMax];
 double    visc;
-double    alpha,l2tol,dth_regularize;
+double    alpha,l2tol,dtth_delta;
 double    TimeStep,PrefStep,FrameStep,EndTime,SimTime;
 int       Frame,MaxOrder;
 double    merge_budget,merge_p,merge_a2tol,merge_thtol,MergeStep;

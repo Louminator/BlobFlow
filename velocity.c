@@ -204,6 +204,7 @@ double result[9];
   psi_xy = build_psi_xy(dx,dy,str,s2,s4,a2,eps,r,t,
 			psi_y_c,psi_xy_c,psi_RT,psi_xy_RT);
   
+#ifdef CORRECTVEL4
   psi_xxx = build_psi_xxx(dx,dy,str,s2,s4,a2,eps,r,t,
 			  psi_xx_c,psi_xxx_c,psi_xx_RT,psi_xxx_RT);
   
@@ -215,7 +216,7 @@ double result[9];
   
   psi_yyy = build_psi_yyy(dx,dy,str,s2,s4,a2,eps,r,t,
 			  psi_yy_c,psi_yyy_c,psi_yy_RT,psi_yyy_RT);
-  
+#endif
 
   /* Rotate everything back into the standard reference frame. */
    
@@ -237,6 +238,7 @@ double result[9];
   result[4] = (2.0*(-psi_xy)*(*parms).sincos-
 	       (-psi_yy)*(*parms).sin2+psi_xx*(*parms).cos2);
 
+#ifdef CORRECTVEL4
   /* u_xx = -psi_xxy */
   result[5] = -( (*parms).cos2*(*parms).sinth*(psi_xxx-2.0*psi_xyy)+
 		 (*parms).cos2*(*parms).costh*psi_xxy+
@@ -260,4 +262,5 @@ double result[9];
 		3.0*(*parms).cos2*(*parms).sinth*psi_xxy +
 		3.0*(*parms).sin2*(*parms).costh*psi_xyy -
 		(*parms).sin2*(*parms).sinth*psi_yyy );
+#endif
 }

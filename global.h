@@ -36,6 +36,7 @@
 #define MAX(A,B) ((A) > (B) ? (A) : (B))
 #define MIN(A,B) ((A) < (B) ? (A) : (B))
 
+#define CORRECTVEL4
 /* Set LINEAR to impose your own velocity field. */
 #undef  LINEAR
 #undef  cashkarp
@@ -129,7 +130,7 @@ extern metablob      mblob[NMax];
 extern blob_internal blobguts[NMax];
 extern blobparms     tmpparms[NMax];
 extern double        visc;                       /* Physical constants */
-extern double        alpha,l2tol,dth_regularize; /* Numerical parameters */
+extern double        alpha,l2tol,dtth_delta;     /* Numerical parameters */
 
 /* Dynamic memory allocation might be better here. Nah! */
 extern vector       refinevels[NMax][3][MaxSplitConf];
