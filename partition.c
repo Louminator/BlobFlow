@@ -215,10 +215,17 @@ void partition(int levels)
 
 void Init_Fine_Grid(int levels)
 {
-   int i,j,p,size,buffsize,start,end;
+   int i,j,p,size,buffsize,start,end,rank,total_processes;
    complex *Coeff_Array,*Coeff_buff,tmpz,dz,mp[PMax];
    
-   
+   /* These need to be explicitly determined here for some reason.*/
+   /* Check into this later.  Without explicitly finding rank and
+      total_processes, they get wolloped for some reason */
+
+   MPI_Comm_size(MPI_COMM_WORLD, &total_processes);
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+
    Coeff_Array = Level_Ptr[levels-1];
    
    /* Wipe the finest level mesh */

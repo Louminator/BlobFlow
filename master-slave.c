@@ -27,7 +27,7 @@
 
 #include "global.h"
 #include "multiproc.h"
-#define WorkSize 100
+#define WorkSize 25
 
 #ifdef XANTISYMM
 #define CARDINALITY  N/2
@@ -72,16 +72,19 @@ void buffer_to_blob(buffer,blob,parm)
   (*parm).v_xx = *(buffer+8);
 }
 
+/* It would be nice to dynamically allocate buffers based on
+   total_processes.  Also, it would be nice to do something
+   intelligent if the number of cpus is huge.  */
 
 void master ( void ) 
 {
    int proc,vort,job,flag1;
-   int workbuf[30][WorkSize],i;
-   double rbuf[30][PARTICLE_DATA_PACKET_SIZE*WorkSize];
-   MPI_Request mpireqs[30];
+   int workbuf[MAX_CPUS][WorkSize],i;
+   double rbuf[MAX_CPUS][PARTICLE_DATA_PACKET_SIZE*WorkSize];
+   MPI_Request mpireqs[MAX_CPUS];
    
    int position,msgsize,membersize,packsize;
-   char *buffer[30];
+   char *buffer[MAX_CPUS];
    
    /* Calculate packed buffer size */
    

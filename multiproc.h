@@ -40,6 +40,7 @@
 #define MORE 2
 #define RESERVED_TAGS 5
 #define PARTICLE_DATA_PACKET_SIZE 9
+#define MAX_CPUS 50
 
 int total_processes, rank;
 MPI_Status mpistatus;
