@@ -20,7 +20,7 @@ LN	= gcc
 LAMLIB	= 
 endif
 
-COPTFLAGS	=  -Wall
+COPTFLAGS	= -O3 -Wall
 CLIBS 		= -lm 
 
 ifeq ($(HOSTTYPE),sun4)

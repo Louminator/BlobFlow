@@ -570,7 +570,6 @@ void startup_new()
 
       vel_field();
 
-
       for (j=0; j<N; ++j)
 	startup_blobs[i][j] = mblob[j].blob0;
 
@@ -608,7 +607,7 @@ void startup_new()
   
   SimTime += TimeStep/2;
   vel_field();
-  
+
   /* Take a full step internally */
   
   for (j=0; j<N; ++j)
@@ -928,7 +927,9 @@ void init(int argc, char *argv[])
   TimeStep = PrefStep;
   SimTime = 0.0;
 
+  printf("Entering startup\n");
   startup_new();
+  printf("Done with startup\n");
 
   nsplit   = 0;
   refinestack = 0;

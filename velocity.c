@@ -45,8 +45,8 @@ double even[5],odd[5];
   double psi_x_RT[maxpolyn][maxexp],psi_y_RT[maxpolyn][maxexp];
   double psi_c[maxpolyn],psi_x_c[maxpolyn],psi_y_c[maxpolyn];
 
-   double tempu,tempv;
-   
+   double tempu,tempv,newu,newv;
+
    vector result;
 
    /* Change bases to the local axes. */
@@ -102,8 +102,6 @@ double even[5],odd[5];
      SQR(eps)*(-8.0+16.0*t[1])-eps*4.0*t[0]+1.0;
    odd[0] = 0.0;
    
-
-   
    c4 = SQR(SQR(eps))*(even[4]+odd[4])/r[4];
    c3 = SQR(eps)*eps*(even[3]+odd[3])/r[3];
    c2 = SQR(eps)*(even[2]+odd[2])/r[2];
@@ -144,8 +142,6 @@ double even[5],odd[5];
        (-s2)*(4.0*c0+s2*(32.0*c1+s2*(384.0*c2+s2*(6144.0*c3+s2*122880.0*c4))))*
        (1-exp(-r[0]/(4.0*s2))));
 
-  printf("Old vel: %12.4e %12.4e\n",tempu,tempv);
-
   a2  = (*the_blobguts).a2;
   str = (*the_blob).strength;
 
@@ -153,13 +149,14 @@ double even[5],odd[5];
 
   build_psi(dx,dy,eps,r,t,psi_c,psi_RT);
 
-  tempv = build_psi_x(dx,dy,str,s2,s4,a2,eps,r,t,
+  newv = build_psi_x(dx,dy,str,s2,s4,a2,eps,r,t,
 		      psi_c,psi_x_c,psi_RT,psi_x_RT);
 
-  tempu = -build_psi_y(dx,dy,str,s2,s4,a2,eps,r,t,
+  newu = -build_psi_y(dx,dy,str,s2,s4,a2,eps,r,t,
 		       psi_c,psi_y_c,psi_RT,psi_y_RT);
   
-  printf("New vel: %12.4e %12.4e\n",tempu,tempv);
+  if (SQR(tempu-newu)+SQR(tempv-newv) > 1.0e-20)
+    printf("Vel: %12.4e %12.4e\n",tempu-newu,tempv-newv);
   
 
    /* Rotate back to the global axes. */
