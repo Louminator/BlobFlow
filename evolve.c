@@ -39,7 +39,7 @@
 
 /* Global variables */
 
-FILE *comp_log,*diag_log,*mpi_log,*trace_log;
+FILE *comp_log,*diag_log,*mpi_log,*cpu_log;
 
 int N,oldN;
 metablob mblob[NMax];
@@ -100,17 +100,9 @@ void stop(int retval)
 void run()
 {
   int j,k;
-  char time_name[Title];
-  FILE *time_file,*fopen();
   double Rblob,temp,lambdaM;
  
   fprintf(comp_log,"Time     N     Split Merge MPlev lambdaM\n");
-#ifdef MULTIPROC
-  sprintf(time_name,"%s.%d.%s", filename, rank ,"cpu");
-#else
-  sprintf(time_name,"%s.%s", filename,"cpu");
-#endif
-  time_file = fopen(time_name,"w");
    
   while (SimTime < EndTime)
     {
@@ -302,7 +294,7 @@ void run()
 
       tot_cputime = clock()-tot_cputime_ref;
 
-      fprintf(time_file,"%07d %12.4e %12.4e %12.4e %12.4e %12.4e\n",
+      fprintf(cpu_log,"%07d %12.4e %12.4e %12.4e %12.4e %12.4e\n",
 	      N,
 	      ((double)(tot_cputime))/((double)CLOCKS_PER_SEC),
 	      ((double)(vel_cputime))/((double)CLOCKS_PER_SEC),
@@ -310,7 +302,7 @@ void run()
 	      ((double)(veldirect_cputime))/((double)CLOCKS_PER_SEC),
 	      ((double)(mp_cputime))/((double)CLOCKS_PER_SEC)
 	      );
-      fflush(time_file);
+      fflush(cpu_log);
 
       totsplit += nsplit;
       totmerge += nmerge;
@@ -319,7 +311,7 @@ void run()
   fprintf(comp_log,"Simulation complete.\n");
   fprintf(comp_log,"Total splitting events: %d\n",totsplit);
   fprintf(comp_log,"Total merging events: %d\n",totmerge);
-  fclose(time_file);
+  fclose(cpu_log);
 }
 
 

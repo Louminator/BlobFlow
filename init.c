@@ -829,20 +829,22 @@ void init(int argc, char *argv[])
 
 #ifdef MULTIPROC
   /* set up log files with process number embedded in names */
-  sprintf(temp,"%s_comp%d.log",filename, rank);   
+  sprintf(temp,"%s_comp.%d.log",filename, rank);   
   comp_log = fopen(temp,"w");   
-  sprintf(temp,"%s_diag%d.log",filename, rank);
+  sprintf(temp,"%s_diag.%d.log",filename, rank);
   diag_log = fopen(temp,"w");   
-  sprintf(temp,"%s_mpi%d.log",filename, rank);
+  sprintf(temp,"%s_mpi.%d.log",filename, rank);
   mpi_log = fopen(temp,"w");   
-  trace_log = mpi_log;
+  sprintf(temp,"%s_cpu.%d.log",filename, rank);
+  cpu_log = fopen(temp,"w");   
 #else 
   /*  log file names will NOT have process rank # embedded  */
   sprintf(temp,"%s_comp.log",filename);
   comp_log = fopen(temp,"w");
   sprintf(temp,"%s_diag.log",filename);
   diag_log = fopen(temp,"w");
-  trace_log = diag_log;   
+  sprintf(temp,"%s_cpu.log",filename);
+  cpu_log = fopen(temp,"w");
 #endif
 
   fprintf(diag_log,"Initializing.\n");

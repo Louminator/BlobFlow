@@ -129,7 +129,7 @@ typedef struct EltLink
 }
 FineGridLink;
 
-extern FILE          *comp_log,*diag_log,*mpi_log,*trace_log;
+extern FILE          *comp_log,*diag_log,*mpi_log,*cpu_log;
 
 extern int           N,oldN;
 extern metablob      mblob[NMax];
