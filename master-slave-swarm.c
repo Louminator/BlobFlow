@@ -235,6 +235,7 @@ void slave ( void )
    MPI_Request master_req,slave_resp[30],slave_recv[30];
    int position,membersize,packsize;
    char *send_buffer[30],*recv_buffer[30];
+   int proclist[30];
    
    /* Calculate packed buffer size */
    
@@ -249,28 +250,29 @@ void slave ( void )
      send_buffer[i] = malloc(packsize);
      recv_buffer[i] = malloc(packsize);
      }
+
+   /* Create a list of living slaves */
+   for (i=0; i<total_processes; ++i)
+     proclist[i] = 1;
+
+   /* Of course, it is never healthy to talk to yourself. */
+   /* ...even if you are alive and kicking. */
+   proclist[rank] = 0;
    
    MPI_Recv_init(workbuf1, WorkSize, MPI_INT, 0, MPI_ANY_TAG, 
 		 MPI_COMM_WORLD, &master_req );
    MPI_Send_init(send_buffer[0], packsize, MPI_PACKED, 0, 
 		 rank+RESERVED_TAGS, MPI_COMM_WORLD,&slave_resp[0]);
 
-   for (proc=1; proc<total_processes-1; ++proc)
-     if (proc<rank)
+   for (i=1; i<total_processes; ++i)
+     if (proclist[i])
        {
-	 MPI_Send_init(send_buffer[proc], packsize, MPI_PACKED, proc, 
-		       rank+RESERVED_TAGS, MPI_COMM_WORLD,&slave_resp[proc]);
-	 MPI_Recv_init(recv_buffer[proc], packsize, MPI_PACKED, proc, 
-		       rank+RESERVED_TAGS, MPI_COMM_WORLD,&slave_recv[proc]);
+	 MPI_Send_init(send_buffer[i], packsize, MPI_PACKED, proc, 
+		       rank+RESERVED_TAGS, MPI_COMM_WORLD,&slave_resp[i]);
+	 MPI_Recv_init(recv_buffer[i], packsize, MPI_PACKED, proc, 
+		       rank+RESERVED_TAGS, MPI_COMM_WORLD,&slave_recv[i]);
        }
-     else
-       {
-	 MPI_Send_init(send_buffer[proc], packsize, MPI_PACKED, proc+1, 
-		       rank+RESERVED_TAGS, MPI_COMM_WORLD,&slave_resp[proc]);
-	 MPI_Recv_init(recv_buffer[proc], packsize, MPI_PACKED, proc+1, 
-		       rank+RESERVED_TAGS, MPI_COMM_WORLD,&slave_recv[proc]);
-       }
-   
+
   start = 1;
 
   while (1)
@@ -310,17 +312,19 @@ void slave ( void )
 	    workbuf2[i] = workbuf1[i];
 	 }
 
-       for (proc=0; proc<total_processes-1; ++proc)
-	 {
-	   position=0;
-	   MPI_Pack(workbuf2,WorkSize,MPI_INT,send_buffer[proc],
-		    packsize,&position,MPI_COMM_WORLD);
-	   MPI_Pack(sbuf,PARTICLE_DATA_PACKET_SIZE*WorkSize,
-		    MPI_DOUBLE,send_buffer[proc],packsize,&position,
-		    MPI_COMM_WORLD);
-       
-	   MPI_Start(&slave_resp[proc]);
-	 }
+       /* Send results to everyone. */
+       for (i=0; i<total_processes; ++i)
+	 if (proclist[i])
+	   {
+	     position=0;
+	     MPI_Pack(workbuf2,WorkSize,MPI_INT,send_buffer[i],
+		      packsize,&position,MPI_COMM_WORLD);
+	     MPI_Pack(sbuf,PARTICLE_DATA_PACKET_SIZE*WorkSize,
+		      MPI_DOUBLE,send_buffer[i],packsize,&position,
+		      MPI_COMM_WORLD);
+	     
+	     MPI_Start(&slave_resp[proc]);
+	   }
     }
    
    MPI_Request_free(&master_req);
