@@ -156,18 +156,28 @@ void th_slave(blobguts,parms)
 blob_internal *blobguts;
 blobparms     *parms;
 {
-  double dumb;
+  double temp,arg;
 
-  dumb = (*parms).du11*((*blobguts).a2+1.0/(*blobguts).a2);
+  temp = (*parms).du11*((*blobguts).a2+1.0/(*blobguts).a2);
+
+  /* The MAX here to work around the odd situation where the argument
+     could be slightly negative due to roundoff error and kick loose
+     nan's.  This never happened in linear Lamb monopole sims, but it
+     did happen in nonlinear Lamb monopole simulations where there was
+     an element at the origin.  Since the velocity field and it's
+     derivatives are computed approximately and the flow in the center
+     is purely rotational, there were times when the arg was a teeny
+     negative number. */
+
+  arg  = MAX(SQR(temp)+
+	     ((*parms).du21/(*blobguts).a2+
+	      (*parms).du12*(*blobguts).a2)*
+	     ((*parms).du12/(*blobguts).a2+
+	      (*parms).du21*(*blobguts).a2),0.0);
       
   (*blobguts).th = 
     atan2(((*blobguts).a2*(*parms).du12+(*parms).du21/(*blobguts).a2),
-	  -(dumb +
-	    sqrt(SQR(dumb)+
-		 ((*parms).du21/(*blobguts).a2+
-		  (*parms).du12*(*blobguts).a2)*
-		 ((*parms).du12/(*blobguts).a2+
-		  (*parms).du21*(*blobguts).a2))));
+	  -(temp + sqrt(arg)));
   
   set_blob(blobguts,parms);
       
@@ -179,12 +189,8 @@ blobparms     *parms;
     {
       (*blobguts).th = 
 	atan2(((*blobguts).a2*(*parms).du12+(*parms).du21/(*blobguts).a2),
-	      -(dumb -
-		sqrt(SQR(dumb)+
-		     ((*parms).du21/(*blobguts).a2+
-		      (*parms).du12*(*blobguts).a2)*
-		     ((*parms).du12/(*blobguts).a2+
-		      (*parms).du21*(*blobguts).a2))));
+	      -(temp - sqrt(arg)));
+
       set_blob(blobguts,parms);
     }
 }
