@@ -39,11 +39,13 @@
 #define WORK 1
 #define MORE 2
 #define RESERVED_TAGS 5
-#define PARTICLE_DATA_PACKET_SIZE 5
+#define PARTICLE_DATA_PACKET_SIZE 9
 
 int total_processes, rank;
 MPI_Status mpistatus;
 MPI_Request mpireq;
+
+extern double wicked_big_vectah[NMax * PARTICLE_DATA_PACKET_SIZE];
 
 /* CAUTION: Maximum number of processes is hardwired at 30. */
 

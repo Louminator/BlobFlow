@@ -12,7 +12,7 @@
 #define CARDINALITY  N
 #endif
 
-double wicked_big_vectah[NMax * 5];
+double wicked_big_vectah[NMax * PARTICLE_DATA_PACKET_SIZE];
 
 void peer(void)
 {
@@ -89,20 +89,34 @@ void peer(void)
      {
 	if (donelist[i])
 	  {
-	     wicked_big_vectah[5*count]   = mblob[i].blob0.dx; 
-	     wicked_big_vectah[5*count+1] = mblob[i].blob0.dy;
-	     wicked_big_vectah[5*count+2] = tmpparms[i].du11 ; 
-	     wicked_big_vectah[5*count+3] = tmpparms[i].du12 ;   
-	     wicked_big_vectah[5*count+4] = tmpparms[i].du21 ;
+	     wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*count]   = 
+	       mblob[i].blob0.dx; 
+	     wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*count+1] = 
+	       mblob[i].blob0.dy;
+	     wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*count+2] = 
+	       tmpparms[i].du11 ; 
+	     wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*count+3] = 
+	       tmpparms[i].du12 ;   
+	     wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*count+4] = 
+	       tmpparms[i].du21 ;
+	     wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*count+5] = 
+	       tmpparms[i].u_xx ;
+	     wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*count+6] = 
+	       tmpparms[i].u_xy ;
+	     wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*count+7] = 
+	       tmpparms[i].u_yy ;
+	     wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*count+8] = 
+	       tmpparms[i].v_xx ;
 	     ++count;
 	  }
      }
    outcount=count;
    MPI_Send(&outcount,1,MPI_INT,peer_proc,DONE,MPI_COMM_WORLD);
    MPI_Recv(&count,1,MPI_INT,peer_proc,DONE,MPI_COMM_WORLD,&mpistatus);
-   MPI_Isend(wicked_big_vectah,outcount*5,MPI_DOUBLE,peer_proc,
-	    DONE,MPI_COMM_WORLD,&mpireq);
-   MPI_Recv(&(wicked_big_vectah[outcount*5]),count*5,MPI_DOUBLE,peer_proc,
+   MPI_Isend(wicked_big_vectah,outcount*PARTICLE_DATA_PACKET_SIZE,
+	     MPI_DOUBLE,peer_proc,DONE,MPI_COMM_WORLD,&mpireq);
+   MPI_Recv(&(wicked_big_vectah[outcount*PARTICLE_DATA_PACKET_SIZE]),
+	    count*PARTICLE_DATA_PACKET_SIZE,MPI_DOUBLE,peer_proc,
 	    DONE,MPI_COMM_WORLD,&mpistatus);
    
    dummy = 0;
@@ -111,11 +125,24 @@ void peer(void)
 	while (donelist[dummy])
 	  ++dummy;
 	
-	mblob[dummy].blob0.dx = wicked_big_vectah[5*i];
-	mblob[dummy].blob0.dy = wicked_big_vectah[5*i+1];
-	tmpparms[dummy].du11  = wicked_big_vectah[5*i+2];
-	tmpparms[dummy].du12  = wicked_big_vectah[5*i+3];
-	tmpparms[dummy].du21  = wicked_big_vectah[5*i+4];
+	mblob[dummy].blob0.dx = 
+	  wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*i];
+	mblob[dummy].blob0.dy = 
+	  wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*i+1];
+	tmpparms[dummy].du11  = 
+	  wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*i+2];
+	tmpparms[dummy].du12  = 
+	  wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*i+3];
+	tmpparms[dummy].du21  = 
+	  wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*i+4];
+	tmpparms[dummy].u_xx  = 
+	  wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*i+5];
+	tmpparms[dummy].u_xy  = 
+	  wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*i+6];
+	tmpparms[dummy].u_yy  = 
+	  wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*i+7];
+	tmpparms[dummy].v_xx  = 
+	  wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*i+8];
 
 	++dummy;
      }

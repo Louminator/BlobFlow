@@ -310,5 +310,4 @@ extern void stop(int);
 
 extern void chk_nan(int);
 
-extern double wicked_big_vectah[NMax * 5];
 

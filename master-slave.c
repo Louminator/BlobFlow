@@ -131,6 +131,14 @@ void master ( void )
 		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+3];
 		  tmpparms[vort].du21  = 
 		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+4];
+		  tmpparms[vort].u_xx  = 
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+5];
+		  tmpparms[vort].u_xy  =
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+6];
+		  tmpparms[vort].u_yy  = 
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+7];
+		  tmpparms[vort].v_xx  = 
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+8];
 	       }
 	     
 	     if (job < CARDINALITY)
@@ -175,6 +183,14 @@ void master ( void )
 		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+3];
 		  tmpparms[vort].du21  = 
 		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+4];
+		  tmpparms[vort].u_xx  = 
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+5];
+		  tmpparms[vort].u_xy  =
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+6];
+		  tmpparms[vort].u_yy  = 
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+7];
+		  tmpparms[vort].v_xx  = 
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+8];
 	       }
 	  }
 	
@@ -209,6 +225,14 @@ void master ( void )
 		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+3];
 		 tmpparms[vort].du21  = 
 		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+4];
+		 tmpparms[vort].u_xx  = 
+		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+5];
+		 tmpparms[vort].u_xy  =
+		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+6];
+		 tmpparms[vort].u_yy  = 
+		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+7];
+		 tmpparms[vort].v_xx  = 
+		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+8];
 	      }
 	  }
      }
@@ -287,6 +311,10 @@ void slave ( void )
 	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+2] = tmpparms[vort].du11 ;
 	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+3] = tmpparms[vort].du12 ;
 	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+4] = tmpparms[vort].du21 ;
+	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+5] = tmpparms[vort].u_xx ;
+	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+6] = tmpparms[vort].u_xy ;
+	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+7] = tmpparms[vort].u_yy ;
+	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+8] = tmpparms[vort].v_xx ;
 	    workbuf2[i] = workbuf1[i];
 	 }
 
@@ -324,6 +352,14 @@ void finish ( void ) {
 	  tmpparms[j].du12 ;   
 	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+4] = 
 	  tmpparms[j].du21 ;
+	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+5] = 
+	  tmpparms[j].u_xx ;
+	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+6] = 
+	  tmpparms[j].u_xy ;
+	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+7] = 
+	  tmpparms[j].u_yy ;
+	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+8] = 
+	  tmpparms[j].v_xx ;
       }
   }
 
@@ -351,6 +387,10 @@ void finish ( void ) {
 	tmpparms[j].du11  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+2];
 	tmpparms[j].du12  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+3];
 	tmpparms[j].du21  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+4];
+	tmpparms[j].u_xx  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+5];
+	tmpparms[j].u_xy  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+6];
+	tmpparms[j].u_yy  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+7];
+	tmpparms[j].v_xx  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+8];
       }
   }
   
