@@ -60,11 +60,12 @@ void vort_vort_interaction(i,j)
      {
        eps = (1.0-sqrt(blobguts[j].a2))/
 	 (1.0+sqrt(blobguts[j].a2));
+
        a.du11 = 0.0;
-       a.du12 = -(mblob[j].blob0.strength/(2.0*blobguts[j].s2))*
-	 (0.5+eps-eps*SQR(eps));
-       a.du21 = (mblob[j].blob0.strength/(2.0*blobguts[j].s2))*
-	 (0.5-eps+eps*SQR(eps));
+       a.du12 = -(mblob[j].blob0.strength/(2.0*blobguts[j].s2))/
+	 (1.0 + 1.0/blobguts[j].a2);
+       a.du21 = (mblob[j].blob0.strength/(2.0*blobguts[j].s2))/
+	 (1.0 + blobguts[j].a2);
 		    
        tmpparms[i].du11 += (a.du11*
 			    (tmpparms[j].cos2-tmpparms[j].sin2)-
