@@ -166,3 +166,92 @@ double even[5],odd[5];
    
    return(result);
 }
+
+double* induced_v(the_blob,the_blobguts,parms,tmpdx,tmpdy)
+blob_external *the_blob;
+blob_internal *the_blobguts;
+blobparms *parms;
+double tmpdx,tmpdy;
+
+{
+  double r[maxexp],t[maxexp];
+
+  double psi_RT[maxpolyn][maxexp];
+  double psi_x_RT[maxpolyn][maxexp],psi_y_RT[maxpolyn][maxexp];
+  double psi_xx_RT[maxpolyn][maxexp],psi_yy_RT[maxpolyn][maxexp];
+  double psi_xy_RT[maxpolyn][maxexp];
+  double psi_xxx_RT[maxpolyn][maxexp],psi_xxy_RT[maxpolyn][maxexp];
+  double psi_xyy_RT[maxpolyn][maxexp],psi_yyy_RT[maxpolyn][maxexp];
+
+  double psi_x,psi_y,psi_xx,psi_yy,psi_xy;
+  double psi_xxx,psi_xxy,psi_xyy,psi_yyy;
+
+  double psi_c[maxpolyn],psi_x_c[maxpolyn],psi_y_c[maxpolyn];
+  double psi_xx_c[maxpolyn],psi_xy_c[maxpolyn],psi_yy_c[maxpolyn];
+  double psi_xxx_c[maxpolyn],psi_xxy_c[maxpolyn];
+  double psi_xyy_c[maxpolyn],psi_yyy_c[maxpolyn];
+
+  double eps,str,a2,s2,s4,dx,dy;
+
+  double result[9];
+
+  /* Change bases to the local axes. */
+   
+  dx =  (*parms).costh*tmpdx+(*parms).sinth*tmpdy;
+  dy = -(*parms).sinth*tmpdx+(*parms).costh*tmpdy;
+   
+  eps = (sqrt((*the_blobguts).a2)-1.0)/(sqrt((*the_blobguts).a2)+1.0);
+   
+  s2 = (*the_blobguts).s2;
+  s4 = SQR(s2);
+
+  a2  = (*the_blobguts).a2;
+  str = (*the_blob).strength;
+
+  build_rt(dx,dy,eps,r,t);
+
+  build_psi(dx,dy,eps,r,t,psi_c,psi_RT);
+
+  psi_x = build_psi_x(dx,dy,str,s2,s4,a2,eps,r,t,
+		      psi_c,psi_x_c,psi_RT,psi_x_RT);
+
+  psi_y = build_psi_y(dx,dy,str,s2,s4,a2,eps,r,t,
+		      psi_c,psi_y_c,psi_RT,psi_y_RT);
+  
+  psi_xx = build_psi_xx(dx,dy,str,s2,s4,a2,eps,r,t,
+			psi_x_c,psi_xx_c,psi_RT,psi_xx_RT);
+  
+  psi_yy = build_psi_yy(dx,dy,str,s2,s4,a2,eps,r,t,
+			psi_y_c,psi_yy_c,psi_RT,psi_yy_RT);
+  
+  psi_xy = build_psi_xy(dx,dy,str,s2,s4,a2,eps,r,t,
+			psi_y_c,psi_xy_c,psi_RT,psi_xy_RT);
+  
+  psi_xxx = build_psi_xxx(dx,dy,str,s2,s4,a2,eps,r,t,
+			  psi_xx_c,psi_xxx_c,psi_xx_RT,psi_xxx_RT);
+  
+  psi_xxy = build_psi_xxy(dx,dy,str,s2,s4,a2,eps,r,t,
+			  psi_xx_c,psi_xxy_c,psi_xx_RT,psi_xxy_RT);
+  
+  psi_xyy = build_psi_xyy(dx,dy,str,s2,s4,a2,eps,r,t,
+			  psi_yy_c,psi_xyy_c,psi_yy_RT,psi_xyy_RT);
+  
+  psi_yyy = build_psi_yyy(dx,dy,str,s2,s4,a2,eps,r,t,
+			  psi_yy_c,psi_yyy_c,psi_yy_RT,psi_yyy_RT);
+  
+   
+  result[0] = (*parms).costh*(-psi_y)-(*parms).sinth*psi_x;
+  result[1] = (*parms).sinth*(-psi_y)+(*parms).costh*psi_x;
+
+  result[2] = (-psi_xy*((*parms).cos2-(*parms).sin2)-
+	       (-psi_yy+psi_xx)*(*parms).sincos);
+   
+  result[3] = (2.0*(-psi_xy)*(*parms).sincos+
+	       (-psi_yy)*(*parms).cos2-psi_xy*(*parms).sin2);
+   
+  result[4] = (2.0*(-psi_xy)*(*parms).sincos-
+	       (-psi_yy)*(*parms).sin2+psi_xx*(*parms).cos2);
+
+  return(result);
+
+}
