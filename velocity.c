@@ -238,7 +238,6 @@ double result[9];
 	       (-psi_yy)*(*parms).sin2+psi_xx*(*parms).cos2);
 
   /* u_xx = -psi_xxy */
-  /* PROBLEMS HERE! */
   result[5] = -( (*parms).cos2*(*parms).sinth*(psi_xxx-2.0*psi_xyy)+
 		 (*parms).cos2*(*parms).costh*psi_xxy+
 		 (*parms).sin2*(*parms).costh*(psi_yyy-2.0*psi_xxy)+
