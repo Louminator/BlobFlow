@@ -114,6 +114,37 @@ int vort;
    
    for (i=0; i<N; ++i)
      vort_vort_interaction(vort,i);
+
+   potential_flow(vort);
+}
+
+void dpos_vel_fast(vort)
+{
+   mblob[vort].blob0.dx = 0.0;
+   mblob[vort].blob0.dy = 0.0;
+   
+   tmpparms[vort].du11 = 0.0;
+   tmpparms[vort].du12 = 0.0;
+   tmpparms[vort].du21 = 0.0;
+
+   tmpparms[vort].u_xx = 0.0;
+   tmpparms[vort].u_xy = 0.0;
+   tmpparms[vort].u_yy = 0.0;
+   tmpparms[vort].v_xx = 0.0;
+   
+   /* MP_Sum(vort,mplevels-2); */
+
+   velsum_cputime_ref = clock();
+   MP_Sum(vort,mplevels);
+   velsum_cputime += clock()-velsum_cputime_ref;
+   
+   /* Uses a special finer grid for merging */
+   veldirect_cputime_ref = clock();
+   MP_Direct3(vort,mplevels);
+   veldirect_cputime += clock()-veldirect_cputime_ref;
+
+   potential_flow(vort);
+
 }
 
 vector dpos_vel_gen(pos,the_blobguts,parms)
@@ -146,33 +177,6 @@ vector dpos_vel_gen(pos,the_blobguts,parms)
      }
 
    return(sum);
-}
-
-void dpos_vel_fast(vort)
-{
-   mblob[vort].blob0.dx = 0.0;
-   mblob[vort].blob0.dy = 0.0;
-   
-   tmpparms[vort].du11 = 0.0;
-   tmpparms[vort].du12 = 0.0;
-   tmpparms[vort].du21 = 0.0;
-
-   tmpparms[vort].u_xx = 0.0;
-   tmpparms[vort].u_xy = 0.0;
-   tmpparms[vort].u_yy = 0.0;
-   tmpparms[vort].v_xx = 0.0;
-   
-   /* MP_Sum(vort,mplevels-2); */
-
-   velsum_cputime_ref = clock();
-   MP_Sum(vort,mplevels);
-   velsum_cputime += clock()-velsum_cputime_ref;
-   
-   /* Uses a special finer grid for merging */
-   veldirect_cputime_ref = clock();
-   MP_Direct3(vort,mplevels);
-   veldirect_cputime += clock()-veldirect_cputime_ref;
-
 }
 
 void correct_vel_4()

@@ -309,6 +309,7 @@ extern void dpos_vel(int);
 extern vector dpos_vel_gen(vector,blob_internal,blobparms);
 extern vector dpos_vel_gen_linear(vector,blob_internal,blobparms);
 extern void dpos_vel_linear(int);
+extern void potential_flow(int);
 extern void reflect_X();
 extern void cache_resort();
 extern void vel_field();
