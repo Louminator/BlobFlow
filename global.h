@@ -36,17 +36,37 @@
 #define MAX(A,B) ((A) > (B) ? (A) : (B))
 #define MIN(A,B) ((A) < (B) ? (A) : (B))
 
-/* Set LINEAR if you impose your own velocity field. */
-#define LINEAR
+/* Set LINEAR to impose your own velocity field. */
+#undef  LINEAR
 #undef  cashkarp
 
-#define NMax 150000   /* Maximum number of computational elements. */
+#define NMax 50000   /* Maximum number of computational elements. */
 #define PMax 40      /* Maximum number of multipole coefficients. */
 #define LMax 7     /* Maximum number of levels of refinement in 
                         multipole summation */
 #define MaxSplitConf 8 /*Maximum number of elements that a single element */
                        /* can split into. */
 #define Title 500     /* Maximum file name length */
+
+/* PSI_ORDER sets the order of the streamfunction 
+   in epsilon in the near field. */
+
+#define PSI_ORDER 4
+
+#if PSI_ORDER == 4
+#define maxexp 5
+#define maxpolyn 5
+#endif
+
+#if PSI_ORDER == 5
+#define maxexp 6
+#define maxpolyn 6
+#endif
+
+#if PSI_ORDER == 6
+#define maxexp 7
+#define maxpolyn 7
+#endif
 
 typedef struct
 {
@@ -147,7 +167,6 @@ extern void set_blob();
 
 extern double dta2(blob_internal*,blobparms*);
 extern double dts2(blob_internal*);
-extern double dtT();
 extern double dtth(blob_internal*,blobparms*);
 
 extern vector induced_vel();
@@ -167,6 +186,58 @@ extern void split14(blob_external *, blob_internal *, blobparms *,
 		    blob_external *, blob_internal *, blobparms *,
 		    blob_external *, blob_internal *, blobparms *);
 extern void splitvels(vector[4],blob_external,blob_internal,blobparms);
+
+/* Streamfunction approximation routines. */
+
+extern double expint(double[], double, double);
+
+extern void build_rt(double,double,double,double[],double[]);
+extern void build_psiRT(double,double,double,double[],double[],double[][]);
+extern void build_psi(double,double,double,
+		      double[],double[],double[],double[][]);
+
+extern void dx_coeff(double[], double[], int, double);
+extern void dy_coeff(double[], double[], int, double);
+extern void dxx_coeff(double[], double[], int, double);
+extern void dyy_coeff(double[], double[], int, double);
+extern void dxy_coeff(double[], double[], int, double);
+
+extern double build_psi_x(double,double,double,double,
+			  double,double,double,
+			  double[],double[],double[],
+			  double[],double[][],double[][]);
+extern double build_psi_y(double,double,double,double,
+			  double,double,double,
+			  double[],double[],double[],
+			  double[],double[][],double[][]);
+extern double build_psi_xx(double,double,double,double,
+			   double,double,double,
+			   double[],double[],double[],
+			   double[],double[][],double[][]);
+extern double build_psi_yy(double,double,double,double,
+			   double,double,double,
+			   double[],double[],double[],
+			   double[],double[][],double[][]);
+extern double build_psi_xy(double,double,double,double,
+			   double,double,double,
+			   double[],double[],double[],
+			   double[],double[][],double[][]);
+extern double build_psi_xxx(double,double,double,double,
+			    double,double,double,
+			    double[],double[],double[],
+			    double[],double[][],double[][]);
+extern double build_psi_xxy(double,double,double,double,
+			    double,double,double,
+			    double[],double[],double[],
+			    double[],double[][],double[][]);
+extern double build_psi_xyy(double,double,double,double,
+			    double,double,double,
+			    double[],double[],double[],
+			    double[],double[][],double[][]);
+extern double build_psi_yyy(double,double,double,double,
+			    double,double,double,
+			    double[],double[],double[],
+			    double[],double[][],double[][]);
 
 extern double searchlist_uniform(int *, int , double,int *);
 extern double searchlist_distribution(int *, int, double,int *);

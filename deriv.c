@@ -47,9 +47,9 @@ void vel_field()
     * about the x-axis. */
    reflect_X();
 #endif 
-   /*
+
    Create_Hierarchy();
-   */
+
    
 #ifdef CACHERESORT
 	cache_resort();
@@ -73,14 +73,13 @@ void vel_field()
    for (j=0; j<CARDINALITY; ++j) 
      { 
 #ifdef LINEAR
+       dpos_vel_linear(j);
+#else
 #ifdef NOFASTMP
 	dpos_vel(j);
 #else
 	dpos_vel_fast(j);
-
 #endif
-#else
-       dpos_vel_linear(j);
 #endif
      }
 #endif  
@@ -90,9 +89,7 @@ void vel_field()
    N /= 2;
 #endif   
 
-   /*
    Release_Links(mplevels);
-   */
 }
 
 void dpos_vel(vort)

@@ -875,6 +875,10 @@ void init(int argc, char *argv[])
   fprintf(comp_log,"X anti-symmetry imposed.\n");
 #endif 
    
+#ifdef LINEAR
+  fprintf(comp_log,"Operating as a particle tracking code with a known velocity field\n");
+#endif 
+   
 #ifdef MULTIPROC
   fprintf(mpi_log,"Detected %d processes.\n",total_processes);
   if (total_processes == 2)

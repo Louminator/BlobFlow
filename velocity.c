@@ -18,18 +18,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 *
  * USA                                                                  *
  *                                                                      *
- * or until 15 January 2001                                             *
- * Louis Rossi                                                          *
- * Department of Mathematical Sciences                                  *
- * University of Massachusetts Lowell                                   *
- * One University Ave                                                   *
- * Lowell, MA 01854                                                     *
- * 
- * or after 15 January 2001                                             *
  * Louis Rossi                                                          *
  * Department of Mathematical Sciences                                  *
  * University of Delaware                                               *
- * Newark, DE 19715-2553                                                */
+ * Newark, DE 19716                                                     */
 
 #include <stdio.h>
 #include <math.h>
@@ -42,15 +34,21 @@ blobparms *parms;
 double tmpdx,tmpdy;
 double r[5],t[5];
 double even[5],odd[5];
+
 {
    double eps,dx,dy;
    double c0,c1,c2,c3,c4;
    double s2,s4,s6,s8,s10;
    
+  double str,a2,r[maxexp],t[maxexp];
+  double psi_RT[maxpolyn][maxexp];
+  double psi_x_RT[maxpolyn][maxexp],psi_y_RT[maxpolyn][maxexp];
+  double psi_c[maxpolyn],psi_x_c[maxpolyn],psi_y_c[maxpolyn];
+
    double tempu,tempv;
    
    vector result;
-   
+
    /* Change bases to the local axes. */
    
    dx =  (*parms).costh*tmpdx+(*parms).sinth*tmpdy;
@@ -145,6 +143,24 @@ double even[5],odd[5];
 	2.0*(0.5+eps-eps*SQR(eps)))*exp(-r[0]/(4.0*s2))+
        (-s2)*(4.0*c0+s2*(32.0*c1+s2*(384.0*c2+s2*(6144.0*c3+s2*122880.0*c4))))*
        (1-exp(-r[0]/(4.0*s2))));
+
+  printf("Old vel: %12.4e %12.4e\n",tempu,tempv);
+
+  a2  = (*the_blobguts).a2;
+  str = (*the_blob).strength;
+
+  build_rt(dx,dy,eps,r,t);
+
+  build_psi(dx,dy,eps,r,t,psi_c,psi_RT);
+
+  tempv = build_psi_x(dx,dy,str,s2,s4,a2,eps,r,t,
+		      psi_c,psi_x_c,psi_RT,psi_x_RT);
+
+  tempu = -build_psi_y(dx,dy,str,s2,s4,a2,eps,r,t,
+		       psi_c,psi_y_c,psi_RT,psi_y_RT);
+  
+  printf("New vel: %12.4e %12.4e\n",tempu,tempv);
+  
 
    /* Rotate back to the global axes. */
    
