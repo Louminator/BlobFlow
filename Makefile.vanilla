@@ -1,0 +1,64 @@
+##########################################
+# Makefile for eccsvm                    #
+# Copyright (C) 2000 Louis F. Rossi      #
+# You may distribute this under the      #
+# terms of the GNU Public License        #
+# included in this package.              #
+##########################################
+
+# CC	= cc
+# LN	= cc
+# TARGET  = eflow
+
+# Uncomment the next 3 lines if you want to use LAM MPI for multiprocessors.
+# NOTE: You must install LAM/MPI properly and set all the relevant 
+# environment variables (LAMHOME, LAMAPPLDIR etc) to use these options.
+CC	= hcc
+LN	= hcc
+MPICFLAGS  = -DMULTIPROC
+# End multiprocessing block.
+
+# Irix native mpi multiprocessing block.  You are on your own here.
+# MPICFLAGS  = -DMULTIPROC
+# LAMLIB	= -lmpi
+# End multiprocessing block.
+
+# Uncomment the next line if you want to impose antisymmetry along the x-axis.
+XANTISYMMCFLAGS  = -DXANTISYMM
+# TARGET = eflow.xanti
+TARGET = eflow.xanti.mpi
+
+# Optimization and warning flags for your C compiler
+#
+# Solaris native C compiler
+COPTFLAGS = -fast -xO5 -xcrossfile -xdepend -fsimple=2
+CLIBS =  -fast -xO5 -xcrossfile -xdepend  -fsimple=2 -lm 
+#
+# Irix
+# COPTFLAGS = -Ofast=IP27 -IPA
+# CLIBS = -IPA -lm
+#
+# Linux
+# COPTFLAGS = -O3 -Wall
+# CPROF_FLAGS = -pg -g3
+
+CFLAGS = $(COPTFLAGS) $(MPICFLAGS) $(XANTISYMMCFLAGS) 
+
+# CLIBS = -lm -lblas -llapack
+# CLIBS = -lm -llapack -lblas -lfor
+
+OBJECTS = deriv.o evolve.o files.o flip.o init.o \
+	merge.o removal.o solve.o split.o veldev.o \
+	velocity.o partition.o mpsum.o mpcoeffs.o \
+	reflect.o master-slave.o peer.o cache_resort.o
+
+eflow: $(OBJECTS)
+	$(LN) $(CPROF_FLAGS) -o $(TARGET) $(OBJECTS) $(CLIBS) $(LAMLIB)
+
+$(OBJECTS): global.h multiproc.h 
+
+.c.o:
+	$(CC) -c $(CFLAGS) $(CPROF_FLAGS) $<
+
+clean:
+	rm -f *.o a.out core 

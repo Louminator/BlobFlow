@@ -1,0 +1,341 @@
+/* EVOLVE-MS.C */
+/* Copyright (c) 2000 Louis F. Rossi                                    *
+ * Elliptical Corrected Core Spreading Vortex Method (ECCSVM) for the   *
+ * simulation/approximation of incompressible flows.                    *
+
+ * This program is free software; you can redistribute it and/or modify *
+ * it under the terms of the GNU General Public License as published by *
+ * the Free Software Foundation; either version 2 of the License, or    *
+ * (at your option) any later version.					*
+
+ * This program is distributed in the hope that it will be useful,      *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of       *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        *
+ * GNU General Public License for more details.                         *
+
+ * You should have received a copy of the GNU General Public License    *
+ * along with this program; if not, write to the Free Software          *
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 *
+ * USA                                                                  *
+ *                                                                      *
+ * Louis Rossi                                                          *
+ * Department of Mathematical Sciences                                  *
+ * University of Delaware                                               *
+ * Newark, DE 19715-2553                                                */
+
+#include "global.h"
+
+#ifdef MULTIPROC
+#include "multiproc.h"
+#endif
+
+#ifdef XANTISYMM
+#define CARDINALITY  N/2
+#else
+#define CARDINALITY  N
+#endif
+
+#define MERGEDIAG
+
+/* Global variables */
+
+FILE *comp_log,*diag_log,*mpi_log,*trace_log;
+
+int N,oldN;
+metablob mblob[NMax];
+blob_internal blobguts[NMax];
+double    visc;
+double    alpha,l2tol,dth_regularize;
+double    TimeStep,PrefStep,FrameStep,EndTime,SimTime;
+int       Frame,MaxOrder;
+double    merge_budget,merge_p,merge_a2tol,merge_thtol,MergeStep;
+double    merge_mom3wt,merge_mom4wt,clusterR,aM2;
+double    merge_c,merge_growth_rate;
+int       split_method;
+double    *split_parm_ptr;
+
+int       merge_estimator,nsplit,nmerge,totmerge,totsplit,MergeFrame;
+char      filename[Title];
+
+blobparms tmpparms[NMax];
+
+/* Dynamic memory allocation might be better here. Nah! */
+vector       refinevels[NMax][3][MaxSplitConf];
+int          refineindex[NMax],refinestack;
+
+/*Fast multipole variables*/
+
+double minX,maxX,minY,maxY,distX,distY;
+
+complex *Level_Ptr[LMax];
+
+int gridx[LMax][NMax], gridy[LMax][NMax], mplevels;
+
+int numk2;
+
+double aM2;
+
+FineGridLink **FineGridLinks,*trace;
+
+/* Subroutine to stop everything if there is a problem. */
+void stop(int retval)
+{
+  fflush(comp_log);
+  fflush(diag_log);
+  fflush(mpi_log);
+   
+#ifdef MULTPROC
+  Cleanup_mpi();
+#endif
+   
+  exit(retval);
+}
+
+void run()
+{
+  int j,k;
+  clock_t cputime,cputime_old;
+  char time_name[Title];
+  FILE *time_file,*fopen();
+  double Rblob,temp,lambdaM;
+ 
+  fprintf(comp_log,"Time     N     Split Merge MPlev lambdaM\n");
+#ifdef MULTIPROC
+  sprintf(time_name,"%s.%d.%s", filename, rank ,"cpu");
+#else
+  sprintf(time_name,"%s.%s", filename,"cpu");
+#endif
+  time_file = fopen(time_name,"w");
+  cputime=cputime_old=0;
+   
+  while (SimTime < EndTime)
+    {
+      cputime_old = cputime;
+      cputime = clock();
+      fprintf(time_file,"%d %d %d\n",N,numk2, (int)(cputime-cputime_old));
+      numk2 = 0;
+      fflush(time_file);
+	
+      nsplit = 0;
+      nmerge = 0;
+	
+      oldN = N;
+
+      /* All computational elements march forward with split step. */
+
+      /* Take a half step externally. */
+      for (j=0; j<N; ++j)
+	{
+	  push(&mblob[j]);
+	     
+	  if (mblob[j].blob0.order == 1)
+	    {
+	      push(&mblob[j]);
+	      ab2half(&mblob[j],&tmpparms[j],TimeStep);
+	    }
+	     
+	  if (mblob[j].blob0.order == 2)
+	    ab2half(&mblob[j],&tmpparms[j],TimeStep);
+	     
+	  if (mblob[j].blob0.order == 3)
+	    ab3half(&mblob[j],&tmpparms[j],TimeStep);
+	     
+	  if (mblob[j].blob0.order == 4)
+	    ab4half(&mblob[j],&tmpparms[j],TimeStep);
+	     
+	  if (blobguts[j].a2 < 0.0)
+	    {
+	      fprintf(diag_log,
+		      "WARNING: Negative a2 in element %d\n",j);
+	      for (k=0; k<N; ++k)
+		fprintf(diag_log,
+			"str=%10.3e x=%10.3e y=%10.3e s2=%10.3e a2=%10.3e\n",
+			mblob[k].blob0.strength,
+			mblob[k].blob0.x,mblob[k].blob0.y,
+			blobguts[k].s2,blobguts[k].a2);
+	      exit(0); 
+	    }	     
+	}
+
+      SimTime += TimeStep/2;
+
+      vel_field();
+
+      /* Take a full step internally */
+	
+      for (j=0; j<N; ++j)
+	{
+#ifdef cashkarp
+	  rkckmarch(&(blobguts[j]),&(tmpparms[j]),TimeStep,1.0e-5);
+#else
+	  rk4internal(&(blobguts[j]),&(tmpparms[j]),TimeStep);
+#endif
+	}
+
+      /* Take a full step externally. */
+      for (j=0; j<N; ++j)
+	{
+	  if (mblob[j].blob0.order == 1)
+	    {
+	      ab2(&mblob[j],&tmpparms[j],TimeStep);
+	    }
+	     
+	  if (mblob[j].blob0.order == 2)
+	    ab2(&mblob[j],&tmpparms[j],TimeStep);
+	     
+	  if (mblob[j].blob0.order == 3)
+	    ab3(&mblob[j],&tmpparms[j],TimeStep);
+	     
+	  if (mblob[j].blob0.order == 4)
+	    ab4(&mblob[j],&tmpparms[j],TimeStep);
+	     
+	  if (mblob[j].blob0.order < MaxOrder)
+	    ++mblob[j].blob0.order;
+	     
+	  if (blobguts[j].a2 < 0.0)
+	    {
+	      fprintf(diag_log,
+		      "WARNING: Negative a2 in element %d\n",j);
+	      for (k=0; k<N; ++k)
+		fprintf(diag_log,
+			"str=%10.3e x=%10.3e y=%10.3e s2=%10.3e a2=%10.3e\n",
+			mblob[k].blob0.strength,
+			mblob[k].blob0.x,mblob[k].blob0.y,
+			blobguts[k].s2,blobguts[k].a2);
+	      exit(0); 
+	    }	     
+	}
+
+      /* Set commonly used parameters here. Beyond this point, if any  *
+       * subroutine messes with computational elements, it should also *
+       * reset the parameters.                                         */
+      for (j=0; j<N; ++j)
+	set_blob(&(blobguts[j]),&(tmpparms[j]));
+	
+      /*SimTime += TimeStep;*/
+      SimTime += TimeStep/2;
+	
+      /* Split horizontally challenged elements. */
+      chksplit();
+
+      if ((SimTime+0.499*TimeStep) >= MergeStep*MergeFrame)
+	{
+	  mplevels = Set_Level();
+	     
+	  partition(mplevels);
+	     
+#ifdef MERGEDIAG
+#ifdef MULTIPROC
+	  /* Have only the 'root' node do the writes */
+	  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	  if (rank == 0) 
+	    write_pmvorts(Frame);
+#else
+	  write_pmvorts(Frame);
+#endif
+#endif
+	  merge();
+	  resort();
+	     
+	  Release_Links(mplevels);
+	     
+	  ++MergeFrame;
+	}
+	
+      if ((SimTime+0.499*TimeStep) >= FrameStep*Frame)
+	{
+#ifdef MULTIPROC
+	  /* Have only the 'root' node do the writes */
+	  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	  if (rank == 0) {
+	    write_vorts(Frame);
+	    write_partition(Frame);
+	  }
+#else 
+	  /* single processor */
+	  write_vorts(Frame);
+	  write_partition(Frame);	    
+#endif
+
+	  ++Frame; 
+
+	  Rblob = 0.0;
+
+	  lambdaM = 0.0;
+
+	  for (j=0; j<N; ++j)
+	    {
+	      temp = 2.0*
+		(tmpparms[j].du11*(tmpparms[j].cos2-tmpparms[j].sin2)+
+		 (tmpparms[j].du12+tmpparms[j].du21)*tmpparms[j].sincos);
+
+	      if (lambdaM < temp) 
+		lambdaM = temp;
+
+	      temp = 2.0*
+		(tmpparms[j].du11*(tmpparms[j].cos2-tmpparms[j].sin2)-
+		 (tmpparms[j].du12+tmpparms[j].du21)*tmpparms[j].sincos);
+
+	      if (lambdaM < temp) 
+		lambdaM = temp;
+	    }
+
+	  fprintf(comp_log,"%8.2e %-5d %-5d %-5d %-5d %8.2e\n",
+		  SimTime,N,totsplit+nsplit,totmerge+nmerge,
+		  mplevels,lambdaM);
+	  fflush(comp_log);
+	  fflush(diag_log);
+	  fflush(mpi_log);
+	}
+
+      vel_field();
+
+      totsplit += nsplit;
+      totmerge += nmerge;
+    }  /*   end while loop  */
+
+  fprintf(comp_log,"Simulation complete.\n");
+  fprintf(comp_log,"Total splitting events: %d\n",totsplit);
+  fprintf(comp_log,"Total merging events: %d\n",totmerge);
+  fclose(time_file);
+}
+
+
+
+#ifdef MULTIPROC
+int main(int argc, char* argv[])
+{
+  double starttime, endtime;
+   
+  Setup_mpi(argc, argv);
+  init(argc, argv);
+   
+  starttime = MPI_Wtime();   
+   
+  fprintf(diag_log,"Running.\n");
+  run();
+   
+  fclose(comp_log);
+  fclose(diag_log);
+  endtime = MPI_Wtime();
+  fclose(mpi_log);
+  Cleanup_mpi();
+   
+  return(1); 
+}
+
+#else
+
+int main(int argc, char* argv[])
+{
+   
+  init(argc, argv);
+  fprintf(diag_log,"Running.\n");
+  run();
+   
+  fclose(comp_log);
+  fclose(diag_log);
+
+  return(1); 
+}
+#endif

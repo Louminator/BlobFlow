@@ -1,0 +1,39 @@
+
+	     /*	     
+	     if ( (tmpa2 < aM2) &&
+		  (tmpa2 > 1.0/aM2) &&
+		  (tmps2 < l2tol) &&
+		  (fabs(trial_tot[6]*trial_tot[0]) +
+		   fabs(3.0*trial_tot[7]*trial_tot[0]) +
+		   fabs(3.0*trial_tot[8]*trial_tot[0]) +
+		   fabs(trial_tot[9]*trial_tot[0]) < 
+		   maxerr*merge_mom3wt*
+		   mergeable/(mergeable+indmax) ) &&
+		  (fabs(trial_tot[10]*trial_tot[0]) +
+		   fabs(4.0*trial_tot[11]*trial_tot[0]) +
+		   fabs(6.0*trial_tot[12]*trial_tot[0]) +
+		   fabs(4.0*trial_tot[13]*trial_tot[0]) +
+		   fabs(trial_tot[14]*trial_tot[0]) < 
+		   maxerr*merge_mom4wt*
+		   mergeable/(mergeable+indmax) ) )
+	     */
+
+	     /*
+	     if ( (tmpa2 < aM2) &&
+		  (tmpa2 > 1.0/aM2) &&
+		  (tmps2 < l2tol) &&
+		  (fabs(trial_tot[0]*
+			(trial_tot[10]+2.0*trial_tot[12]+
+			 trial_tot[14]))/pow(64.0*l2tol,3.0) <
+		   maxerr*merge_mom4wt*
+		   mergeable/(mergeable+indmax) ) &&
+		  (4.0*fabs(trial_tot[0]*(trial_tot[6]+trial_tot[8]))/
+		   pow(64.0*l2tol,3.0) <
+		   maxerr*merge_mom3wt*
+		   mergeable/(mergeable+indmax) ) &&
+		  (4.0*fabs(trial_tot[0]*(trial_tot[7]+trial_tot[9]))/
+		   pow(64.0*l2tol,3.0) <
+		   maxerr*merge_mom3wt*
+		   mergeable/(mergeable+indmax) ) )
+	     */
+
