@@ -81,18 +81,6 @@ void vel_field()
 	dpos_vel_fast(j);
 #endif
 #endif
-/* 	if (j == 763) */
-/* 	  { */
-/* 	    printf("x:%12.4e y:%12.4e\n", */
-/* 		   mblob[j].blob0.x,mblob[j].blob0.y); */
-/* 	    printf("vx: %12.4e vy: %12.4e\n", */
-/* 		   mblob[j].blob0.dx,mblob[j].blob0.dy); */
-/* 	    printf("du11: %12.4e du12: %12.4e du21: %12.4e\n", */
-/* 		   tmpparms[j].du11,tmpparms[j].du12,tmpparms[j].du21); */
-/* 	    printf("u_xx: %12.4e u_xy: %12.4e u_yy: %12.4e v_xx: %12.4e\n", */
-/* 		   tmpparms[j].u_xx,tmpparms[j].u_xy,tmpparms[j].u_yy, */
-/* 		   tmpparms[j].v_xx); */
-/* 	  } */
      }
 #endif  
    
@@ -231,22 +219,10 @@ double dtth(the_blobguts,parms)
 blob_internal *the_blobguts;
 blobparms *parms;
 {
-  /* Regularized code. */
-  return( ((*parms).du21 - (*parms).du12)/2.0 +
-	  ( (((*parms).du21 + (*parms).du12)/2.0)*
-	    ((*parms).sin2-(*parms).cos2) +
-	    2.0*(*parms).du11*(*parms).sincos )*
-	  (1.0/SQR((*the_blobguts).a2) - SQR((*the_blobguts).a2))/
-	  (SQR(1.0/(*the_blobguts).a2 - (*the_blobguts).a2) +
-	   SQR(dtth_delta)) );
-
-  /* Non-regularized code. */
-  /*
   return( ((*parms).du21 - (*parms).du12)/2.0 +
 	  ( (((*parms).du21 + (*parms).du12)/2.0)*
 	    ((*parms).sin2-(*parms).cos2) +
 	    2.0*(*parms).du11*(*parms).sincos )*
 	  (1.0/(*the_blobguts).a2 + (*the_blobguts).a2)/
 	  (1.0/(*the_blobguts).a2 - (*the_blobguts).a2) );
-  */
 }

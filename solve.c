@@ -26,6 +26,7 @@
 #include "global.h"
 
 #define axisymmtol 1.0e-6
+#define stifftol 1.0e-6
 #define rk4itertol 14
 #define rk4l2errtol 1.0e-14
 #define rkckreltol 1.0e-7
@@ -151,54 +152,6 @@ double timestep;
 	      (25.0/384.0)*(*mblob).blob4.dy);
 }
 
-void th_slave_orig(blobguts,parms)
-blob_internal *blobguts;
-blobparms     *parms;
-{
-  double dumb,arg;
-
-  dumb = (*parms).du11*((*blobguts).a2+1.0/(*blobguts).a2);
-      
-  arg = -(dumb +
-	  sqrt(SQR(dumb)+
-	       ((*parms).du21/(*blobguts).a2+
-		(*parms).du12*(*blobguts).a2)*
-	       ((*parms).du12/(*blobguts).a2+
-		(*parms).du21*(*blobguts).a2)))/
-    ((*blobguts).a2*(*parms).du12+(*parms).du21/(*blobguts).a2);
-
-  if (finite(arg))
-    {
-      (*blobguts).th = atan(arg);
-      set_blob(blobguts,parms);
-      
-      /* Check to see if we chose the stable equilibrium point. */
-      /* If not, choose the other one. */
-      if ( ((*blobguts).a2-1.0/(*blobguts).a2)*
-	   (((*parms).sin2-(*parms).cos2)*(*parms).du11-
-	    (*parms).sincos*((*parms).du12+(*parms).du21)) > 0.0)
-	(*blobguts).th = 
-	  atan(-(dumb -
-		 sqrt(SQR(dumb)+
-		      ((*parms).du21/(*blobguts).a2+
-		       (*parms).du12*(*blobguts).a2)*
-		      ((*parms).du12/(*blobguts).a2+
-		       (*parms).du21*(*blobguts).a2)))/
-	       ((*blobguts).a2*(*parms).du12+
-		(*parms).du21/(*blobguts).a2));
-      
-    }
-  else
-    /* We should probably be more careful here.  It is possible that
-       theta=0 is an unstable equilibrium.  The situation where theta=0
-       is an equilibrium at all is a rare circumstance, so we can fix
-       this later. */
-    (*blobguts).th = 0.0;
-  
-  set_blob(blobguts,parms);
-}
-
-
 void th_slave(blobguts,parms)
 blob_internal *blobguts;
 blobparms     *parms;
@@ -255,166 +208,117 @@ double        *ds2,*da2,*dth;
   *da2 = dta2(blobguts,parms);
 }
 
-void rk4march(blobguts,parms,prefstep,steps)
+void rk4step(blobguts,parms,prefstep)
 blob_internal *blobguts;
 blobparms *parms;
 double prefstep;
-int       steps;
 {
    blob_internal tempguts[5];
    blobparms     tempparms[5];
    double     ds2[4],da2[4],dth[4];
-   int           i;
 
    tempguts[0] = *blobguts;
    tempparms[0] = *parms;
 
-   for (i=0; i<steps; ++i)
-     {
-       set_blob(tempguts,tempparms);
+   set_blob(tempguts,tempparms);
 	   
-       dy(tempguts,tempparms,ds2,da2,dth);
+   dy(tempguts,tempparms,ds2,da2,dth);
 	
-       /* Forward Euler */
-       tempguts[1].th = tempguts[0].th+0.5*prefstep*dth[0];
-       tempguts[1].s2 = tempguts[0].s2+0.5*prefstep*ds2[0];
-       tempguts[1].a2 = tempguts[0].a2+0.5*prefstep*da2[0];
-       tempparms[1] = tempparms[0];
-       set_blob(tempguts+1,tempparms+1);
+   /* Forward Euler */
+   tempguts[1].th = tempguts[0].th+0.5*prefstep*dth[0];
+   tempguts[1].s2 = tempguts[0].s2+0.5*prefstep*ds2[0];
+   tempguts[1].a2 = tempguts[0].a2+0.5*prefstep*da2[0];
+   tempparms[1] = tempparms[0];
+   set_blob(tempguts+1,tempparms+1);
 
-       dy(tempguts+1,tempparms+1,ds2+1,da2+1,dth+1);
+   dy(tempguts+1,tempparms+1,ds2+1,da2+1,dth+1);
 
-       /* Backward Euler */
-       tempguts[2].th = tempguts[0].th+0.5*prefstep*dth[1];
-       tempguts[2].s2 = tempguts[0].s2+0.5*prefstep*ds2[1];
-       tempguts[2].a2 = tempguts[0].a2+0.5*prefstep*da2[1];
-       tempparms[2] = tempparms[1];
-       set_blob(tempguts+2,tempparms+2);
+   /* Backward Euler */
+   tempguts[2].th = tempguts[0].th+0.5*prefstep*dth[1];
+   tempguts[2].s2 = tempguts[0].s2+0.5*prefstep*ds2[1];
+   tempguts[2].a2 = tempguts[0].a2+0.5*prefstep*da2[1];
+   tempparms[2] = tempparms[1];
+   set_blob(tempguts+2,tempparms+2);
 	
-       dy(tempguts+2,tempparms+2,ds2+2,da2+2,dth+2);
+   dy(tempguts+2,tempparms+2,ds2+2,da2+2,dth+2);
 
-       /* Midpoint rule. */
-       tempguts[3].th = tempguts[0].th+prefstep*dth[2];
-       tempguts[3].s2 = tempguts[0].s2+prefstep*ds2[2];
-       tempguts[3].a2 = tempguts[0].a2+prefstep*da2[2];
-       tempparms[3] = tempparms[2];
-       set_blob(tempguts+3,tempparms+3);
+   /* Midpoint rule. */
+   tempguts[3].th = tempguts[0].th+prefstep*dth[2];
+   tempguts[3].s2 = tempguts[0].s2+prefstep*ds2[2];
+   tempguts[3].a2 = tempguts[0].a2+prefstep*da2[2];
+   tempparms[3] = tempparms[2];
+   set_blob(tempguts+3,tempparms+3);
 	
-       dy(tempguts+3,tempparms+3,ds2+3,da2+3,dth+3);
+   dy(tempguts+3,tempparms+3,ds2+3,da2+3,dth+3);
 
-       /* Simpson's rule corrector. */
-       tempguts[4].th = tempguts[0].th+
-	 prefstep*(dth[0] + 2.0*dth[1] + 2.0*dth[2] + dth[3])/6.0;
-       tempguts[4].s2 = tempguts[0].s2+
-	 prefstep*(ds2[0] + 2.0*ds2[1] + 2.0*ds2[2] + ds2[3])/6.0;
-       tempguts[4].a2 = tempguts[0].a2+
-	 prefstep*(da2[0] + 2.0*da2[1] + 2.0*da2[2] + da2[3])/6.0;
-       tempparms[4] = tempparms[3];
-       set_blob(tempguts+4,tempparms+4);
+   /* Simpson's rule corrector. */
+   tempguts[4].th = tempguts[0].th+
+     prefstep*(dth[0] + 2.0*dth[1] + 2.0*dth[2] + dth[3])/6.0;
+   tempguts[4].s2 = tempguts[0].s2+
+     prefstep*(ds2[0] + 2.0*ds2[1] + 2.0*ds2[2] + ds2[3])/6.0;
+   tempguts[4].a2 = tempguts[0].a2+
+     prefstep*(da2[0] + 2.0*da2[1] + 2.0*da2[2] + da2[3])/6.0;
+   tempparms[4] = tempparms[3];
+   set_blob(tempguts+4,tempparms+4);
 
-       /* Check for rapid reorientation problems. */
-
-       if (finite(dth[0])*finite(dth[1])*finite(dth[2])*finite(dth[3])
-	   == 0)
-	 {
-	   fprintf(diag_log,"Warning!  This should not be happening. \n");
-	   fprintf(diag_log,"This code is supposed to be regularized but an nan has been detected.\n");
-
-	   th_slave(tempguts,tempparms);
-	   dy_slave(tempguts,tempparms,ds2,da2);
-	
-	   /* Forward Euler */
-	   tempguts[1].s2 = tempguts[0].s2+0.5*prefstep*ds2[0];
-	   tempguts[1].a2 = tempguts[0].a2+0.5*prefstep*da2[0];
-	   tempparms[1] = tempparms[0];
-	   th_slave(tempguts+1,tempparms+1);
-	
-	   dy_slave(tempguts+1,tempparms+1,ds2+1,da2+1);
-
-	   /* Backward Euler */
-	   tempguts[2].s2 = tempguts[0].s2+0.5*prefstep*ds2[1];
-	   tempguts[2].a2 = tempguts[0].a2+0.5*prefstep*da2[1];
-	   tempparms[2] = tempparms[1];
-	   th_slave(tempguts+2,tempparms+2);
-	
-	   dy_slave(tempguts+2,tempparms+2,ds2+2,da2+2);
-
-	   /* Midpoint rule. */
-	   tempguts[3].s2 = tempguts[0].s2+prefstep*ds2[2];
-	   tempguts[3].a2 = tempguts[0].a2+prefstep*da2[2];
-	   tempparms[3] = tempparms[2];
-	   th_slave(tempguts+3,tempparms+3);
-	
-	   dy_slave(tempguts+3,tempparms+3,ds2+3,da2+3);
-
-	   /* Simpson's rule corrector. */
-	   tempguts[4].s2 = tempguts[0].s2+
-	     prefstep*(ds2[0] + 2.0*ds2[1] + 2.0*ds2[2] + ds2[3])/6.0;
-	   tempguts[4].a2 = tempguts[0].a2+
-	     prefstep*(da2[0] + 2.0*da2[1] + 2.0*da2[2] + da2[3])/6.0;
-	   tempparms[4] = tempparms[3];
-	   th_slave(tempguts+4,tempparms+4);
-	 }
-	
-       tempguts[0] = tempguts[4];
-       tempparms[0] = tempparms[4];
-     }
-   
    *blobguts = tempguts[4];
    *parms    = tempparms[4];
 }
    
-void rk4internal(blobguts,parms,timestep)
+void rk4step_slave(blobguts,parms,prefstep)
 blob_internal *blobguts;
 blobparms *parms;
-double timestep;
+double prefstep;
 {
-  int           steps;
-   double        prefstep,err;
-   blob_internal testblob1,testblob2;
-   blobparms     testparm1,testparm2;
-   
-   testblob1 = *blobguts;
-   testblob2 = *blobguts;
-   testparm1 = *parms;
-   testparm2 = *parms;
-   
-   steps = (*parms).nint;
-   prefstep = timestep/(*parms).nint;
-   
-   rk4march(&testblob1,&testparm1,prefstep,1);
+   blob_internal tempguts[5];
+   blobparms     tempparms[5];
+   double     ds2[4],da2[4];
 
-   rk4march(&testblob2,&testparm2,0.5*prefstep,2);
-   
-   err = 
-     SQR(testblob1.a2 - testblob2.a2) +
-     SQR((testblob1.s2 - testblob2.s2)/l2tol) +
-     SQR((testblob1.th - testblob2.th)*(testblob2.a2-1.0/testblob2.a2));
+   tempguts[0] = *blobguts;
+   tempparms[0] = *parms;
 
-   /* Adjust the timestep. */
-   (*parms).nint = 
-     (int) ( (timestep/prefstep)*
-	     pow((err*(timestep/prefstep)/rk4l2errtol),0.25) +0.5);
-   (*parms).nint = MAX(1,(*parms).nint);
-   prefstep = timestep/(*parms).nint;
-   
-   if ((*parms).nint > 100)
-     {
-       fprintf(diag_log,"Time: %12.4e.  RK4 warning: Internal integration warning.\n",SimTime);
-       fprintf(diag_log,"RK4 requiring %d steps.\n",(*parms).nint);
-     }
+   /* 	   fprintf(diag_log,"Warning!  "); */
+   /* 	   fprintf(diag_log,"Rapid reorientation detected.\n"); */
 
-   rk4march(blobguts,parms,prefstep,steps);
+   th_slave(tempguts,tempparms);
+   dy_slave(tempguts,tempparms,ds2,da2);
 	
-   /* fprintf(diag_log,"Rk4 steps: %d err %12.4e\n",steps,err); */
+   /* Forward Euler */
+   tempguts[1].s2 = tempguts[0].s2+0.5*prefstep*ds2[0];
+   tempguts[1].a2 = tempguts[0].a2+0.5*prefstep*da2[0];
+   tempparms[1] = tempparms[0];
+   th_slave(tempguts+1,tempparms+1);
+	
+   dy_slave(tempguts+1,tempparms+1,ds2+1,da2+1);
 
-   /*   
-   printf("rk4int. th: %12.4e s2: %12.4e a2: %12.4e\n",
-	  testblob2.th,testblob2.s2,testblob2.a2);
-   */
+   /* Backward Euler */
+   tempguts[2].s2 = tempguts[0].s2+0.5*prefstep*ds2[1];
+   tempguts[2].a2 = tempguts[0].a2+0.5*prefstep*da2[1];
+   tempparms[2] = tempparms[1];
+   th_slave(tempguts+2,tempparms+2);
+	
+   dy_slave(tempguts+2,tempparms+2,ds2+2,da2+2);
 
+   /* Midpoint rule. */
+   tempguts[3].s2 = tempguts[0].s2+prefstep*ds2[2];
+   tempguts[3].a2 = tempguts[0].a2+prefstep*da2[2];
+   tempparms[3] = tempparms[2];
+   th_slave(tempguts+3,tempparms+3);
+	
+   dy_slave(tempguts+3,tempparms+3,ds2+3,da2+3);
+
+   /* Simpson's rule corrector. */
+   tempguts[4].s2 = tempguts[0].s2+
+     prefstep*(ds2[0] + 2.0*ds2[1] + 2.0*ds2[2] + ds2[3])/6.0;
+   tempguts[4].a2 = tempguts[0].a2+
+     prefstep*(da2[0] + 2.0*da2[1] + 2.0*da2[2] + da2[3])/6.0;
+   tempparms[4] = tempparms[3];
+   th_slave(tempguts+4,tempparms+4);
+	
+   *blobguts = tempguts[4];
+   *parms    = tempparms[4];
 }
-
+   
 void rkckstep(blobguts,bloberrs,parms,refscale,step)
 blob_internal *blobguts,*bloberrs;
 blobparms *parms;
@@ -681,12 +585,242 @@ double timestep,reltol;
 	    }
 	}
     }
-  /*
-   printf("rkckma. th: %12.4e s2: %12.4e a2: %12.4e\n",
-	  currblob.th,currblob.s2,currblob.a2);
-  */
   *blobguts = currblob;
   *parms = currparm;
 
 }
+
+void Jac_int(blobguts,parms,a,b,c,d,e,f,g)
+blob_internal blobguts;
+blobparms parms;
+double *a,*b,*c,*d,*e,*f,*g;
+{
+  *a = 2.0*(parms.du11*(parms.cos2-parms.sin2)+
+	   (parms.du12+parms.du21)*parms.sincos);
+  *b = -visc/blobguts.s2*blobguts.a2;
+  *c = 0.5*visc*(1.0-1.0/SQR(blobguts.a2));
+  *g = (1.0/blobguts.a2+blobguts.a2)/(1.0/blobguts.a2-blobguts.a2);
+  *d = (0.5*(parms.du21+parms.du12)*(parms.sin2-parms.cos2)+
+	2.0*parms.du11*parms.sincos)/blobguts.a2*(-1.0+SQR(*g));
+  *e = -0.5*visc/SQR(blobguts.s2)*(1.0-SQR(blobguts.a2));
+  *f = 2.0*blobguts.a2*(-4.0*parms.du11*parms.sincos+
+		       (parms.du12+parms.du21)*(parms.cos2-parms.sin2));
+}
+
+void BDF2_step(newguts,newparms,blobguts1,parms1,blobguts2,parms2,step)
+     blob_internal *newguts,blobguts1,blobguts2;
+     blobparms *newparms,parms1,parms2;
+     double step;
+{
+   blob_internal tempguts[2];
+   blobparms     tempparms[2];
+   double        ds2,da2,dth;
+
+   double a,b,c,d,e,f,g,alpha;
+   double rhs[3],res[3],invJac[3][3],detJac;
+
+   fprintf(diag_log,"Starting BDF2_step\n");
+
+   rhs[0] = (4.0/3.0*blobguts1.a2 - 1.0/3.0*blobguts2.a2);
+   rhs[1] = (4.0/3.0*blobguts1.s2 - 1.0/3.0*blobguts2.s2);
+   rhs[2] = (4.0/3.0*blobguts1.th - 1.0/3.0*blobguts2.th);
+
+   tempguts[0]  = blobguts1;
+   tempparms[0] = parms1;
+
+   res[0] = res[1] = res[2] = 1.0;
+
+   alpha = 2.0/3.0;
+
+   /* Newton iterations to solve the implicit piece. */
+   while (SQR(res[0]) + SQR(res[1]) + SQR(res[2]) > SQR(1.0e-4))
+     {
+   fprintf(diag_log,"a2: %12.4e  s2: %12.4e  th: %12.4e\n",
+	  tempguts[0].a2,tempguts[0].s2,tempguts[0].th);
+
+       Jac_int(tempguts[0],tempparms[0],&a,&b,&c,&d,&e,&f,&g);
+
+       a *= alpha*step;
+       b *= alpha*step;
+       c *= alpha*step;
+       d *= alpha*step;
+       e *= alpha*step;
+       f *= alpha*step;
+
+       detJac = 
+	 1.0-
+	 (a+b)-
+	 (d*f+c*e+a*g)+
+	 (SQR(a)*g+b*a*g)+
+	 c*e*a*g;
+
+       invJac[0][0] = (1.0-a*g)/detJac;
+       invJac[0][1] = e*invJac[0][0];
+       invJac[0][2] = f/detJac;
+
+       invJac[1][0] = c*invJac[0][0];
+       invJac[1][1] = 
+	 (1.0-
+	  (a+b)-
+	  (d*f+a*g)+
+	  (SQR(a)*g+b*a*g))/detJac;
+       invJac[1][2] = f*c/detJac;
+
+       invJac[2][0] = d/detJac;
+       invJac[2][1] = e*invJac[2][0];
+       invJac[2][2] = (1.0-a-b-c*e)/detJac;
+
+       dy(tempguts,tempparms,&ds2,&da2,&dth);
+
+       res[0] = rhs[0]-da2;
+       res[1] = rhs[1]-ds2;
+       res[2] = rhs[2]-dth;
+
+       tempguts[1].a2 = tempguts[0].a2 + 
+	 (invJac[0][0]*res[0] +
+	  invJac[0][1]*res[1] +
+	  invJac[0][2]*res[2]);
+
+       tempguts[1].s2 = tempguts[0].s2 + 
+	 (invJac[1][0]*res[0] +
+	  invJac[1][1]*res[1] +
+	  invJac[1][2]*res[2]);
+
+       tempguts[1].th = tempguts[0].th + 
+	 (invJac[2][0]*res[0] +
+	  invJac[2][1]*res[1] +
+	  invJac[2][2]*res[2]);
+
+       tempguts[0] = tempguts[1];
+       set_blob(tempguts,tempparms);
+
+       fprintf(diag_log,"BDF2 Residual: %12.4e %12.4e %12.4e\n",
+	      res[0],res[1],res[2]);
+     }
+   *newguts  = tempguts[0];
+   *newparms = tempparms[0];
+}
+
+void stepper(blobguts,parms,timestep,steps)
+blob_internal *blobguts;
+blobparms *parms;
+double timestep;
+int steps;
+{
+   blob_internal tempguts[3];
+   blobparms     tempparms[3];
+   int i;
+
+   tempguts[0]  = tempguts[1]  = tempguts[2]  = *blobguts;
+   tempparms[0] = tempparms[1] = tempparms[2] = *parms;
+   
+   /* The first step must be an RK step just to start up. */
+
+   for (i=0; i<steps; ++i)
+     {
+       /* Is the aspect ratio dangerously close to 1.0? */
+       if (SQR(tempguts[1].a2-1.0/tempguts[1].a2) < axisymmtol)
+	 rk4step_slave(tempguts,tempparms,timestep);
+       /* Is it stiff or not? */
+       else if (SQR(tempguts[1].a2-1.0/tempguts[1].a2) < stifftol)
+	 {
+	   /* Is there enough startup information?  If not, use the slaved
+	      subroutine. */
+	   rk4step_slave(tempguts,tempparms,timestep);
+	     /*
+	   if (i>1)
+	     {
+	       fprintf(diag_log,"Using BDF2\n");
+	       BDF2_step(tempguts,tempparms,
+			 tempguts[1],tempparms[1],tempguts[2],tempparms[2],
+			 timestep);
+	     }
+	   else
+	     rk4step_slave(tempguts,tempparms,timestep);
+	     */
+	 }
+       else
+	 rk4step(tempguts,tempparms,timestep);
+
+       tempguts[2]  = tempguts[1];
+       tempguts[1]  = tempguts[0];
+       tempparms[2] = tempparms[1];
+       tempparms[1] = tempparms[0];
+     }
+
+   *blobguts = tempguts[0];
+   *parms    = tempparms[0];
+}
+
+void internal_march(blobguts,parms,timestep)
+blob_internal *blobguts;
+blobparms *parms;
+double timestep;
+{
+  int           steps;
+  double        prefstep,err;
+  blob_internal testblob1,testblob2;
+  blobparms     testparm1,testparm2;
+   
+  testblob1 = *blobguts;
+  testblob2 = *blobguts;
+  testparm1 = *parms;
+  testparm2 = *parms;
+   
+  steps = (*parms).nint;
+  prefstep = timestep/steps;
+   
+  stepper(&testblob1,&testparm1,prefstep,1);
+
+  stepper(&testblob2,&testparm2,0.5*prefstep,2);
+
+  err = 
+    SQR(testblob1.a2 - testblob2.a2) +
+    SQR((testblob1.s2 - testblob2.s2)/l2tol) +
+    SQR(testblob1.th - testblob2.th);
+
+  /* Adjust the timestep. */
+  steps = 
+    (int) ( (timestep/prefstep)*
+	    pow((err*(timestep/prefstep)/rk4l2errtol),0.5) +0.5);
+  steps = MAX(1,steps);
+  prefstep = timestep/steps;
+
+  if (steps > 20)
+    {
+      testblob1 = *blobguts;
+      testblob2 = *blobguts;
+      testparm1 = *parms;
+      testparm2 = *parms;
+   
+      prefstep = timestep/20.0;
+
+      stepper(&testblob1,&testparm1,prefstep,1);
+       
+      stepper(&testblob2,&testparm2,0.5*prefstep,2);
+   
+      err = 
+	SQR(testblob1.a2 - testblob2.a2) +
+	SQR((testblob1.s2 - testblob2.s2)/l2tol) +
+	SQR(testblob1.th - testblob2.th);
+
+      /* Adjust the timestep. */
+      steps = (int) ( (timestep/prefstep)*
+		      pow((err*(timestep/prefstep)/rk4l2errtol),0.25) +0.5);
+      steps = MAX(1,steps);
+      prefstep = timestep/steps;
+    }       
+   
+  if (steps > 100)
+    {
+      fprintf(diag_log,
+	      "Time: %12.4e.  Warning: Internal integration warning.\n",
+	      SimTime);
+      fprintf(diag_log,"Requiring %d steps.\n",steps);
+    }
+
+  stepper(blobguts,parms,prefstep,steps);
+  (*parms).nint = steps;
+}
+
 

@@ -508,7 +508,7 @@ void startup_new()
 #ifdef cashkarp
 	  rkckmarch(&(blobguts[j]),&(tmpparms[j]),TimeStep,1.0e-6);
 #else
-	  rk4internal(&(blobguts[j]),&(tmpparms[j]),TimeStep);
+	  internal_march(&(blobguts[j]),&(tmpparms[j]),TimeStep);
 #endif
 	}
 
@@ -623,7 +623,7 @@ void startup_new()
 #ifdef cashkarp
 	  rkckmarch(&(blobguts[j]),&(tmpparms[j]),TimeStep,1.0e-6);
 #else
-	  rk4internal(&(blobguts[j]),&(tmpparms[j]),TimeStep);
+	  internal_march(&(blobguts[j]),&(tmpparms[j]),TimeStep);
 #endif
     }
   
@@ -669,7 +669,7 @@ void startup()
       /* Take a full step internally */
 	
       for (j=0; j<N; ++j)
-	rk4internal(&(blobguts[j]),&(tmpparms[j]),TimeStep/8.0);
+	internal_march(&(blobguts[j]),&(tmpparms[j]),TimeStep/8.0);
 
       /* Take a full step externally. */
       for (j=0; j<N; ++j)
@@ -713,7 +713,7 @@ void startup()
 	
       for (j=0; j<N; ++j)
 	{
-	  rk4internal(&(blobguts[j]),&(tmpparms[j]),TimeStep/4.0);
+	  internal_march(&(blobguts[j]),&(tmpparms[j]),TimeStep/4.0);
 	}
 
       /* Take a full step externally. */
@@ -763,7 +763,7 @@ void startup()
 	
       for (j=0; j<N; ++j)
 	{
-	  rk4internal(&(blobguts[j]),&(tmpparms[j]),TimeStep/2.0);
+	  internal_march(&(blobguts[j]),&(tmpparms[j]),TimeStep/2.0);
 	}
 	
       /* Take a full step externally. */

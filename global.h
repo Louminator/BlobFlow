@@ -272,6 +272,7 @@ extern void MP_Direct(int, int);
 extern void MP_Direct2(int, int);
 extern void MP_Direct3(int, int);
 extern void rk4internal(blob_internal*, blobparms*, double);
+extern void internal_march(blob_internal*, blobparms*, double);
 extern void rkckmarch(blob_internal*, blobparms*, double,double);
 extern void chksplit();
 extern void split14vels(vector*, blob_external, blob_internal, blobparms);
