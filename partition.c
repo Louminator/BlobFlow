@@ -222,8 +222,10 @@ void Init_Fine_Grid(int levels)
    /* Check into this later.  Without explicitly finding rank and
       total_processes, they get wolloped for some reason */
 
+#ifdef MULTIPROC
    MPI_Comm_size(MPI_COMM_WORLD, &total_processes);
    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+#endif
 
 
    Coeff_Array = Level_Ptr[levels-1];
