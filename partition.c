@@ -215,8 +215,13 @@ void partition(int levels)
 
 void Init_Fine_Grid(int levels)
 {
-   int i,j,p,size,buffsize,start,end,rank,total_processes;
-   complex *Coeff_Array,*Coeff_buff,tmpz,dz,mp[PMax];
+   int i,j,p,size;
+   complex *Coeff_Array,tmpz,dz,mp[PMax];
+
+#ifdef MULTIPROC
+   int start,end,rank,total_processes,buffsize;
+   complex *Coeff_buff;
+#endif
    
    /* These need to be explicitly determined here for some reason.*/
    /* Check into this later.  Without explicitly finding rank and
@@ -226,7 +231,6 @@ void Init_Fine_Grid(int levels)
    MPI_Comm_size(MPI_COMM_WORLD, &total_processes);
    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 #endif
-
 
    Coeff_Array = Level_Ptr[levels-1];
    
@@ -240,6 +244,9 @@ void Init_Fine_Grid(int levels)
 	 *(Coeff_Array+(i+j*size)*PMax+p) = tmpz;
 
 #ifdef MULTIPROC
+   MPI_Comm_size(MPI_COMM_WORLD, &total_processes);
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
    buffsize = PMax*((int) ldexp(1.0,2*(levels)));
 
    Coeff_buff = malloc(sizeof(complex)*buffsize);
