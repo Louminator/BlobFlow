@@ -757,6 +757,14 @@ blob_internal *blobguts;
 blobparms *parms;
 double timestep;
 {
+  stepper(blobguts,parms,timestep/2.0,2);
+}
+
+void OLDinternal_march(blobguts,parms,timestep)
+blob_internal *blobguts;
+blobparms *parms;
+double timestep;
+{
   int           steps;
   double        prefstep,err;
   blob_internal testblob1,testblob2;
