@@ -254,7 +254,7 @@ double result[9];
   /* u_yy = -psi_yyy */
   result[7] = -( (*parms).sin2*(*parms).sinth*psi_xxx+
 		 3.0*(*parms).sin2*(*parms).costh*psi_xxy+
-		 3.0*(*parms).sincos*(*parms).costh*psi_xyy+
+		 3.0*(*parms).sinth*(*parms).cos2*psi_xyy+
 		 (*parms).cos2*(*parms).costh*psi_yyy );
 
   /* v_xx = psi_xxx */
