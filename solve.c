@@ -26,7 +26,7 @@
 #include "global.h"
 
 #define axisymmtol 1.0e-6
-#define stifftol 1.0e-5
+#define stifftol 1.0e-6
 #define rk4itertol 14
 #define rk4l2errtol 1.0e-14
 #define rkckreltol 1.0e-7
@@ -725,10 +725,10 @@ int steps;
    for (i=0; i<steps; ++i)
      {
        /* Is the aspect ratio dangerously close to 1.0? */
-       if (SQR(tempguts[1].a2-1.0/tempguts[1].a2) < axisymmtol)
+       if (fabs(tempguts[1].a2-1.0/tempguts[1].a2) < axisymmtol)
 	 rk4step_slave(tempguts,tempparms,timestep);
        /* Is it stiff or not? */
-       else if (SQR(tempguts[1].a2-1.0/tempguts[1].a2) < stifftol)
+       else if (fabs(tempguts[1].a2-1.0/tempguts[1].a2) < stifftol)
 	 {
 	   /* Is there enough startup information?  If not, use the slaved
 	      subroutine. */
