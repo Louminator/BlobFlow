@@ -77,6 +77,11 @@ double aM2;
 
 FineGridLink **FineGridLinks,*trace;
 
+clock_t tot_cputime_ref,tot_cputime,
+  vel_cputime_ref,vel_cputime,velsum_cputime_ref,velsum_cputime,
+  veldirect_cputime_ref,veldirect_cputime;
+
+
 /* Subroutine to stop everything if there is a problem. */
 void stop(int retval)
 {
@@ -94,7 +99,6 @@ void stop(int retval)
 void run()
 {
   int j,k;
-  clock_t cputime,cputime_old;
   char time_name[Title];
   FILE *time_file,*fopen();
   double Rblob,temp,lambdaM;
@@ -106,15 +110,15 @@ void run()
   sprintf(time_name,"%s.%s", filename,"cpu");
 #endif
   time_file = fopen(time_name,"w");
-  cputime=cputime_old=0;
    
   while (SimTime < EndTime)
     {
-      cputime_old = cputime;
-      cputime = clock();
-      fprintf(time_file,"%d %d %d\n",N,numk2, (int)(cputime-cputime_old));
+      tot_cputime_ref = clock();
+      vel_cputime = 0;
+      velsum_cputime = 0;
+      veldirect_cputime = 0;
+
       numk2 = 0;
-      fflush(time_file);
 	
       nsplit = 0;
       nmerge = 0;
@@ -160,7 +164,9 @@ void run()
 
       SimTime += TimeStep/2;
 
+      vel_cputime_ref = clock();
       vel_field();
+      vel_cputime += clock()-vel_cputime_ref;
 
       /* Take a full step internally */
 	
@@ -288,7 +294,20 @@ void run()
 	  fflush(mpi_log);
 	}
 
+      vel_cputime_ref = clock();
       vel_field();
+      vel_cputime += clock()-vel_cputime_ref;
+
+      tot_cputime = clock()-tot_cputime_ref;
+
+      fprintf(time_file,"%07d %12.4e %12.4e %12.4e %12.4e\n",
+	      N,
+	      ((double)(tot_cputime))/((double)CLOCKS_PER_SEC),
+	      ((double)(vel_cputime))/((double)CLOCKS_PER_SEC),
+	      ((double)(velsum_cputime))/((double)CLOCKS_PER_SEC),
+	      ((double)(veldirect_cputime))/((double)CLOCKS_PER_SEC)
+	      );
+      fflush(time_file);
 
       totsplit += nsplit;
       totmerge += nmerge;

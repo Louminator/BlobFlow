@@ -166,6 +166,12 @@ extern int          numk2;
 /*Data export variables */
 extern char filename[];
 
+extern clock_t tot_cputime_ref,tot_cputime,
+  vel_cputime_ref,vel_cputime,velsum_cputime_ref,velsum_cputime,
+  veldirect_cputime_ref,veldirect_cputime;
+
+/* Function headers */
+
 extern void init(int, char**);
 extern int  main(int, char**);
 extern void rectify();

@@ -163,11 +163,15 @@ void dpos_vel_fast(vort)
    tmpparms[vort].v_xx = 0.0;
    
    /* MP_Sum(vort,mplevels-2); */
-   
+
+   velsum_cputime_ref = clock();
    MP_Sum(vort,mplevels);
+   velsum_cputime += clock()-velsum_cputime_ref;
    
    /* Uses a special finer grid for merging */
+   veldirect_cputime_ref = clock();
    MP_Direct3(vort,mplevels);
+   veldirect_cputime += clock()-veldirect_cputime_ref;
 
 }
 
