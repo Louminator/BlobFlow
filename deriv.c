@@ -72,15 +72,16 @@ void vel_field()
 
    for (j=0; j<CARDINALITY; ++j) 
      { 
-       /*
+#ifdef LINEAR
 #ifdef NOFASTMP
 	dpos_vel(j);
 #else
 	dpos_vel_fast(j);
 
 #endif
-       */
+#else
        dpos_vel_linear(j);
+#endif
      }
 #endif  
    
@@ -152,8 +153,10 @@ int vort;
      }
 }
 
-vector dpos_vel_gen(pos)
-vector pos;
+vector dpos_vel_gen(pos,the_blobguts,parms)
+     vector pos;
+     blob_internal the_blobguts;
+     blobparms parms;
 {
    int i;
    double dx,dy;

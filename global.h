@@ -36,6 +36,8 @@
 #define MAX(A,B) ((A) > (B) ? (A) : (B))
 #define MIN(A,B) ((A) < (B) ? (A) : (B))
 
+/* Set LINEAR if you impose your own velocity field. */
+#define LINEAR
 #undef  cashkarp
 
 #define NMax 150000   /* Maximum number of computational elements. */
@@ -213,7 +215,7 @@ extern void write_pmvorts(int);
 extern void write_partition(int);
 extern void split12(blob_external*, blob_internal*, blobparms*, blob_external*, blob_internal*, blobparms*);
 extern void dpos_vel(int);
-extern vector dpos_vel_gen(vector);
+extern vector dpos_vel_gen(vector,blob_internal,blobparms);
 extern vector dpos_vel_gen_linear(vector,blob_internal,blobparms);
 extern void dpos_vel_linear(int);
 extern void reflect_X();

@@ -615,8 +615,13 @@ int *size;
 	* about the x-axis. */
        reflect_X();
 #endif 
-       /* dpos_vel(mergelist[0]); */
+
+#ifdef LINEAR
        dpos_vel_linear(mergelist[0]);
+#else
+       dpos_vel(mergelist[0]);
+#endif
+
 #ifdef XANTISYMM 
        /* re-adjust */
        N /= 2;

@@ -59,32 +59,47 @@ void split15asymvels(vels,the_blob,the_blobguts,parms,parm_ptr)
      pos.x = the_blob.x;
      pos.y = the_blob.y;
 
-     /*(*vels) = dpos_vel_gen(pos);*/
+#ifdef LINEAR
      (*vels) = dpos_vel_gen_linear(pos,the_blobguts,parms);
-	
+#else
+     (*vels) = dpos_vel_gen(pos,the_blobguts,parms);
+#endif
+
      pos.x = the_blob.x + rA*parms.costh;
      pos.y = the_blob.y + rA*parms.sinth;
 
-     /*(*vels+1) = dpos_vel_gen(pos);*/
+#ifdef LINEAR
      *(vels+1) = dpos_vel_gen_linear(pos,the_blobguts,parms);
+#else
+     *(vels+1) = dpos_vel_gen(pos,the_blobguts,parms);
+#endif
 	
      pos.x = the_blob.x - rA*parms.costh;
      pos.y = the_blob.y - rA*parms.sinth;
 
-     /* *(vels+2) = dpos_vel_gen(pos); */
+#ifdef LINEAR
      *(vels+2) = dpos_vel_gen_linear(pos,the_blobguts,parms);
+#else
+     *(vels+2) = dpos_vel_gen(pos,the_blobguts,parms);
+#endif
 
      pos.x = the_blob.x + rB*parms.sinth;
      pos.y = the_blob.y - rB*parms.costh;
 	
-     /* *(vels+3) = dpos_vel_gen(pos); */
+#ifdef LINEAR
      *(vels+3) = dpos_vel_gen_linear(pos,the_blobguts,parms);
+#else
+     *(vels+3) = dpos_vel_gen(pos,the_blobguts,parms);
+#endif
 
      pos.x = the_blob.x - rB*parms.sinth;
      pos.y = the_blob.y + rB*parms.costh;
 
-     /* *(vels+4) = dpos_vel_gen(pos); */
+#ifdef LINEAR
      *(vels+4) = dpos_vel_gen_linear(pos,the_blobguts,parms);
+#else
+     *(vels+4) = dpos_vel_gen(pos,the_blobguts,parms);
+#endif
 
 #ifdef XANTISYMM 
      /* re-adjust */
