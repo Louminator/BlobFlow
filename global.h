@@ -258,6 +258,7 @@ extern void dpos_vel_exact(int);
 extern void dpos_vel_exact_pi(int);
 extern void dpos_vel_mix(int);
 extern void Create_Hierarchy();
+extern void vort_vort_interaction(int,int);
 extern void MP_Sum(int, int);
 extern void MP_Direct(int, int);
 extern void MP_Direct2(int, int);

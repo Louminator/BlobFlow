@@ -115,6 +115,9 @@ int vort;
    
    for (i=0; i<N; ++i)
      {
+       vort_vort_interaction(vort,i);
+
+       /*
 	dx = mblob[vort].blob0.x-mblob[i].blob0.x;
 	dy = mblob[vort].blob0.y-mblob[i].blob0.y;
 
@@ -152,6 +155,7 @@ int vort;
 	     tmpparms[vort].du21 += (2.0*a.du11*tmpparms[i].sincos-
 			    a.du12*tmpparms[i].sin2+a.du21*tmpparms[i].cos2);
 	  }
+       */
      }
 }
 

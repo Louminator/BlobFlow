@@ -18,18 +18,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 *
  * USA                                                                  *
  *                                                                      *
- * or until 15 January 2001                                             *
- * Louis Rossi                                                          *
- * Department of Mathematical Sciences                                  *
- * University of Massachusetts Lowell                                   *
- * One University Ave                                                   *
- * Lowell, MA 01854                                                     *
- * 
- * or after 15 January 2001                                             *
  * Louis Rossi                                                          *
  * Department of Mathematical Sciences                                  *
  * University of Delaware                                               *
- * Newark, DE 19715-2553                                                */
+ * Newark, DE 19716                                                    */
 
 #ifdef MULTIPROC
 

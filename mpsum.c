@@ -26,6 +26,72 @@
 
 
 #include "global.h"
+
+void vort_vort_interaction(i,j)
+     int i,j;
+{
+   double dx,dy,eps;
+   tensor a;
+   double result[9];
+
+   dx = mblob[i].blob0.x-mblob[j].blob0.x;
+   dy = mblob[i].blob0.y-mblob[j].blob0.y;
+	       
+   if ( (dx != 0.0) || (dy != 0.0) )
+     {
+       induced_v(&(mblob[j].blob0),
+		 &(blobguts[j]),
+		 &(tmpparms[j]),dx,dy,
+		 result);
+
+       mblob[i].blob0.dx += result[0];
+       mblob[i].blob0.dy += result[1];
+
+       tmpparms[i].du11 += result[2];
+       tmpparms[i].du12 += result[3];
+       tmpparms[i].du21 += result[4];
+
+       tmpparms[i].u_xx += result[5];
+       tmpparms[i].u_xy += result[6];
+       tmpparms[i].u_yy += result[7];
+       tmpparms[i].v_xx += result[8];
+     }
+   else
+     {
+       eps = (1.0-sqrt(blobguts[j].a2))/
+	 (1.0+sqrt(blobguts[j].a2));
+       a.du11 = 0.0;
+       a.du12 = -(mblob[j].blob0.strength/
+		  (2.0*blobguts[j].s2))*
+	 (0.5+eps-eps*SQR(eps));
+       a.du21 = (mblob[j].blob0.strength/
+		 (2.0*blobguts[j].s2))*
+	 (0.5-eps+eps*SQR(eps));
+		    
+       tmpparms[i].du11 += (a.du11*
+			    (tmpparms[j].cos2-
+			     tmpparms[j].sin2)-
+			    (a.du12+a.du21)*
+			    tmpparms[j].sincos);
+		    
+       tmpparms[i].du12 += (2.0*a.du11*
+			    tmpparms[j].sincos+
+			    a.du12*
+			    tmpparms[j].cos2-
+			    a.du21*
+			    tmpparms[j].sin2);
+		    
+       tmpparms[i].du21 += (2.0*a.du11*
+			    tmpparms[j].sincos-
+			    a.du12*
+			    tmpparms[j].sin2+
+			    a.du21*
+			    tmpparms[j].cos2);
+
+
+     }
+}
+
 double maxC()
 {
    int i;
@@ -317,6 +383,8 @@ void MP_Direct(int vort, int levels)
 
 	while (trace != NULL)
 	  {
+	    vort_vort_interaction(vort,trace->element);
+	    /*
 	     dx = mblob[vort].blob0.x-mblob[trace->element].blob0.x;
 	     dy = mblob[vort].blob0.y-mblob[trace->element].blob0.y;
 
@@ -372,6 +440,7 @@ void MP_Direct(int vort, int levels)
 					  tmpparms[trace->element].cos2);
 		  
 	       }
+	    */
 	     trace = trace->next;
 	  }
      }
@@ -408,7 +477,9 @@ void MP_Direct2(int vort, int levels)
 	  trace = FineGridLinks[i+j*size];
 
 	  while (trace != NULL)
-	    {	    	    
+	    {	    
+	      vort_vort_interaction(vort,trace->element);
+	      /*
 	       dx = mblob[vort].blob0.x-mblob[trace->element].blob0.x;
 	       dy = mblob[vort].blob0.y-mblob[trace->element].blob0.y;
 
@@ -462,6 +533,7 @@ void MP_Direct2(int vort, int levels)
 					    a.du21*
 					    tmpparms[trace->element].cos2);
 		 }
+	      */
 	       trace = trace->next;
 	    }
        }
@@ -502,6 +574,9 @@ void MP_Direct3(int vort, int levels)
 	    {
 	      ++numk2;
 
+	      vort_vort_interaction(vort,trace->element);
+
+	       /*
 	       dx = mblob[vort].blob0.x-mblob[trace->element].blob0.x;
 	       dy = mblob[vort].blob0.y-mblob[trace->element].blob0.y;
 	       
@@ -556,6 +631,7 @@ void MP_Direct3(int vort, int levels)
 					    a.du21*
 					    tmpparms[trace->element].cos2);
 		 }
+	       */
 	       trace = trace->next;
 	    }
        }
