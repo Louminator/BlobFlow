@@ -1,5 +1,5 @@
 /* PARTITION.C */
-/* Copyright (c) 2000 Louis F. Rossi                                    *
+/* Copyright (c) 2000,2004 Louis F. Rossi                                    *
  * Elliptical Corrected Core Spreading Vortex Method (ECCSVM) for the   *
  * simulation/approximation of incompressible flows.                    *
 
@@ -18,20 +18,17 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 *
  * USA                                                                  *
  *                                                                      *
- * or until 15 January 2001                                             *
- * Louis Rossi                                                          *
- * Department of Mathematical Sciences                                  *
- * University of Massachusetts Lowell                                   *
- * One University Ave                                                   *
- * Lowell, MA 01854                                                     *
- * 
- * or after 15 January 2001                                             *
  * Louis Rossi                                                          *
  * Department of Mathematical Sciences                                  *
  * University of Delaware                                               *
  * Newark, DE 19715-2553                                                */
 
 #include "global.h"
+#ifdef MULTIPROC
+#include "multiproc.h"
+
+#define CARDINALITY  N
+#endif
 
 int C(int n, int k)
 {
@@ -211,10 +208,16 @@ void partition(int levels)
      }
 }
 
+/* This subroutine is parallelized crudely assuming a symmetric system.  
+   The particles are divided evenly among available CPUs. Since the
+   multipole coefficients are needed for all particles even with
+   XANTISYMMETRY, CARDINALITY should always be N.  */
+
 void Init_Fine_Grid(int levels)
 {
-   int i,j,p,size;
-   complex *Coeff_Array,tmpz,dz,mp[PMax];
+   int i,j,p,size,buffsize,start,end;
+   complex *Coeff_Array,*Coeff_buff,*Cum_buff,tmpz,dz,mp[PMax];
+   
    
    Coeff_Array = Level_Ptr[levels-1];
    
@@ -227,6 +230,62 @@ void Init_Fine_Grid(int levels)
        for (p=0; p<PMax; ++p)
 	 *(Coeff_Array+(i+j*size)*PMax+p) = tmpz;
 
+#ifdef MULTIPROC
+   buffsize = PMax*((int) ldexp(1.0,2*(levels)));
+
+   Coeff_buff = malloc(sizeof(complex)*buffsize);
+   Cum_buff   = malloc(sizeof(complex)*buffsize);
+
+   start = rank*((int) CARDINALITY/total_processes);
+   end   = (rank+1)*((int) CARDINALITY/total_processes);
+   
+   if (rank==total_processes-1)
+     end = N;
+
+   for (i=start; i<end; ++i)
+     {
+	dz.re=(minX+(gridx[levels-1][i]+0.5)*(distX/size))-mblob[i].blob0.x;
+	dz.im=(minY+(gridy[levels-1][i]+0.5)*(distY/size))-mblob[i].blob0.y;
+
+	Calc_Coeffs(i,dz,mp);
+	
+	for (p=0; p<PMax; ++p)
+	  {
+	     (*(Coeff_Array+
+	       (gridx[levels-1][i]+gridy[levels-1][i]*size)*PMax+p)).re +=
+	       mp[p].re;
+	     (*(Coeff_Array+
+	       (gridx[levels-1][i]+gridy[levels-1][i]*size)*PMax+p)).im +=
+	       mp[p].im;
+	  }
+     }
+
+   for (j=0; j<PMax*size*size; ++j)
+     *(Cum_buff+j)   = *(Coeff_Array+j);
+
+   for (i=0; i<total_processes; ++i)
+     {
+       if (i==rank)
+	 MPI_Bcast (Coeff_Array, 2*buffsize, MPI_DOUBLE, i, 
+		    MPI_COMM_WORLD );
+       else
+	 {
+	   MPI_Bcast (Coeff_buff, 2*buffsize, MPI_DOUBLE, i, 
+		      MPI_COMM_WORLD );
+	   for (j=0; j<PMax*size*size; ++j)
+	     {
+	       (*(Cum_buff+j)).re += (*(Coeff_buff+j)).re;
+	       (*(Cum_buff+j)).im += (*(Coeff_buff+j)).im;
+	     }
+	 }
+     }
+
+   for (j=0; j<PMax*size*size; ++j)
+     *(Coeff_Array+j) = *(Cum_buff+j);
+
+   free(Coeff_buff);
+   free(Cum_buff);
+#else
    for (i=0; i<N; ++i)
      {
 	dz.re=(minX+(gridx[levels-1][i]+0.5)*(distX/size))-mblob[i].blob0.x;
@@ -244,6 +303,7 @@ void Init_Fine_Grid(int levels)
 	       mp[p].im;
 	  }
      }
+#endif
 }
 
 /* Use coefficients at the finest level and pass them up to the coarsest 
