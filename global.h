@@ -160,8 +160,8 @@ extern int          numk2;
 /*Data export variables */
 extern char filename[];
 
-extern void init();
-extern int  main();
+extern void init(int, char**);
+extern int  main(int, char**);
 extern void rectify();
 
 extern void flip_blob();
