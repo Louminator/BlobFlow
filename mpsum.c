@@ -472,9 +472,8 @@ void MP_Direct3(int vort, int levels)
    int i,j,size,mini,maxi,minj,maxj;
    FineGridLink *trace;
    double dx,dy,eps;
-   double r[5],t[5],even[5],odd[5];
-   vector v;
    tensor a;
+   double result[9];
    
    /* Now use direct summation at the finest level.  (Boo hoo) */
    
@@ -508,21 +507,22 @@ void MP_Direct3(int vort, int levels)
 	       
 	       if ( (dx != 0.0) || (dy != 0.0) )
 		 {
-		    v = induced_vel(&(mblob[trace->element].blob0),
+		   induced_v(&(mblob[trace->element].blob0),
 				    &(blobguts[trace->element]),
 				    &(tmpparms[trace->element]),dx,dy,
-				    r,t,even,odd);
-		    mblob[vort].blob0.dx += v.x;
-		    mblob[vort].blob0.dy += v.y;
-		    
-		    a = induced_veldev(&(mblob[trace->element].blob0),
-				       &(blobguts[trace->element]),
-				       &(tmpparms[trace->element]),dx,dy,
-				       r,t,even,odd);
-		    
-		    tmpparms[vort].du11 += a.du11;
-		    tmpparms[vort].du12 += a.du12;
-		    tmpparms[vort].du21 += a.du21;
+			     result);
+
+		   mblob[vort].blob0.dx += result[0];
+		   mblob[vort].blob0.dy += result[1];
+
+		   tmpparms[vort].du11 += result[2];
+		   tmpparms[vort].du12 += result[3];
+		   tmpparms[vort].du21 += result[4];
+
+		   tmpparms[vort].u_xx += result[5];
+		   tmpparms[vort].u_xy += result[6];
+		   tmpparms[vort].u_yy += result[7];
+		   tmpparms[vort].v_xx += result[8];
 		 }
 	       else
 		 {

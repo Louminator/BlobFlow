@@ -21,7 +21,7 @@
  * Louis Rossi                                                          *
  * Department of Mathematical Sciences                                  *
  * University of Delaware                                               *
- * Newark, DE 19715-2553                                                */
+ * Newark, DE 19716                                                     */
 
 #include "global.h"
 

@@ -91,8 +91,9 @@ blob_internal;
 
 typedef struct
 {
-    double sin2,cos2,sincos,costh,sinth,du11,du12,du21;
-    int    refinecnt,nint;
+  double sin2,cos2,sincos,costh,sinth,du11,du12,du21;
+  double u_xx,u_xy,u_yy,v_xx;
+  int    refinecnt,nint;
 }
 blobparms;
 
@@ -238,6 +239,9 @@ extern double build_psi_yyy(double,double,double,double,
 			    double,double,double,
 			    double[],double[],double[],
 			    double[],double[][],double[][]);
+
+extern void induced_v(blob_external *,blob_internal *,blobparms *,
+		      double, double, double[]);
 
 extern double searchlist_uniform(int *, int , double,int *);
 extern double searchlist_distribution(int *, int, double,int *);

@@ -1,5 +1,5 @@
 /* VELOCITY.C */
-/* Copyright (c) 2000 Louis F. Rossi                                    *
+/* Copyright (c) 2000, 2004 Louis F. Rossi                                    *
  * Elliptical Corrected Core Spreading Vortex Method (ECCSVM) for the   *
  * simulation/approximation of incompressible flows.                    *
 
@@ -167,11 +167,12 @@ double even[5],odd[5];
    return(result);
 }
 
-double* induced_v(the_blob,the_blobguts,parms,tmpdx,tmpdy)
+void induced_v(the_blob,the_blobguts,parms,tmpdx,tmpdy,result)
 blob_external *the_blob;
 blob_internal *the_blobguts;
 blobparms *parms;
 double tmpdx,tmpdy;
+double result[9];
 
 {
   double r[maxexp],t[maxexp];
@@ -192,8 +193,6 @@ double tmpdx,tmpdy;
   double psi_xyy_c[maxpolyn],psi_yyy_c[maxpolyn];
 
   double eps,str,a2,s2,s4,dx,dy;
-
-  double result[9];
 
   /* Change bases to the local axes. */
    
@@ -239,19 +238,49 @@ double tmpdx,tmpdy;
   psi_yyy = build_psi_yyy(dx,dy,str,s2,s4,a2,eps,r,t,
 			  psi_yy_c,psi_yyy_c,psi_yy_RT,psi_yyy_RT);
   
+
+  /* Rotate everything back into the standard reference frame. */
    
+  /* u = -psi_y */
   result[0] = (*parms).costh*(-psi_y)-(*parms).sinth*psi_x;
+  /* v = psi_x */
   result[1] = (*parms).sinth*(-psi_y)+(*parms).costh*psi_x;
 
+  /* u_x = -psi_xy */
   result[2] = (-psi_xy*((*parms).cos2-(*parms).sin2)-
 	       (-psi_yy+psi_xx)*(*parms).sincos);
    
-  result[3] = (2.0*(-psi_xy)*(*parms).sincos+
-	       (-psi_yy)*(*parms).cos2-psi_xy*(*parms).sin2);
+  /* u_y = -psi_yy */
+  result[3] = -((*parms).sin2*psi_xx+
+		2.0*(*parms).sincos*psi_xy+
+		(*parms).cos2*psi_yy);
    
+  /* v_x = psi_xx */
   result[4] = (2.0*(-psi_xy)*(*parms).sincos-
 	       (-psi_yy)*(*parms).sin2+psi_xx*(*parms).cos2);
 
-  return(result);
+  /* u_xx = -psi_xxy */
+  /* PROBLEMS HERE! */
+  result[5] = -( (*parms).cos2*(*parms).sinth*(psi_xxx-2.0*psi_xyy)+
+		 (*parms).cos2*(*parms).costh*psi_xxy+
+		 (*parms).sin2*(*parms).costh*(psi_yyy-2.0*psi_xxy)+
+		 (*parms).sin2*(*parms).sinth*psi_xyy );
 
+  /* u_xy = -psi_xyy */
+  result[6] = -( (*parms).sincos*(*parms).sinth*(psi_xxx-2.0*psi_xyy)+
+		 (*parms).cos2*(*parms).costh*psi_xyy-
+		 (*parms).sin2*(*parms).sinth*psi_xxy+
+		 (*parms).sincos*(*parms).costh*(-psi_yyy+2.0*psi_xxy) );
+
+  /* u_yy = -psi_yyy */
+  result[7] = -( (*parms).sin2*(*parms).sinth*psi_xxx+
+		 3.0*(*parms).sin2*(*parms).costh*psi_xxy+
+		 3.0*(*parms).sincos*(*parms).costh*psi_xyy+
+		 (*parms).cos2*(*parms).costh*psi_yyy );
+
+  /* v_xx = psi_xxx */
+  result[8] = ( (*parms).cos2*(*parms).costh*psi_xxx -
+		3.0*(*parms).cos2*(*parms).sinth*psi_xxy +
+		3.0*(*parms).sin2*(*parms).costh*psi_xyy -
+		(*parms).sin2*(*parms).sinth*psi_yyy );
 }

@@ -108,6 +108,11 @@ int vort;
    tmpparms[vort].du12 = 0.0;
    tmpparms[vort].du21 = 0.0;
    
+   tmpparms[vort].u_xx = 0.0;
+   tmpparms[vort].u_xy = 0.0;
+   tmpparms[vort].u_yy = 0.0;
+   tmpparms[vort].v_xx = 0.0;
+   
    for (i=0; i<N; ++i)
      {
 	dx = mblob[vort].blob0.x-mblob[i].blob0.x;
@@ -190,6 +195,11 @@ void dpos_vel_fast(vort)
    tmpparms[vort].du11 = 0.0;
    tmpparms[vort].du12 = 0.0;
    tmpparms[vort].du21 = 0.0;
+
+   tmpparms[vort].u_xx = 0.0;
+   tmpparms[vort].u_xy = 0.0;
+   tmpparms[vort].u_yy = 0.0;
+   tmpparms[vort].v_xx = 0.0;
    
    /* MP_Sum(vort,mplevels-2); */
    
