@@ -54,15 +54,11 @@
 /* PSI_ORDER sets the order of the streamfunction 
    in epsilon in the near field. */
 
-#define PSI_ORDER 4
+#define PSI_ORDER 6
 
 #if PSI_ORDER == 4
 #define maxexp 6
 #define maxpolyn 5
-/* 4th order approximation to   1/(a^2+1) */
-#define psi2coeffA (0.5-eps+eps*eps*eps)
-/* 4th order approximation to a^2/(a^2+1) */
-#define psi2coeffB (0.5+eps-eps*eps*eps)
 #endif
 
 #if PSI_ORDER == 5
@@ -74,6 +70,9 @@
 #define maxexp 8
 #define maxpolyn 7
 #endif
+
+#define psi2coeffA 1.0/(1.0+a2)
+#define psi2coeffB a2/(1.0+a2)
 
 typedef struct
 {

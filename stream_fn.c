@@ -31,15 +31,38 @@
 double expint(c,s2,r2)
      double c[maxpolyn],s2,r2;
 {
-  return(-0.5/s2*
-	 (r2*((c[0]+s2*(8.0*c[1]+s2*(96.0*c[2]+s2*(1536.0*c[3]+30720.0*c[4]*s2))))+
-	      r2*((c[1]+s2*(12.0*c[2]+s2*(192.0*c[3]+3840.0*c[4]*s2)))+
-		  r2*((c[2]+s2*(16.0*c[3]+320.0*c[4]*s2))+
-		      r2*((c[3]+20.0*c[4]*s2)+
-			  c[4]*r2))))*exp(-r2/(4.0*s2))+
-	  (-s2)*(4.0*c[0]+s2*(32.0*c[1]+
-			    s2*(384.0*c[2]+s2*(6144.0*c[3]+s2*122880.0*c[4]))))*
-	  (1.0-exp(-r2/(4.0*s2)))));
+  double integral;
+
+  integral = -0.5/s2*
+    (r2*((c[0]+s2*(8.0*c[1]+s2*(96.0*c[2]+s2*(1536.0*c[3]+30720.0*c[4]*s2))))+
+	 r2*((c[1]+s2*(12.0*c[2]+s2*(192.0*c[3]+3840.0*c[4]*s2)))+
+	     r2*((c[2]+s2*(16.0*c[3]+320.0*c[4]*s2))+
+		 r2*((c[3]+20.0*c[4]*s2)+
+		     c[4]*r2))))*exp(-r2/(4.0*s2))+
+     (-s2)*(4.0*c[0]+s2*(32.0*c[1]+
+			 s2*(384.0*c[2]+s2*(6144.0*c[3]+s2*122880.0*c[4]))))*
+     (1.0-exp(-r2/(4.0*s2))));
+
+#if PSI_ORDER >= 5
+    integral -=
+      c[5]*((0.5*SQR(SQR(r2))*SQR(r2)/s2 + 12.0*SQR(SQR(r2))*r2 + 
+	     240.0*s2*SQR(SQR(r2)) + 3840.0*SQR(s2)*SQR(r2)*r2 +
+	     46080.0*SQR(s2)*s2*SQR(r2) + 368640.0*SQR(SQR(s2))*r2)*
+	    exp(-r2/(4.0*s2)) -
+	    1474560.0*SQR(SQR(s2))*s2*(1.0-exp(-r2/(4.0*s2))));
+#endif
+  
+#if PSI_ORDER >= 6
+    integral -=
+      c[6]*((0.5*SQR(SQR(r2))*SQR(r2)*r2/s2 + 14.0*SQR(SQR(r2))*SQR(r2) +
+	     336.0*SQR(SQR(r2))*r2*s2 + 6720.0*SQR(SQR(r2))*SQR(s2) +
+	     107520.0*SQR(r2)*r2*SQR(s2)*s2 + 1290240.0*SQR(r2)*SQR(SQR(s2)) +
+	     10321920.0*r2*SQR(SQR(s2))*s2)*
+	    exp(-r2/(4.0*s2)) -
+	    41287680.0*SQR(SQR(s2))*SQR(s2)*(1.0-exp(-r2/(4.0*s2))));
+#endif
+
+  return(integral);
 }
 
 void build_rt(dx,dy,eps,r,t)
@@ -199,8 +222,6 @@ void build_psi(dx,dy,eps,r,t,psi_c,psi_RT)
 
 }
 
-
-
 /* These results must be multiplied by dx */
 void dx_coeff(oldRT,RT,offset_exp,a2)
      double oldRT[maxexp],RT[maxexp],a2;
@@ -248,9 +269,9 @@ void dxx_coeff(oldRT,RT,offset_exp,a2)
 
   for (m=0; m<maxexp; ++m)
     {
-      if (m>1)
+      if (m > 1)
 	RT[m-2] += (2.0/a2)*m*(m-1)*oldRT[m];
-      if (m>0)
+      if (m > 0)
 	RT[m-1] += (2.0/a2)*m*(m-2*(m+offset_exp))*oldRT[m];
       RT[m] += (2.0/a2)*(m+offset_exp)*(m+offset_exp-2*m)*oldRT[m];
       if (m < maxexp-1)
@@ -536,11 +557,9 @@ double build_psi_xxx(dx,dy,str,s2,s4,a2,eps,r,t,
 
   /* Leibnitz rule correction.*/
 
-  psi_xxx += str/4.0/s4*exp(-r[0]/4.0/s2)*
-    dx/a2*
-    (psi_xx_c[0]*r[0]+psi_xx_c[1]*r[1]+psi_xx_c[2]*r[2]+
-     psi_xx_c[3]*r[3]+psi_xx_c[4]*r[4]-
-     psi2coeffA);
+  for (p=0; p<maxpolyn; ++p)
+    psi_xxx += str/4.0/s4*exp(-r[0]/4.0/s2)*dx/a2*psi_xx_c[p]*r[p];
+  psi_xxx -= str/4.0/s4*exp(-r[0]/4.0/s2)*dx/a2*psi2coeffA;
 
   /*** End psi_xxx calculation ***/
 
@@ -580,11 +599,9 @@ double build_psi_xxy(dx,dy,str,s2,s4,a2,eps,r,t,
 
   /* Leibnitz rule correction.*/
 
-  psi_xxy += str/4.0/s4*exp(-r[0]/4.0/s2)*
-    dy*a2*
-    (psi_xx_c[0]*r[0]+psi_xx_c[1]*r[1]+psi_xx_c[2]*r[2]+
-     psi_xx_c[3]*r[3]+psi_xx_c[4]*r[4]-
-     psi2coeffA);
+  for (p=0; p<maxpolyn; ++p)
+    psi_xxy += str/4.0/s4*exp(-r[0]/4.0/s2)*dy*a2*psi_xx_c[p]*r[p];
+  psi_xxy -= str/4.0/s4*exp(-r[0]/4.0/s2)*dy*a2*psi2coeffA;
 
   /*** End psi_xxy calculation ***/
 
@@ -624,11 +641,9 @@ double build_psi_xyy(dx,dy,str,s2,s4,a2,eps,r,t,
 
   /* Leibnitz rule correction.*/
 
-  psi_xyy += str/4.0/s4*exp(-r[0]/4.0/s2)*
-    dx/a2*
-    (psi_yy_c[0]*r[0]+psi_yy_c[1]*r[1]+psi_yy_c[2]*r[2]+
-     psi_yy_c[3]*r[3]+psi_yy_c[4]*r[4]-
-     psi2coeffB);
+  for (p=0; p<maxpolyn; ++p)
+    psi_xyy += str/4.0/s4*exp(-r[0]/4.0/s2)*dx/a2*psi_yy_c[p]*r[p];
+  psi_xyy -= str/4.0/s4*exp(-r[0]/4.0/s2)*dx/a2*psi2coeffB;
 
   /*** End psi_xyy calculation ***/
 
@@ -666,13 +681,11 @@ double build_psi_yyy(dx,dy,str,s2,s4,a2,eps,r,t,
   
   psi_yyy = str*expint(psi_yyy_c,s2,r[0]);
 
-  /* Leibnitz rule correction for axisymmetric solution.*/
+  /* Leibnitz rule correction.*/
 
-  psi_yyy += str/4.0/s4*exp(-r[0]/4.0/s2)*
-    dy*a2*
-    (psi_yy_c[0]*r[0]+psi_yy_c[1]*r[1]+psi_yy_c[2]*r[2]+
-     psi_yy_c[3]*r[3]+psi_yy_c[4]*r[4]-
-     psi2coeffB);
+  for (p=0; p<maxpolyn; ++p)
+    psi_yyy += str/4.0/s4*exp(-r[0]/4.0/s2)*dy*a2*psi_yy_c[p]*r[p];
+  psi_yyy -= str/4.0/s4*exp(-r[0]/4.0/s2)*dy*a2*psi2coeffB;
 
   /*** End psi_yyy calculation ***/
 
