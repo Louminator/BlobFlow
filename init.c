@@ -927,9 +927,7 @@ void init(int argc, char *argv[])
   TimeStep = PrefStep;
   SimTime = 0.0;
 
-  printf("Entering startup\n");
   startup_new();
-  printf("Done with startup\n");
 
   nsplit   = 0;
   refinestack = 0;
