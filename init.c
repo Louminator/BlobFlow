@@ -951,16 +951,6 @@ void init(int argc, char *argv[])
   TimeStep = PrefStep;
   SimTime = 0.0;
 
-  printf("x: %16.6e  y: %16.6e\n",mblob[763].blob0.x,mblob[763].blob0.y);
-  printf("u:%16.6e v:%16.6e\n",mblob[763].blob0.dx,mblob[763].blob0.dy);
-  printf("u_x:%16.6e u_y:%16.6e v_x:%16.6e\n",
-	 tmpparms[763].du11,tmpparms[763].du12,tmpparms[763].du21);
-  printf("u_xx:%16.6e u_xy:%16.6e u_yy:%16.6e v_xx:%16.6e\n",
-	 tmpparms[763].u_xx,tmpparms[763].u_xy,
-	 tmpparms[763].u_yy,tmpparms[763].v_xx);
-
-  exit(1);
-
   startup_new();
 
   nsplit   = 0;
