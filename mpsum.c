@@ -61,34 +61,22 @@ void vort_vort_interaction(i,j)
        eps = (1.0-sqrt(blobguts[j].a2))/
 	 (1.0+sqrt(blobguts[j].a2));
        a.du11 = 0.0;
-       a.du12 = -(mblob[j].blob0.strength/
-		  (2.0*blobguts[j].s2))*
+       a.du12 = -(mblob[j].blob0.strength/(2.0*blobguts[j].s2))*
 	 (0.5+eps-eps*SQR(eps));
-       a.du21 = (mblob[j].blob0.strength/
-		 (2.0*blobguts[j].s2))*
+       a.du21 = (mblob[j].blob0.strength/(2.0*blobguts[j].s2))*
 	 (0.5-eps+eps*SQR(eps));
 		    
        tmpparms[i].du11 += (a.du11*
-			    (tmpparms[j].cos2-
-			     tmpparms[j].sin2)-
-			    (a.du12+a.du21)*
-			    tmpparms[j].sincos);
+			    (tmpparms[j].cos2-tmpparms[j].sin2)-
+			    (a.du12+a.du21)*tmpparms[j].sincos);
 		    
-       tmpparms[i].du12 += (2.0*a.du11*
-			    tmpparms[j].sincos+
-			    a.du12*
-			    tmpparms[j].cos2-
-			    a.du21*
-			    tmpparms[j].sin2);
+       tmpparms[i].du12 += (2.0*a.du11*tmpparms[j].sincos+
+			    a.du12*tmpparms[j].cos2-
+			    a.du21*tmpparms[j].sin2);
 		    
-       tmpparms[i].du21 += (2.0*a.du11*
-			    tmpparms[j].sincos-
-			    a.du12*
-			    tmpparms[j].sin2+
-			    a.du21*
-			    tmpparms[j].cos2);
-
-
+       tmpparms[i].du21 += (2.0*a.du11*tmpparms[j].sincos-
+			    a.du12*tmpparms[j].sin2+
+			    a.du21*tmpparms[j].cos2);
      }
 }
 
