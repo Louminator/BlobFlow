@@ -331,7 +331,7 @@ double build_psi_x(dx,dy,str,s2,s4,a2,eps,r,t,psi_c,psi_x_c,psi_RT,psi_x_RT)
   /* Plus the psi_2 component */
 
   psi_x += str/2.0/s2*exp(-r[0]/4.0/s2)*
-    dx/(a2+1.0);
+    dx*psi2coeffA;
 
   /*** End psi_x calculation ***/
   return(psi_x);
@@ -374,15 +374,7 @@ double build_psi_y(dx,dy,str,s2,s4,a2,eps,r,t,psi_c,psi_y_c,psi_RT,psi_y_RT)
   /* Plus the psi_2 component */
 
   psi_y += str/2.0/s2*exp(-r[0]/4.0/s2)*
-    dy/(1.0+1.0/a2);
-
-  /* Leibnitz rule correction for axisymmetric solution.*/
-
-  psi_y += str/4.0/s4*exp(-r[0]/4.0/s2)*
-    dy*a2*
-    (psi_c[0]*r[0]+psi_c[1]*r[1]+psi_c[2]*r[2]+
-     psi_c[3]*r[3]+psi_c[4]*r[4]-0.5*
-     (SQR(dx)+SQR(dy)*a2)/(a2+1.0));
+    dy*psi2coeffB;
 
   /*** End psi_y calculation ***/
 
@@ -422,7 +414,7 @@ double build_psi_xx(dx,dy,str,s2,s4,a2,eps,r,t,
 
   /* Plus the psi_2 component */
 
-  psi_xx += str/2.0/s2*exp(-r[0]/4.0/s2)/(a2+1.0);
+  psi_xx += str/2.0/s2*exp(-r[0]/4.0/s2)*psi2coeffA;
 
   /*** End psi_xx calculation ***/
 
@@ -462,7 +454,7 @@ double build_psi_yy(dx,dy,str,s2,s4,a2,eps,r,t,
 
   /* Plus the psi_2 component */
 
-  psi_yy += str/2.0/s2*exp(-r[0]/4.0/s2)/(1.0/a2+1.0);
+  psi_yy += str/2.0/s2*exp(-r[0]/4.0/s2)*psi2coeffB;
 
   /*** End psi_yy calculation ***/
 
@@ -546,7 +538,7 @@ double build_psi_xxx(dx,dy,str,s2,s4,a2,eps,r,t,
     dx/a2*
     (psi_xx_c[0]*r[0]+psi_xx_c[1]*r[1]+psi_xx_c[2]*r[2]+
      psi_xx_c[3]*r[3]+psi_xx_c[4]*r[4]-
-     1.0/(a2+1.0));
+     psi2coeffA);
 
   /*** End psi_xxx calculation ***/
 
@@ -590,7 +582,7 @@ double build_psi_xxy(dx,dy,str,s2,s4,a2,eps,r,t,
     dy*a2*
     (psi_xx_c[0]*r[0]+psi_xx_c[1]*r[1]+psi_xx_c[2]*r[2]+
      psi_xx_c[3]*r[3]+psi_xx_c[4]*r[4]-
-     1.0/(a2+1.0));
+     psi2coeffA);
 
   /*** End psi_xxy calculation ***/
 
@@ -634,7 +626,7 @@ double build_psi_xyy(dx,dy,str,s2,s4,a2,eps,r,t,
     dx/a2*
     (psi_yy_c[0]*r[0]+psi_yy_c[1]*r[1]+psi_yy_c[2]*r[2]+
      psi_yy_c[3]*r[3]+psi_yy_c[4]*r[4]-
-     a2/(a2+1.0));
+     psi2coeffB);
 
   /*** End psi_xyy calculation ***/
 
@@ -678,78 +670,10 @@ double build_psi_yyy(dx,dy,str,s2,s4,a2,eps,r,t,
     dy*a2*
     (psi_yy_c[0]*r[0]+psi_yy_c[1]*r[1]+psi_yy_c[2]*r[2]+
      psi_yy_c[3]*r[3]+psi_yy_c[4]*r[4]-
-     a2/(a2+1.0));
+     psi2coeffB);
 
   /*** End psi_yyy calculation ***/
 
   return(psi_yyy);
-}
-
-double newu(dx,dy,str,s2,eps)
-     double str,s2,eps,dx,dy;
-{
-  double r[maxexp],t[maxexp];
-  double a2,s4;
-
-  double psi_RT[maxpolyn][maxexp];
-  double psi_x_RT[maxpolyn][maxexp],psi_y_RT[maxpolyn][maxexp];
-  double psi_xx_RT[maxpolyn][maxexp],psi_yy_RT[maxpolyn][maxexp];
-  double psi_xy_RT[maxpolyn][maxexp];
-  double psi_xxx_RT[maxpolyn][maxexp],psi_xxy_RT[maxpolyn][maxexp];
-  double psi_xyy_RT[maxpolyn][maxexp],psi_yyy_RT[maxpolyn][maxexp];
-
-  double psi_x,psi_y,psi_xx,psi_yy,psi_xy;
-  double psi_xxx,psi_xxy,psi_xyy,psi_yyy;
-
-  double psi_c[maxpolyn],psi_x_c[maxpolyn],psi_y_c[maxpolyn];
-  double psi_xx_c[maxpolyn],psi_xy_c[maxpolyn],psi_yy_c[maxpolyn];
-  double psi_xxx_c[maxpolyn],psi_xxy_c[maxpolyn];
-  double psi_xyy_c[maxpolyn],psi_yyy_c[maxpolyn];
-
-  a2 = SQR((1+eps)/(1-eps));
-  s4 = SQR(s2);
-   
-  build_rt(dx,dy,eps,r,t);
-
-  build_psi(dx,dy,eps,r,t,psi_c,psi_RT);
-
-  psi_x = build_psi_x(dx,dy,str,s2,s4,a2,eps,r,t,
-		      psi_c,psi_x_c,psi_RT,psi_x_RT);
-
-  psi_y = build_psi_y(dx,dy,str,s2,s4,a2,eps,r,t,
-		      psi_c,psi_y_c,psi_RT,psi_y_RT);
-  
-  psi_xx = build_psi_xx(dx,dy,str,s2,s4,a2,eps,r,t,
-			psi_x_c,psi_xx_c,psi_RT,psi_xx_RT);
-  
-  psi_yy = build_psi_yy(dx,dy,str,s2,s4,a2,eps,r,t,
-			psi_y_c,psi_yy_c,psi_RT,psi_yy_RT);
-  
-  psi_xy = build_psi_xy(dx,dy,str,s2,s4,a2,eps,r,t,
-			psi_y_c,psi_xy_c,psi_RT,psi_xy_RT);
-  
-  psi_xxx = build_psi_xxx(dx,dy,str,s2,s4,a2,eps,r,t,
-			  psi_xx_c,psi_xxx_c,psi_xx_RT,psi_xxx_RT);
-  
-  psi_xxy = build_psi_xxy(dx,dy,str,s2,s4,a2,eps,r,t,
-			  psi_xx_c,psi_xxy_c,psi_xx_RT,psi_xxy_RT);
-  
-  psi_xyy = build_psi_xyy(dx,dy,str,s2,s4,a2,eps,r,t,
-			  psi_yy_c,psi_xyy_c,psi_yy_RT,psi_xyy_RT);
-  
-  psi_yyy = build_psi_yyy(dx,dy,str,s2,s4,a2,eps,r,t,
-			  psi_yy_c,psi_yyy_c,psi_yy_RT,psi_yyy_RT);
-  
-  printf("psi_x: %10.4e\n",psi_x);
-  printf("psi_y: %10.4e\n",psi_y);
-  printf("psi_xx: %10.4e\n",psi_xx);
-  printf("psi_yy: %10.4e\n",psi_yy);
-  printf("psi_xy: %10.4e\n",psi_xy);
-  printf("psi_xxx: %10.4e\n",psi_xxx);
-  printf("psi_xxy: %10.4e\n",psi_xxy);
-  printf("psi_xyy: %10.4e\n",psi_xyy);
-  printf("psi_yyy: %10.4e\n",psi_yyy);
-
-  return(-psi_y);
 }
 

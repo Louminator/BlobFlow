@@ -37,12 +37,13 @@
 #define MIN(A,B) ((A) < (B) ? (A) : (B))
 
 #define CORRECTVEL4
+#define NOFASTMP
 /* Set LINEAR to impose your own velocity field. */
 #undef  LINEAR
 #undef  cashkarp
 
 #define NMax 50000   /* Maximum number of computational elements. */
-#define PMax 40      /* Maximum number of multipole coefficients. */
+#define PMax 30      /* Maximum number of multipole coefficients. */
 #define LMax 7     /* Maximum number of levels of refinement in 
                         multipole summation */
 #define MaxSplitConf 8 /*Maximum number of elements that a single element */
@@ -57,6 +58,10 @@
 #if PSI_ORDER == 4
 #define maxexp 5
 #define maxpolyn 5
+/* 4th order approximation to   1/(a^2+1) */
+#define psi2coeffA (0.5-eps+eps*eps*eps)
+/* 4th order approximation to a^2/(a^2+1) */
+#define psi2coeffB (0.5+eps-eps*eps*eps)
 #endif
 
 #if PSI_ORDER == 5

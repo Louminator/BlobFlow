@@ -114,6 +114,19 @@ int vort;
    
    for (i=0; i<N; ++i)
      vort_vort_interaction(vort,i);
+
+   if (vort == 519)
+     {
+       printf("x:%12.4e y:%12.4e\n",
+	      mblob[vort].blob0.x,mblob[vort].blob0.y);
+       printf("vx: %12.4e vy: %12.4e\n",
+	      mblob[vort].blob0.dx,mblob[vort].blob0.dy);
+       printf("du11: %12.4e du12: %12.4e du21: %12.4e\n",
+	      tmpparms[vort].du11,tmpparms[vort].du12,tmpparms[vort].du21);
+       printf("u_xx: %12.4e u_xy: %12.4e u_yy: %12.4e v_xx: %12.4e\n",
+	      tmpparms[vort].u_xx,tmpparms[vort].u_xy,tmpparms[vort].u_yy,
+	      tmpparms[vort].v_xx);
+     }
 }
 
 vector dpos_vel_gen(pos,the_blobguts,parms)
@@ -169,8 +182,7 @@ void dpos_vel_fast(vort)
    /* Uses a special finer grid for merging */
    MP_Direct3(vort,mplevels);
 
-   /*
-   if (vort == 700)
+   if (vort == 519)
      {
        printf("x:%12.4e y:%12.4e\n",
 	      mblob[vort].blob0.x,mblob[vort].blob0.y);
@@ -182,7 +194,6 @@ void dpos_vel_fast(vort)
 	      tmpparms[vort].u_xx,tmpparms[vort].u_xy,tmpparms[vort].u_yy,
 	      tmpparms[vort].v_xx);
      }
-   */
 }
 
 void correct_vel_4()
