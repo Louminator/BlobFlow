@@ -216,7 +216,7 @@ void partition(int levels)
 void Init_Fine_Grid(int levels)
 {
    int i,j,p,size,buffsize,start,end;
-   complex *Coeff_Array,*Coeff_buff,*Cum_buff,tmpz,dz,mp[PMax];
+   complex *Coeff_Array,*Coeff_buff,tmpz,dz,mp[PMax];
    
    
    Coeff_Array = Level_Ptr[levels-1];
@@ -234,7 +234,6 @@ void Init_Fine_Grid(int levels)
    buffsize = PMax*((int) ldexp(1.0,2*(levels)));
 
    Coeff_buff = malloc(sizeof(complex)*buffsize);
-   Cum_buff   = malloc(sizeof(complex)*buffsize);
 
    start = rank*((int) CARDINALITY/total_processes);
    end   = (rank+1)*((int) CARDINALITY/total_processes);
@@ -260,31 +259,15 @@ void Init_Fine_Grid(int levels)
 	  }
      }
 
-   for (j=0; j<PMax*size*size; ++j)
-     *(Cum_buff+j)   = *(Coeff_Array+j);
+   MPI_Reduce(Coeff_Array,Coeff_buff,2*buffsize,MPI_DOUBLE,
+	      MPI_SUM,0,MPI_COMM_WORLD);
 
-   for (i=0; i<total_processes; ++i)
-     {
-       if (i==rank)
-	 MPI_Bcast (Coeff_Array, 2*buffsize, MPI_DOUBLE, i, 
-		    MPI_COMM_WORLD );
-       else
-	 {
-	   MPI_Bcast (Coeff_buff, 2*buffsize, MPI_DOUBLE, i, 
-		      MPI_COMM_WORLD );
-	   for (j=0; j<PMax*size*size; ++j)
-	     {
-	       (*(Cum_buff+j)).re += (*(Coeff_buff+j)).re;
-	       (*(Cum_buff+j)).im += (*(Coeff_buff+j)).im;
-	     }
-	 }
-     }
+   MPI_Bcast (Coeff_buff, 2*buffsize, MPI_DOUBLE, 0, MPI_COMM_WORLD );
 
    for (j=0; j<PMax*size*size; ++j)
-     *(Coeff_Array+j) = *(Cum_buff+j);
+     *(Coeff_Array+j) = *(Coeff_buff+j);
 
    free(Coeff_buff);
-   free(Cum_buff);
 #else
    for (i=0; i<N; ++i)
      {
