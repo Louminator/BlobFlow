@@ -81,7 +81,7 @@ void vel_field()
 	dpos_vel_fast(j);
 #endif
 #endif
-	if (j == 519)
+	if (j == 763)
 	  {
 	    printf("x:%12.4e y:%12.4e\n",
 		   mblob[j].blob0.x,mblob[j].blob0.y);

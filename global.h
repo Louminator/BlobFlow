@@ -56,7 +56,7 @@
 #define PSI_ORDER 4
 
 #if PSI_ORDER == 4
-#define maxexp 5
+#define maxexp 6
 #define maxpolyn 5
 /* 4th order approximation to   1/(a^2+1) */
 #define psi2coeffA (0.5-eps+eps*eps*eps)
@@ -65,12 +65,12 @@
 #endif
 
 #if PSI_ORDER == 5
-#define maxexp 6
+#define maxexp 7
 #define maxpolyn 6
 #endif
 
 #if PSI_ORDER == 6
-#define maxexp 7
+#define maxexp 8
 #define maxpolyn 7
 #endif
 

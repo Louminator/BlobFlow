@@ -253,7 +253,8 @@ void dxx_coeff(oldRT,RT,offset_exp,a2)
       if (m>0)
 	RT[m-1] += (2.0/a2)*m*(m-2*(m+offset_exp))*oldRT[m];
       RT[m] += (2.0/a2)*(m+offset_exp)*(m+offset_exp-2*m)*oldRT[m];
-      RT[m+1] += (2.0/a2)*(m+offset_exp)*(m+offset_exp+1)*oldRT[m];
+      if (m < maxexp-1)
+	RT[m+1] += (2.0/a2)*(m+offset_exp)*(m+offset_exp+1)*oldRT[m];
     }
 }
 
@@ -273,7 +274,8 @@ void dyy_coeff(oldRT,RT,offset_exp,a2)
       if (m>0)
 	RT[m-1] += 2.0*a2*m*(2*(m+offset_exp)-m)*oldRT[m];
       RT[m] += 2.0*a2*(m+offset_exp)*(m+offset_exp-2*m)*oldRT[m];
-      RT[m+1] -= 2.0*a2*(m+offset_exp)*(m+offset_exp+1)*oldRT[m];
+      if (m < maxexp-1)
+	RT[m+1] -= 2.0*a2*(m+offset_exp)*(m+offset_exp+1)*oldRT[m];
     }
 }
 
