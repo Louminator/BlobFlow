@@ -271,41 +271,82 @@ int       steps;
 
    for (i=0; i<steps; ++i)
      {
-       /* Check for rapid reorientation. */
-       if (fabs(1.0/(*blobguts).a2-(*blobguts).a2) >= axisymmtol)
-	 {
-	   set_blob(tempguts,tempparms);
+       set_blob(tempguts,tempparms);
 	   
-	   dy(tempguts,tempparms,ds2,da2,dth);
+       dy(tempguts,tempparms,ds2,da2,dth);
 	
-	   /* Forward Euler */
+       /* Forward Euler */
+       if (finite(dth[0]) != 0)
+	 {
 	   tempguts[1].th = tempguts[0].th+0.5*prefstep*dth[0];
 	   tempguts[1].s2 = tempguts[0].s2+0.5*prefstep*ds2[0];
 	   tempguts[1].a2 = tempguts[0].a2+0.5*prefstep*da2[0];
 	   tempparms[1] = tempparms[0];
-	   set_blob(tempguts+1,tempparms+1);
+	 }
+       else
+	 {
+	   dth[0] = 0.0;
+	   th_slave(tempguts,tempparms);
+	   dy_slave(tempguts,tempparms,ds2,da2);
+	
+	   tempguts[1].s2 = tempguts[0].s2+0.5*prefstep*ds2[0];
+	   tempguts[1].a2 = tempguts[0].a2+0.5*prefstep*da2[0];
+	   tempparms[1] = tempparms[0];
+	   th_slave(tempguts+1,tempparms+1);
+	
+	   dy_slave(tempguts+1,tempparms+1,ds2+1,da2+1);
+	 }
+       set_blob(tempguts+1,tempparms+1);
 
-	   dy(tempguts+1,tempparms+1,ds2+1,da2+1,dth+1);
+       dy(tempguts+1,tempparms+1,ds2+1,da2+1,dth+1);
 
-	   /* Backward Euler */
+       /* Backward Euler */
+       if (finite(dth[1]) != 0)
+	 {
 	   tempguts[2].th = tempguts[0].th+0.5*prefstep*dth[1];
 	   tempguts[2].s2 = tempguts[0].s2+0.5*prefstep*ds2[1];
 	   tempguts[2].a2 = tempguts[0].a2+0.5*prefstep*da2[1];
 	   tempparms[2] = tempparms[1];
-	   set_blob(tempguts+2,tempparms+2);
+	 }
+       else
+	 {
+	   dth[1] = 0.0;
+	   tempguts[2].s2 = tempguts[0].s2+0.5*prefstep*ds2[1];
+	   tempguts[2].a2 = tempguts[0].a2+0.5*prefstep*da2[1];
+	   tempparms[2] = tempparms[1];
+	   th_slave(tempguts+2,tempparms+2);
 	
-	   dy(tempguts+2,tempparms+2,ds2+2,da2+2,dth+2);
+	   dy_slave(tempguts+2,tempparms+2,ds2+2,da2+2);
+	 }
+       set_blob(tempguts+2,tempparms+2);
+	   
+       dy(tempguts+2,tempparms+2,ds2+2,da2+2,dth+2);
 
-	   /* Midpoint rule. */
+       /* Midpoint rule. */
+       if (finite(dth[2]) != 0)
+	 {
 	   tempguts[3].th = tempguts[0].th+prefstep*dth[2];
 	   tempguts[3].s2 = tempguts[0].s2+prefstep*ds2[2];
 	   tempguts[3].a2 = tempguts[0].a2+prefstep*da2[2];
 	   tempparms[3] = tempparms[2];
-	   set_blob(tempguts+3,tempparms+3);
+	 }
+       else
+	 {
+	   dth[2] = 0.0;
+	   tempguts[3].s2 = tempguts[0].s2+prefstep*ds2[2];
+	   tempguts[3].a2 = tempguts[0].a2+prefstep*da2[2];
+	   tempparms[3] = tempparms[2];
+	   th_slave(tempguts+3,tempparms+3);
 	
-	   dy(tempguts+3,tempparms+3,ds2+3,da2+3,dth+3);
+	   dy_slave(tempguts+3,tempparms+3,ds2+3,da2+3);
+	 }
+       set_blob(tempguts+3,tempparms+3);
+	
+       dy(tempguts+3,tempparms+3,ds2+3,da2+3,dth+3);
 
-	   /* Simpson's rule corrector. */
+       /* Simpson's rule corrector. */
+       if (finite(dth[3]) != 0)
+	 {
 	   tempguts[4].th = tempguts[0].th+
 	     prefstep*(dth[0] + 2.0*dth[1] + 2.0*dth[2] + dth[3])/6.0;
 	   tempguts[4].s2 = tempguts[0].s2+
@@ -313,53 +354,20 @@ int       steps;
 	   tempguts[4].a2 = tempguts[0].a2+
 	     prefstep*(da2[0] + 2.0*da2[1] + 2.0*da2[2] + da2[3])/6.0;
 	   tempparms[4] = tempparms[3];
-	   set_blob(tempguts+4,tempparms+4);
-	
-	   tempguts[0] = tempguts[4];
-	   tempparms[0] = tempparms[4];
 	 }
        else
 	 {
-	   set_blob(tempguts,tempparms);
-
-	   th_slave(tempguts,tempparms);
-	   dy_slave(tempguts,tempparms,ds2,da2);
-	
-	   /* Forward Euler */
-	   tempguts[1].s2 = tempguts[0].s2+0.5*prefstep*ds2[0];
-	   tempguts[1].a2 = tempguts[0].a2+0.5*prefstep*da2[0];
-	   tempparms[1] = tempparms[0];
-	   th_slave(tempguts+1,tempparms+1);
-	
-	   dy_slave(tempguts+1,tempparms+1,ds2+1,da2+1);
-
-	   /* Backward Euler */
-	   tempguts[2].s2 = tempguts[0].s2+0.5*prefstep*ds2[1];
-	   tempguts[2].a2 = tempguts[0].a2+0.5*prefstep*da2[1];
-	   tempparms[2] = tempparms[1];
-	   th_slave(tempguts+2,tempparms+2);
-	
-	   dy_slave(tempguts+2,tempparms+2,ds2+2,da2+2);
-
-	   /* Midpoint rule. */
-	   tempguts[3].s2 = tempguts[0].s2+prefstep*ds2[2];
-	   tempguts[3].a2 = tempguts[0].a2+prefstep*da2[2];
-	   tempparms[3] = tempparms[2];
-	   th_slave(tempguts+3,tempparms+3);
-	
-	   dy_slave(tempguts+3,tempparms+3,ds2+3,da2+3);
-
-	   /* Simpson's rule corrector. */
 	   tempguts[4].s2 = tempguts[0].s2+
 	     prefstep*(ds2[0] + 2.0*ds2[1] + 2.0*ds2[2] + ds2[3])/6.0;
 	   tempguts[4].a2 = tempguts[0].a2+
 	     prefstep*(da2[0] + 2.0*da2[1] + 2.0*da2[2] + da2[3])/6.0;
 	   tempparms[4] = tempparms[3];
 	   th_slave(tempguts+4,tempparms+4);
-	
-	   tempguts[0] = tempguts[4];
-	   tempparms[0] = tempparms[4];
 	 }
+       set_blob(tempguts+4,tempparms+4);
+	
+       tempguts[0] = tempguts[4];
+       tempparms[0] = tempparms[4];
      }
    
    *blobguts = tempguts[4];
