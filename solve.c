@@ -822,5 +822,3 @@ double timestep;
   stepper(blobguts,parms,prefstep,steps);
   (*parms).nint = steps;
 }
-
-

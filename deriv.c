@@ -219,9 +219,6 @@ double dtth(the_blobguts,parms)
 blob_internal *the_blobguts;
 blobparms *parms;
 {
-
-  /* Non-regularized code. */
-
   return( ((*parms).du21 - (*parms).du12)/2.0 +
 	  ( (((*parms).du21 + (*parms).du12)/2.0)*
 	    ((*parms).sin2-(*parms).cos2) +
