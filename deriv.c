@@ -89,6 +89,7 @@ void vel_field()
    N /= 2;
 #endif   
 
+   correct_vel_4();
    Release_Links(mplevels);
 }
 
@@ -96,11 +97,7 @@ void dpos_vel(vort)
 int vort;
 {
    int i;
-   double dx,dy,eps;
-   double r[5],t[5],even[5],odd[5];
-   vector v;
-   tensor a;
-   
+    
    mblob[vort].blob0.dx = 0.0;
    mblob[vort].blob0.dy = 0.0;
 
@@ -114,49 +111,7 @@ int vort;
    tmpparms[vort].v_xx = 0.0;
    
    for (i=0; i<N; ++i)
-     {
-       vort_vort_interaction(vort,i);
-
-       /*
-	dx = mblob[vort].blob0.x-mblob[i].blob0.x;
-	dy = mblob[vort].blob0.y-mblob[i].blob0.y;
-
-	if ( (dx != 0.0) || (dy != 0.0) )
-	  {
-	     v = induced_vel(&(mblob[i].blob0),&(blobguts[i]),
-			     &(tmpparms[i]),dx,dy,
-			     r,t,even,odd);
-	     mblob[vort].blob0.dx += v.x;
-	     mblob[vort].blob0.dy += v.y;
-
-	     a = induced_veldev(&(mblob[i].blob0),&(blobguts[i]),
-				&(tmpparms[i]),dx,dy,
-				r,t,even,odd);
-	     
-	     tmpparms[vort].du11 += a.du11;
-	     tmpparms[vort].du12 += a.du12;
-	     tmpparms[vort].du21 += a.du21;
-	  }
-	else
-	  {
-	     eps = (1.0-sqrt(blobguts[i].a2))/(1.0+sqrt(blobguts[i].a2));
-	     a.du11 = 0.0;
-	     a.du12 = -(mblob[i].blob0.strength/(2.0*blobguts[i].s2))*
-	       (0.5+eps-eps*SQR(eps));
-	     a.du21 = (mblob[i].blob0.strength/(2.0*blobguts[i].s2))*
-	       (0.5-eps+eps*SQR(eps));
-
-	     tmpparms[vort].du11 += (a.du11*(tmpparms[i].cos2-tmpparms[i].sin2)-
-			    (a.du12+a.du21)*tmpparms[i].sincos);
-   
-	     tmpparms[vort].du12 += (2.0*a.du11*tmpparms[i].sincos+
-			    a.du12*tmpparms[i].cos2-a.du21*tmpparms[i].sin2);
-   
-	     tmpparms[vort].du21 += (2.0*a.du11*tmpparms[i].sincos-
-			    a.du12*tmpparms[i].sin2+a.du21*tmpparms[i].cos2);
-	  }
-       */
-     }
+     vort_vort_interaction(vort,i);
 }
 
 vector dpos_vel_gen(pos,the_blobguts,parms)
@@ -226,6 +181,33 @@ void dpos_vel_fast(vort)
 	      tmpparms[vort].v_xx);
      }
    */
+}
+
+void correct_vel_4()
+{
+  int i;
+  double termA, termB, termC;
+
+  for (i=0; i<N; ++i)
+    {
+      termA = (tmpparms[i].cos2*blobguts[i].a2+
+	       tmpparms[i].sin2/blobguts[i].a2);
+      
+      termB = (tmpparms[i].sin2*blobguts[i].a2+
+	       tmpparms[i].cos2/blobguts[i].a2);
+      
+      termC = tmpparms[i].sincos*(blobguts[i].a2-1.0/blobguts[i].a2);
+      
+      mblob[i].blob0.dx += blobguts[i].s2*
+	(tmpparms[i].u_xx*termA + 
+	 tmpparms[i].u_yy*termB + 
+	 2.0*tmpparms[i].u_xy*termC);
+	
+      mblob[i].blob0.dy += blobguts[i].s2*
+	(tmpparms[i].v_xx*termA + 
+	 (-tmpparms[i].u_xy)*termB + 
+	 2.0*(-tmpparms[i].u_xx)*termC);
+    }
 }
 
 double dts2(the_blobguts)

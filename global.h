@@ -253,6 +253,7 @@ extern int  C(int,int);
 extern complex cmult(complex, complex);
 extern complex cpowi(complex, int);
 extern void Calc_Coeffs(int, complex, complex[]);
+extern void correct_vel_4();
 extern void dpos_vel_fast(int);
 extern void dpos_vel_exact(int);
 extern void dpos_vel_exact_pi(int);
