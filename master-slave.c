@@ -27,7 +27,7 @@
 
 #include "global.h"
 #include "multiproc.h"
-#define WorkSize 7
+#define WorkSize 100
 
 #ifdef XANTISYMM
 #define CARDINALITY  N/2
@@ -35,7 +35,7 @@
 #define CARDINALITY  N
 #endif
 
-double wicked_big_vectah[NMax * 5];
+double wicked_big_vectah[NMax * PARTICLE_DATA_PACKET_SIZE];
 
 /*  the master-slave approach yields dynamic load balancing, so if certain 
     nodes on the multicomputer are busier, they are given less work  */
@@ -44,7 +44,7 @@ void master ( void )
 {
    int proc,vort,job,flag1;
    int workbuf[30][WorkSize],i;
-   double rbuf[30][5*WorkSize];
+   double rbuf[30][PARTICLE_DATA_PACKET_SIZE*WorkSize];
    MPI_Request mpireqs[30];
    
    int position,msgsize,membersize,packsize;
@@ -54,7 +54,8 @@ void master ( void )
    
    MPI_Pack_size(WorkSize,MPI_INT,MPI_COMM_WORLD,&membersize);
    packsize=membersize;
-   MPI_Pack_size(5*WorkSize,MPI_DOUBLE,MPI_COMM_WORLD,&membersize);
+   MPI_Pack_size(PARTICLE_DATA_PACKET_SIZE*WorkSize,
+		 MPI_DOUBLE,MPI_COMM_WORLD,&membersize);
    packsize += membersize;
    
    for (i=0; i<total_processes; ++i)
@@ -110,7 +111,8 @@ void master ( void )
 	MPI_Get_count(&mpistatus,MPI_PACKED,&msgsize);
 	MPI_Unpack(buffer[proc],msgsize,&position,workbuf[proc],WorkSize,
 		   MPI_INT,MPI_COMM_WORLD);
-	MPI_Unpack(buffer[proc],msgsize,&position,rbuf[proc],WorkSize*5,
+	MPI_Unpack(buffer[proc],msgsize,&position,rbuf[proc],
+		   WorkSize*PARTICLE_DATA_PACKET_SIZE,
 		   MPI_DOUBLE,MPI_COMM_WORLD);
 	
 	for (i=0; i<WorkSize; ++i)
@@ -119,11 +121,16 @@ void master ( void )
 	     
 	     if (vort != -1)
 	       {
-		  mblob[vort].blob0.dx = rbuf[proc][5*i+0];
-		  mblob[vort].blob0.dy = rbuf[proc][5*i+1];
-		  tmpparms[vort].du11  = rbuf[proc][5*i+2];
-		  tmpparms[vort].du12  = rbuf[proc][5*i+3];
-		  tmpparms[vort].du21  = rbuf[proc][5*i+4];
+		  mblob[vort].blob0.dx = 
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+0];
+		  mblob[vort].blob0.dy = 
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+1];
+		  tmpparms[vort].du11  = 
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+2];
+		  tmpparms[vort].du12  = 
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+3];
+		  tmpparms[vort].du21  = 
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+4];
 	       }
 	     
 	     if (job < CARDINALITY)
@@ -148,7 +155,8 @@ void master ( void )
 	MPI_Get_count(&mpistatus,MPI_PACKED,&msgsize);
 	MPI_Unpack(buffer[proc],msgsize,&position,workbuf[proc],WorkSize,
 		   MPI_INT,MPI_COMM_WORLD);
-	MPI_Unpack(buffer[proc],msgsize,&position,rbuf[proc],WorkSize*5,
+	MPI_Unpack(buffer[proc],msgsize,&position,rbuf[proc],
+		   WorkSize*PARTICLE_DATA_PACKET_SIZE,
 		   MPI_DOUBLE,MPI_COMM_WORLD);
 	
 	for (i=0; i<WorkSize; ++i)
@@ -157,11 +165,16 @@ void master ( void )
 	     
 	     if (vort != -1)
 	       {
-		  mblob[vort].blob0.dx = rbuf[proc][5*i+0];
-		  mblob[vort].blob0.dy = rbuf[proc][5*i+1];
-		  tmpparms[vort].du11  = rbuf[proc][5*i+2];
-		  tmpparms[vort].du12  = rbuf[proc][5*i+3];
-		  tmpparms[vort].du21  = rbuf[proc][5*i+4];
+		  mblob[vort].blob0.dx = 
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+0];
+		  mblob[vort].blob0.dy = 
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+1];
+		  tmpparms[vort].du11  = 
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+2];
+		  tmpparms[vort].du12  = 
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+3];
+		  tmpparms[vort].du21  = 
+		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+4];
 	       }
 	  }
 	
@@ -176,7 +189,8 @@ void master ( void )
 	MPI_Get_count(&mpistatus,MPI_PACKED,&msgsize);
 	MPI_Unpack(buffer[proc],msgsize,&position,workbuf[proc],WorkSize,
 		   MPI_INT,MPI_COMM_WORLD);
-	MPI_Unpack(buffer[proc],msgsize,&position,rbuf[proc],WorkSize*5,
+	MPI_Unpack(buffer[proc],msgsize,&position,rbuf[proc],
+		   WorkSize*PARTICLE_DATA_PACKET_SIZE,
 		   MPI_DOUBLE,MPI_COMM_WORLD);
 	
 	for (i=0; i<WorkSize; ++i)
@@ -185,11 +199,16 @@ void master ( void )
 	     
 	     if (vort != -1)
 	      {
-		 mblob[vort].blob0.dx = rbuf[proc][5*i+0];
-		 mblob[vort].blob0.dy = rbuf[proc][5*i+1];
-		 tmpparms[vort].du11  = rbuf[proc][5*i+2];
-		 tmpparms[vort].du12  = rbuf[proc][5*i+3];
-		 tmpparms[vort].du21  = rbuf[proc][5*i+4];
+		 mblob[vort].blob0.dx = 
+		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+0];
+		 mblob[vort].blob0.dy = 
+		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+1];
+		 tmpparms[vort].du11  = 
+		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+2];
+		 tmpparms[vort].du12  = 
+		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+3];
+		 tmpparms[vort].du21  = 
+		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+4];
 	      }
 	  }
      }
@@ -210,7 +229,7 @@ void master ( void )
 void slave ( void ) 
 {
    int vort,start,workbuf1[WorkSize],workbuf2[WorkSize],i;  
-   double sbuf[5*WorkSize];
+   double sbuf[PARTICLE_DATA_PACKET_SIZE*WorkSize];
    MPI_Request master_req,slave_resp;
    int position,membersize,packsize;
    char *buffer;
@@ -219,7 +238,8 @@ void slave ( void )
    
    MPI_Pack_size(WorkSize,MPI_INT,MPI_COMM_WORLD,&membersize);
    packsize=membersize;
-   MPI_Pack_size(5*WorkSize,MPI_DOUBLE,MPI_COMM_WORLD,&membersize);
+   MPI_Pack_size(PARTICLE_DATA_PACKET_SIZE*WorkSize,
+		 MPI_DOUBLE,MPI_COMM_WORLD,&membersize);
    packsize += membersize;
    
    buffer = malloc(packsize);
@@ -246,7 +266,12 @@ void slave ( void )
        for (i=0; i<WorkSize; ++i)
 	 {
 	    vort = workbuf1[i];
+	    
+#ifdef NOFASTMP
+	    dpos_vel(vort);
+#else
 	    dpos_vel_fast(vort);
+#endif
 	    
 	    /* Better wait here just in case I compute faster than I thought. */
 	    /* sbuf must be protected. */
@@ -257,18 +282,19 @@ void slave ( void )
 	    else
 	      start = 0;
 
-	    sbuf[i*5]   = mblob[vort].blob0.dx; 
-	    sbuf[i*5+1] = mblob[vort].blob0.dy;
-	    sbuf[i*5+2] = tmpparms[vort].du11 ;
-	    sbuf[i*5+3] = tmpparms[vort].du12 ;
-	    sbuf[i*5+4] = tmpparms[vort].du21 ;
+	    sbuf[i*PARTICLE_DATA_PACKET_SIZE]   = mblob[vort].blob0.dx; 
+	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+1] = mblob[vort].blob0.dy;
+	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+2] = tmpparms[vort].du11 ;
+	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+3] = tmpparms[vort].du12 ;
+	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+4] = tmpparms[vort].du21 ;
 	    workbuf2[i] = workbuf1[i];
 	 }
 
        position=0;
        MPI_Pack(workbuf2,WorkSize,MPI_INT,buffer,packsize,&position,
 		MPI_COMM_WORLD);
-       MPI_Pack(sbuf,5*WorkSize,MPI_DOUBLE,buffer,packsize,&position,
+       MPI_Pack(sbuf,PARTICLE_DATA_PACKET_SIZE*WorkSize,
+		MPI_DOUBLE,buffer,packsize,&position,
 		MPI_COMM_WORLD);
        
        MPI_Start(&slave_resp);
@@ -288,26 +314,31 @@ void finish ( void ) {
   if (rank == 0) {
     for (j=0; j<CARDINALITY; j++) 
       {
-	wicked_big_vectah[5*j]   = mblob[j].blob0.dx; 
-	wicked_big_vectah[5*j+1] = mblob[j].blob0.dy;
-	wicked_big_vectah[5*j+2] = tmpparms[j].du11 ; 
-	wicked_big_vectah[5*j+3] = tmpparms[j].du12 ;   
-	wicked_big_vectah[5*j+4] = tmpparms[j].du21 ;
+	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j]   = 
+	  mblob[j].blob0.dx; 
+	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+1] = 
+	  mblob[j].blob0.dy;
+	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+2] = 
+	  tmpparms[j].du11 ; 
+	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+3] = 
+	  tmpparms[j].du12 ;   
+	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+4] = 
+	  tmpparms[j].du21 ;
       }
   }
 
-  MPI_Bcast ( wicked_big_vectah, N*5, MPI_DOUBLE, 0, MPI_COMM_WORLD );
+  MPI_Bcast ( wicked_big_vectah, N*PARTICLE_DATA_PACKET_SIZE, MPI_DOUBLE, 0, MPI_COMM_WORLD );
 
   /* If you do not trust Bcast, try this. */
   /*
   if (rank == 0)
     {
       for (j=1; j<total_processes; ++j)
-	MPI_Send(wicked_big_vectah,N*5,MPI_DOUBLE,j,
+	MPI_Send(wicked_big_vectah,N*PARTICLE_DATA_PACKET_SIZE,MPI_DOUBLE,j,
 		 RESERVED_TAGS+j,MPI_COMM_WORLD);
     }
   else
-    MPI_Recv(wicked_big_vectah, N*5, MPI_DOUBLE, 0, RESERVED_TAGS+rank,
+    MPI_Recv(wicked_big_vectah, N*PARTICLE_DATA_PACKET_SIZE, MPI_DOUBLE, 0, RESERVED_TAGS+rank,
 	     MPI_COMM_WORLD,&mpistatus);
 	     */
   
@@ -315,11 +346,11 @@ void finish ( void ) {
     {
       for (j=0; j<CARDINALITY; j++)
       {	    
-	mblob[j].blob0.dx = wicked_big_vectah[5*j];
-	mblob[j].blob0.dy = wicked_big_vectah[5*j+1];
-	tmpparms[j].du11  = wicked_big_vectah[5*j+2];
-	tmpparms[j].du12  = wicked_big_vectah[5*j+3];
-	tmpparms[j].du21  = wicked_big_vectah[5*j+4];
+	mblob[j].blob0.dx = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j];
+	mblob[j].blob0.dy = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+1];
+	tmpparms[j].du11  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+2];
+	tmpparms[j].du12  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+3];
+	tmpparms[j].du21  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+4];
       }
   }
   

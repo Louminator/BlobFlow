@@ -898,7 +898,14 @@ void init(int argc, char *argv[])
   if (total_processes == 2)
     fprintf(mpi_log,"Running peer algorithm.\n");
   else
-    fprintf(mpi_log,"Running master/slave algorithm.\n");
+    {
+      fprintf(mpi_log,"Running master/slave algorithm.\n");
+      if (rank == 0)
+	fprintf(mpi_log,"The master is alive and kicking.\n");
+      else
+	fprintf(mpi_log,"Slave #%d is alive and kicking.\n",rank);
+    }
+  
 #endif
 
   fflush(mpi_log);

@@ -38,6 +38,7 @@
 
 #define CORRECTVEL4
 #define NOFASTMP
+
 /* Set LINEAR to impose your own velocity field. */
 #undef  LINEAR
 #undef  cashkarp

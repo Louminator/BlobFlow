@@ -39,6 +39,7 @@
 #define WORK 1
 #define MORE 2
 #define RESERVED_TAGS 5
+#define PARTICLE_DATA_PACKET_SIZE 5
 
 int total_processes, rank;
 MPI_Status mpistatus;
