@@ -26,7 +26,7 @@
 #include "global.h"
 
 #define axisymmtol 1.0e-6
-#define stifftol 1.0e-6
+#define stifftol 1.0e-5
 #define rk4itertol 14
 #define rk4l2errtol 1.0e-14
 #define rkckreltol 1.0e-7
