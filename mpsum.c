@@ -104,23 +104,25 @@ void MP_Sum(int vort, int levels)
 		  for (p=0; p<Pallowed; ++p)
 		    {
 		       tmpz = cmult(z[p],*(Coeff_Array+(i+j*size)*PMax+p));
-		       /*
-		       if (p==0)
-			 printf("Err: %12.4e ",
-				sqrt(SQR(z[p].re)+SQR(z[p].im)));
-		       if (p==PMax-1)
-			 printf("%12.4e\n",
-				sqrt(SQR(z[p].re)+SQR(z[p].im)));
-		       */
 			
 		       mblob[vort].blob0.dx += tmpz.re;
 		       mblob[vort].blob0.dy -= tmpz.im;
 		       
 		       tmpz = cmult(z[p+1],*(Coeff_Array+(i+j*size)*PMax+p));
+		       /* or */
+		       /* tmpz = cmult(tmpz,z[0]); */
 		       
 		       tmpparms[vort].du11 += -(p+1)*tmpz.re;
 		       tmpparms[vort].du12 -= -(p+1)*tmpz.im;
 		       tmpparms[vort].du21 -= -(p+1)*tmpz.im;
+
+		       tmpz = cmult(tmpz,z[0]);
+		       
+		       tmpparms[vort].u_xx += (p+1)*(p+2)*tmpz.re;
+		       tmpparms[vort].u_xy -= (p+1)*(p+2)*tmpz.im;
+		       tmpparms[vort].u_yy -= (p+1)*(p+2)*tmpz.re;
+		       tmpparms[vort].v_xx -= (p+1)*(p+2)*tmpz.im;
+
 		    } /* for p */
 		  
 	       } /* if not nearest neighbor */
@@ -185,23 +187,23 @@ void MP_Sum(int vort, int levels)
 		    {
 		       tmpz = cmult(z[p],*(Coeff_Array+(i+j*size)*PMax+p));
 		       
-		       /*
-		       if (p==0)
-			 printf("Err: %12.4e ",
-				sqrt(SQR(z[p].re)+SQR(z[p].im)));
-		       if (p==PMax-1)
-			 printf("%12.4e\n",
-				sqrt(SQR(z[p].re)+SQR(z[p].im)));
-		       */
-		       
 		       mblob[vort].blob0.dx += tmpz.re;
 		       mblob[vort].blob0.dy -= tmpz.im;
 		       
 		       tmpz = cmult(z[p+1],*(Coeff_Array+(i+j*size)*PMax+p));
+		       /* or */
+		       /* tmpz = cmult(tmpz,z[0]); */
 		       
 		       tmpparms[vort].du11 += -(p+1)*tmpz.re;
 		       tmpparms[vort].du12 -= -(p+1)*tmpz.im;
 		       tmpparms[vort].du21 -= -(p+1)*tmpz.im;
+
+		       tmpz = cmult(tmpz,z[0]);
+		       
+		       tmpparms[vort].u_xx += (p+1)*(p+2)*tmpz.re;
+		       tmpparms[vort].u_xy -= (p+1)*(p+2)*tmpz.im;
+		       tmpparms[vort].u_yy -= (p+1)*(p+2)*tmpz.re;
+		       tmpparms[vort].v_xx -= (p+1)*(p+2)*tmpz.im;
 		    } /* for p */
 	       } /* if not nearest neighbor */
 	  } /* for i,j */
@@ -265,15 +267,6 @@ void MP_Sum(int vort, int levels)
 		    {
 		       tmpz = cmult(z[p],*(Coeff_Array+(i+j*size)*PMax+p));
 		       
-		       /*
-		       if (p==0)
-			 printf("Err: %12.4e ",
-				sqrt(SQR(tmpz.re)+SQR(tmpz.im)));
-		       if (p==PMax-1)
-			 printf("%12.4e\n",
-				sqrt(SQR(tmpz.re)+SQR(tmpz.im)));
-			*/
-		       
 		       mblob[vort].blob0.dx += tmpz.re;
 		       mblob[vort].blob0.dy -= tmpz.im;
 		       
@@ -282,6 +275,13 @@ void MP_Sum(int vort, int levels)
 		       tmpparms[vort].du11 += -(p+1)*tmpz.re;
 		       tmpparms[vort].du12 -= -(p+1)*tmpz.im;
 		       tmpparms[vort].du21 -= -(p+1)*tmpz.im;
+
+		       tmpz = cmult(tmpz,z[0]);
+		       
+		       tmpparms[vort].u_xx += (p+1)*(p+2)*tmpz.re;
+		       tmpparms[vort].u_xy -= (p+1)*(p+2)*tmpz.im;
+		       tmpparms[vort].u_yy -= (p+1)*(p+2)*tmpz.re;
+		       tmpparms[vort].v_xx -= (p+1)*(p+2)*tmpz.im;
 		    } /* for p */
 	       } /* if not nearest neighbor */
 	  } /* for i,j */

@@ -44,23 +44,6 @@ double evena[5],odda[5];
    
    tensor result;
    
-   double r[maxexp],t[maxexp];
-   double a2,str;
-
-   double psi_RT[maxpolyn][maxexp];
-   double psi_x_RT[maxpolyn][maxexp],psi_y_RT[maxpolyn][maxexp];
-   double psi_xx_RT[maxpolyn][maxexp],psi_yy_RT[maxpolyn][maxexp];
-   double psi_xy_RT[maxpolyn][maxexp];
-   double psi_xxx_RT[maxpolyn][maxexp],psi_xxy_RT[maxpolyn][maxexp];
-   double psi_xyy_RT[maxpolyn][maxexp],psi_yyy_RT[maxpolyn][maxexp];
-
-   double psi_c[maxpolyn],psi_x_c[maxpolyn],psi_y_c[maxpolyn];
-   double psi_xx_c[maxpolyn],psi_xy_c[maxpolyn],psi_yy_c[maxpolyn];
-   double psi_xxx_c[maxpolyn],psi_xxy_c[maxpolyn];
-   double psi_xyy_c[maxpolyn],psi_yyy_c[maxpolyn];
-
-   double newtempa,newtempb,newtempc;
-
    /* Change bases to the local axes. */
    
    dx =  (*parms).costh*tmpdx+(*parms).sinth*tmpdy;
@@ -165,34 +148,6 @@ double evena[5],odda[5];
 			    c4*r[0])))))*exp(-r[0]/(4.0*s2)) +
        (-s2)*(4.0*c0+s2*(32.0*c1+s2*(384.0*c2+s2*(6144.0*c3+s2*122880.0*c4))))*
        (1-exp(-r[0]/(4.0*s2))));
-
-
-  a2  = (*the_blobguts).a2;
-  str = (*the_blob).strength;
-
-  build_rt(dx,dy,eps,r,t);
-  
-  build_psi(dx,dy,eps,r,t,psi_c,psi_RT);
-  
-  build_psi_x(dx,dy,str,s2,s4,a2,eps,r,t,
-	      psi_c,psi_x_c,psi_RT,psi_x_RT);
-  
-  build_psi_y(dx,dy,str,s2,s4,a2,eps,r,t,
-	      psi_c,psi_y_c,psi_RT,psi_y_RT);
-  
-  newtempa = build_psi_xx(dx,dy,str,s2,s4,a2,eps,r,t,
-			  psi_x_c,psi_xx_c,psi_RT,psi_xx_RT);
-  
-  newtempb = build_psi_yy(dx,dy,str,s2,s4,a2,eps,r,t,
-			  psi_y_c,psi_yy_c,psi_RT,psi_yy_RT);
-  
-  newtempc = build_psi_xy(dx,dy,str,s2,s4,a2,eps,r,t,
-			  psi_y_c,psi_xy_c,psi_RT,psi_xy_RT);
-
-  printf("str: %12.4e dx: %12.4e  dy: %12.4e  s2: %12.4e  a2: %12.4e\n",
-	 str,dx,dy,s2,a2);
-  printf("old:%12.4e %12.4e %12.4e\n",tempa,tempb,tempc);
-  printf("new:%12.4e %12.4e %12.4e\n",newtempa,newtempb,newtempc);
 
    result.du11 = (tempa*((*parms).cos2-(*parms).sin2)-
 		  (tempb+tempc)*(*parms).sincos);
