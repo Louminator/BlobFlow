@@ -798,7 +798,7 @@ void init(int argc, char *argv[])
   char      sim_name[Title],control_name[Title],temp[Title],*p1;
   int       i;
 
-  dth_regularize = 1.0e-5;
+  dth_regularize = 1.0e-3;
    
   /*Allocate memory for multipole coefficients.*/
   for (i=0; i<LMax; ++i)

@@ -21,7 +21,7 @@
  * Louis Rossi                                                          *
  * Department of Mathematical Sciences                                  *
  * University of Delaware                                               *
- * Newark, DE 19715-2553                                                */
+ * Newark, DE 19716                                                     */
 
 #include "global.h"
 
@@ -231,10 +231,22 @@ double dtth(the_blobguts,parms)
 blob_internal *the_blobguts;
 blobparms *parms;
 {
+  /* Regularized code. */
+  return( ((*parms).du21 - (*parms).du12)/2.0 +
+	  ( (((*parms).du21 + (*parms).du12)/2.0)*
+	    ((*parms).sin2-(*parms).cos2) +
+	    2.0*(*parms).du11*(*parms).sincos )*
+	  (1.0/SQR((*the_blobguts).a2) - SQR((*the_blobguts).a2))/
+	  (SQR(1.0/(*the_blobguts).a2 - (*the_blobguts).a2) +
+	   SQR(dth_regularize)) );
+
+  /* Non-regularized code. */
+  /*
   return( ((*parms).du21 - (*parms).du12)/2.0 +
 	  ( (((*parms).du21 + (*parms).du12)/2.0)*
 	    ((*parms).sin2-(*parms).cos2) +
 	    2.0*(*parms).du11*(*parms).sincos )*
 	  (1.0/(*the_blobguts).a2 + (*the_blobguts).a2)/
 	  (1.0/(*the_blobguts).a2 - (*the_blobguts).a2) );
+  */
 }

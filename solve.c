@@ -317,6 +317,8 @@ int       steps;
        if (finite(dth[0])*finite(dth[1])*finite(dth[2])*finite(dth[3])
 	   == 0)
 	 {
+	   fprintf(diag_log,"Warning!  This should not be happening. \n");
+	   fprintf(diag_log,"This code is supposed to be regularized but an nan has been detected.\n");
 
 	   th_slave(tempguts,tempparms);
 	   dy_slave(tempguts,tempparms,ds2,da2);
