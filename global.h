@@ -37,7 +37,7 @@
 #define MIN(A,B) ((A) < (B) ? (A) : (B))
 
 #define CORRECTVEL4
-#define NOFASTMP
+#undef  NOFASTMP
 
 /* Set LINEAR to impose your own velocity field. */
 #undef  LINEAR

@@ -1,4 +1,4 @@
-/* MS.C */
+/* MASTER-SLAVE.C */
 /* Copyright (c) 2000 Louis F. Rossi                                    *
  * Elliptical Corrected Core Spreading Vortex Method (ECCSVM) for the   *
  * simulation/approximation of incompressible flows.                    *
@@ -39,6 +39,39 @@ double wicked_big_vectah[NMax * PARTICLE_DATA_PACKET_SIZE];
 
 /*  the master-slave approach yields dynamic load balancing, so if certain 
     nodes on the multicomputer are busier, they are given less work  */
+
+void blob_to_buffer(blob,parm,buffer)
+     blob_external *blob;
+     blobparms     *parm;
+     double        *buffer;
+{
+  *buffer     = (*blob).dx;
+  *(buffer+1) = (*blob).dy;
+  *(buffer+2) = (*parm).du11;
+  *(buffer+3) = (*parm).du12;
+  *(buffer+4) = (*parm).du21;
+  *(buffer+5) = (*parm).u_xx;
+  *(buffer+6) = (*parm).u_xy;
+  *(buffer+7) = (*parm).u_yy;
+  *(buffer+8) = (*parm).v_xx;
+}
+
+void buffer_to_blob(buffer,blob,parm)
+     blob_external *blob;
+     blobparms     *parm;
+     double        *buffer;
+{
+  (*blob).dx   = *buffer;
+  (*blob).dy   = *(buffer+1);
+  (*parm).du11 = *(buffer+2);
+  (*parm).du12 = *(buffer+3);
+  (*parm).du21 = *(buffer+4);
+  (*parm).u_xx = *(buffer+5);
+  (*parm).u_xy = *(buffer+6);
+  (*parm).u_yy = *(buffer+7);
+  (*parm).v_xx = *(buffer+8);
+}
+
 
 void master ( void ) 
 {
@@ -120,27 +153,8 @@ void master ( void )
 	     vort = workbuf[proc][i];
 	     
 	     if (vort != -1)
-	       {
-		  mblob[vort].blob0.dx = 
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+0];
-		  mblob[vort].blob0.dy = 
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+1];
-		  tmpparms[vort].du11  = 
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+2];
-		  tmpparms[vort].du12  = 
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+3];
-		  tmpparms[vort].du21  = 
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+4];
-		  tmpparms[vort].u_xx  = 
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+5];
-		  tmpparms[vort].u_xy  =
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+6];
-		  tmpparms[vort].u_yy  = 
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+7];
-		  tmpparms[vort].v_xx  = 
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+8];
-	       }
-	     
+	       buffer_to_blob(&(rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i]),
+			      &(mblob[vort].blob0),&(tmpparms[vort]));
 	     if (job < CARDINALITY)
 	       workbuf[proc][i] = job;
 	     else
@@ -169,29 +183,11 @@ void master ( void )
 	
 	for (i=0; i<WorkSize; ++i)
 	  {
-	     vort = workbuf[proc][i];
+	    vort = workbuf[proc][i];
 	     
 	     if (vort != -1)
-	       {
-		  mblob[vort].blob0.dx = 
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+0];
-		  mblob[vort].blob0.dy = 
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+1];
-		  tmpparms[vort].du11  = 
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+2];
-		  tmpparms[vort].du12  = 
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+3];
-		  tmpparms[vort].du21  = 
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+4];
-		  tmpparms[vort].u_xx  = 
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+5];
-		  tmpparms[vort].u_xy  =
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+6];
-		  tmpparms[vort].u_yy  = 
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+7];
-		  tmpparms[vort].v_xx  = 
-		    rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+8];
-	       }
+	       buffer_to_blob(&(rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i]),
+			      &(mblob[vort].blob0),&(tmpparms[vort]));
 	  }
 	
 	MPI_Start(&(mpireqs[proc-1]));
@@ -214,26 +210,8 @@ void master ( void )
 	     vort = workbuf[proc][i];
 	     
 	     if (vort != -1)
-	      {
-		 mblob[vort].blob0.dx = 
-		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+0];
-		 mblob[vort].blob0.dy = 
-		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+1];
-		 tmpparms[vort].du11  = 
-		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+2];
-		 tmpparms[vort].du12  = 
-		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+3];
-		 tmpparms[vort].du21  = 
-		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+4];
-		 tmpparms[vort].u_xx  = 
-		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+5];
-		 tmpparms[vort].u_xy  =
-		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+6];
-		 tmpparms[vort].u_yy  = 
-		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+7];
-		 tmpparms[vort].v_xx  = 
-		   rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i+8];
-	      }
+	       buffer_to_blob(&(rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i]),
+			      &(mblob[vort].blob0),&(tmpparms[vort]));
 	  }
      }
    
@@ -306,15 +284,9 @@ void slave ( void )
 	    else
 	      start = 0;
 
-	    sbuf[i*PARTICLE_DATA_PACKET_SIZE]   = mblob[vort].blob0.dx; 
-	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+1] = mblob[vort].blob0.dy;
-	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+2] = tmpparms[vort].du11 ;
-	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+3] = tmpparms[vort].du12 ;
-	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+4] = tmpparms[vort].du21 ;
-	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+5] = tmpparms[vort].u_xx ;
-	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+6] = tmpparms[vort].u_xy ;
-	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+7] = tmpparms[vort].u_yy ;
-	    sbuf[i*PARTICLE_DATA_PACKET_SIZE+8] = tmpparms[vort].v_xx ;
+	    blob_to_buffer(&(mblob[vort].blob0),&(tmpparms[vort]),
+			   &(sbuf[i*PARTICLE_DATA_PACKET_SIZE]));
+
 	    workbuf2[i] = workbuf1[i];
 	 }
 
@@ -341,26 +313,8 @@ void finish ( void ) {
   
   if (rank == 0) {
     for (j=0; j<CARDINALITY; j++) 
-      {
-	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j]   = 
-	  mblob[j].blob0.dx; 
-	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+1] = 
-	  mblob[j].blob0.dy;
-	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+2] = 
-	  tmpparms[j].du11 ; 
-	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+3] = 
-	  tmpparms[j].du12 ;   
-	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+4] = 
-	  tmpparms[j].du21 ;
-	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+5] = 
-	  tmpparms[j].u_xx ;
-	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+6] = 
-	  tmpparms[j].u_xy ;
-	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+7] = 
-	  tmpparms[j].u_yy ;
-	wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+8] = 
-	  tmpparms[j].v_xx ;
-      }
+      blob_to_buffer(&(mblob[j].blob0),&(tmpparms[j]),
+		     &(wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j]));
   }
 
   MPI_Bcast ( wicked_big_vectah, N*PARTICLE_DATA_PACKET_SIZE, MPI_DOUBLE, 0, MPI_COMM_WORLD );
@@ -381,18 +335,9 @@ void finish ( void ) {
   if (rank != 0)  
     {
       for (j=0; j<CARDINALITY; j++)
-      {	    
-	mblob[j].blob0.dx = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j];
-	mblob[j].blob0.dy = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+1];
-	tmpparms[j].du11  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+2];
-	tmpparms[j].du12  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+3];
-	tmpparms[j].du21  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+4];
-	tmpparms[j].u_xx  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+5];
-	tmpparms[j].u_xy  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+6];
-	tmpparms[j].u_yy  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+7];
-	tmpparms[j].v_xx  = wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j+8];
-      }
-  }
+	buffer_to_blob(&(wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j]),
+		       &(mblob[j].blob0),&(tmpparms[j]));
+    }
   
   /*  explicit synchronization before next timestep  */
 
