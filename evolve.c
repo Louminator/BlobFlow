@@ -146,7 +146,8 @@ void run()
 	  if (blobguts[j].a2 < 0.0)
 	    {
 	      fprintf(diag_log,
-		      "WARNING: Negative a2 in element %d\n",j);
+		      "Time: %12.4e. WARNING: Negative a2 in element %d\n",
+		      SimTime,j);
 	      for (k=0; k<N; ++k)
 		fprintf(diag_log,
 			"str=%10.3e x=%10.3e y=%10.3e s2=%10.3e a2=%10.3e\n",

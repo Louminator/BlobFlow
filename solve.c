@@ -400,7 +400,7 @@ double timestep;
    
    if ((*parms).nint > 100)
      {
-       fprintf(diag_log,"RK4 warning: Internal integration warning.\n");
+       fprintf(diag_log,"Time: %12.4e.  RK4 warning: Internal integration warning.\n",SimTime);
        fprintf(diag_log,"RK4 requiring %d steps.\n",(*parms).nint);
      }
 
