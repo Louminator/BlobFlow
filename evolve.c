@@ -79,7 +79,8 @@ FineGridLink **FineGridLinks,*trace;
 
 clock_t tot_cputime_ref,tot_cputime,
   vel_cputime_ref,vel_cputime,velsum_cputime_ref,velsum_cputime,
-  veldirect_cputime_ref,veldirect_cputime;
+  veldirect_cputime_ref,veldirect_cputime,
+  mp_cputime,mp_cputime_ref;
 
 
 /* Subroutine to stop everything if there is a problem. */
@@ -117,6 +118,7 @@ void run()
       vel_cputime = 0;
       velsum_cputime = 0;
       veldirect_cputime = 0;
+      mp_cputime = 0;
 
       numk2 = 0;
 	
@@ -300,12 +302,13 @@ void run()
 
       tot_cputime = clock()-tot_cputime_ref;
 
-      fprintf(time_file,"%07d %12.4e %12.4e %12.4e %12.4e\n",
+      fprintf(time_file,"%07d %12.4e %12.4e %12.4e %12.4e %12.4e\n",
 	      N,
 	      ((double)(tot_cputime))/((double)CLOCKS_PER_SEC),
 	      ((double)(vel_cputime))/((double)CLOCKS_PER_SEC),
 	      ((double)(velsum_cputime))/((double)CLOCKS_PER_SEC),
-	      ((double)(veldirect_cputime))/((double)CLOCKS_PER_SEC)
+	      ((double)(veldirect_cputime))/((double)CLOCKS_PER_SEC),
+	      ((double)(mp_cputime))/((double)CLOCKS_PER_SEC)
 	      );
       fflush(time_file);
 

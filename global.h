@@ -168,7 +168,8 @@ extern char filename[];
 
 extern clock_t tot_cputime_ref,tot_cputime,
   vel_cputime_ref,vel_cputime,velsum_cputime_ref,velsum_cputime,
-  veldirect_cputime_ref,veldirect_cputime;
+  veldirect_cputime_ref,veldirect_cputime,
+  mp_cputime,mp_cputime_ref;
 
 /* Function headers */
 

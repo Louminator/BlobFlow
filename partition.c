@@ -400,8 +400,10 @@ void Release_Links(int levels)
 
 void Create_Hierarchy()
 {
+   mp_cputime_ref = clock();
    mplevels = Set_Level();
    partition(mplevels);
    Init_Fine_Grid(mplevels);
    Advance_Coeffs(mplevels);
+   mp_cputime += clock()-mp_cputime_ref;
 }
