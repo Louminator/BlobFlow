@@ -30,7 +30,7 @@
 void vort_vort_interaction(i,j)
      int i,j;
 {
-   double dx,dy,eps;
+   double dx,dy;
    tensor a;
    double result[9];
 
@@ -58,9 +58,6 @@ void vort_vort_interaction(i,j)
      }
    else
      {
-       eps = (1.0-sqrt(blobguts[j].a2))/
-	 (1.0+sqrt(blobguts[j].a2));
-
        a.du11 = 0.0;
        a.du12 = -(mblob[j].blob0.strength/(2.0*blobguts[j].s2))/
 	 (1.0 + 1.0/blobguts[j].a2);

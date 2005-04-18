@@ -55,6 +55,10 @@ int       split_method;
 double    *split_parm_ptr;
 
 int       merge_estimator,nsplit,nmerge,totmerge,totsplit,MergeFrame;
+
+double    BoundaryStep;
+int       BoundaryFrame;
+
 char      filename[Title];
 
 blobparms tmpparms[NMax];
@@ -286,6 +290,13 @@ void run()
 	  fflush(comp_log);
 	  fflush(diag_log);
 	  fflush(mpi_log);
+	}
+
+      if ((SimTime+0.499*TimeStep) >= BoundaryStep*BoundaryFrame)
+	{
+	  ++BoundaryFrame;
+
+	  BoundaryConstrain();
 	}
 
       vel_cputime_ref = clock();

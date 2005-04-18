@@ -64,7 +64,9 @@ static char *inputs[] =
   "MergeMom3Wt:",
   "MergeMom4Wt:",
   "MergeC:",
-  "MergeGrowthRate:"
+  "MergeGrowthRate:",
+
+  "BoundaryStep:"
 };
 
 #include "split15asym.h"
@@ -75,7 +77,8 @@ enum ScriptItems
 {FRAME_STEP,END_TIME,VISCOSITY,VTX_INIT,TIME_STEP,
  MAX_ORDER,DTTH_DELTA,L2_TOL,ALPHA,SPLIT_METHOD,MERGE_ERROR_ESTIMATOR,
  MERGE_BUDGET,MERGE_STEP,CLUSTER_RADIUS,MERGE_A2_TOL,MERGE_TH_TOL,
- MERGE_MOM3_WT,MERGE_MOM4_WT,MERGE_C,MERGE_GROWTH_RATE
+ MERGE_MOM3_WT,MERGE_MOM4_WT,MERGE_C,MERGE_GROWTH_RATE,
+ BOUNDARY_STEP
 };
 
 void check_sim(char *vtxfilename)
@@ -382,6 +385,10 @@ void read_ctl()
 		      break;
 		    case MERGE_GROWTH_RATE:
 		      fscanf(control_file,"%lf",&merge_growth_rate);
+		      i=inputs_size+1;
+		      break;
+		    case BOUNDARY_STEP:
+		      fscanf(control_file,"%lf",&BoundaryStep);
 		      i=inputs_size+1;
 		      break;
 		    default:
@@ -940,6 +947,7 @@ void init(int argc, char *argv[])
 
   Frame = 1;
   MergeFrame=1;
+  BoundaryFrame=0;
   TimeStep = PrefStep;
   SimTime = 0.0;
 

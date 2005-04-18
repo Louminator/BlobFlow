@@ -151,6 +151,9 @@ extern double merge_mom3wt,merge_mom4wt,clusterR,aM2;
 extern double MergeStep,merge_c,merge_growth_rate;
 extern int    merge_estimator,nsplit,nmerge,totsplit,totmerge,MergeFrame;
 
+extern double BoundaryStep;
+extern int    BoundaryFrame;
+
 /*Splitting parameters */
 extern int    split_method;
 extern double *split_parm_ptr;
@@ -308,11 +311,15 @@ extern void split12(blob_external*, blob_internal*, blobparms*, blob_external*, 
 extern void dpos_vel(int);
 extern vector dpos_vel_gen(vector,blob_internal,blobparms);
 extern vector dpos_vel_gen_linear(vector,blob_internal,blobparms);
+extern vector vel_gen(double,double);
 extern void dpos_vel_linear(int);
 extern void potential_flow(int);
+extern vector potential_vel(double,double);
 extern void reflect_X();
 extern void cache_resort();
 extern void vel_field();
+
+extern void BoundaryConstrain();
 
 extern void stop(int);
 

@@ -179,6 +179,42 @@ vector dpos_vel_gen(pos,the_blobguts,parms)
    return(sum);
 }
 
+vector vel_gen(x,y)
+     double x,y;
+{
+  vector v,w;
+  double dx,dy;
+  double result[9];
+  int i;
+
+  v.x = 0.0;
+  v.y = 0.0;
+
+  for (i=0; i<N; ++i)
+    {
+      dx = x-mblob[i].blob0.x;
+      dy = y-mblob[i].blob0.y;
+	       
+      if ( (dx != 0.0) || (dy != 0.0) )
+	{
+	  induced_v(&(mblob[i].blob0),
+		    &(blobguts[i]),
+		    &(tmpparms[i]),dx,dy,
+		    result);
+
+	  v.x += result[0];
+	  v.y += result[1];
+	}
+    }
+
+  w = potential_vel(x,y);
+
+  v.x += w.x;
+  v.y += w.y;
+
+  return(v);
+}
+
 void correct_vel_4()
 {
   int i;
