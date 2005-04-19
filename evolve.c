@@ -222,6 +222,13 @@ void run()
       /* Split horizontally challenged elements. */
       chksplit();
 
+      /* Constrain the bdy conditions */
+      if ((SimTime+0.499*TimeStep) >= BoundaryStep*BoundaryFrame)
+	{
+	  ++BoundaryFrame;
+	  BoundaryConstrain();
+	}
+
       if ((SimTime+0.499*TimeStep) >= MergeStep*MergeFrame)
 	{
 	  mplevels = Set_Level();
@@ -290,13 +297,6 @@ void run()
 	  fflush(comp_log);
 	  fflush(diag_log);
 	  fflush(mpi_log);
-	}
-
-      if ((SimTime+0.499*TimeStep) >= BoundaryStep*BoundaryFrame)
-	{
-	  ++BoundaryFrame;
-
-	  BoundaryConstrain();
 	}
 
       vel_cputime_ref = clock();

@@ -947,10 +947,11 @@ void init(int argc, char *argv[])
 
   Frame = 1;
   MergeFrame=1;
-  BoundaryFrame=0;
+  BoundaryFrame=1;
   TimeStep = PrefStep;
   SimTime = 0.0;
 
+  BoundaryConstrain();
   startup_new();
 
   nsplit   = 0;
