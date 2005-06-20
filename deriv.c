@@ -136,6 +136,7 @@ void dpos_vel_fast(vort)
 
    velsum_cputime_ref = clock();
    MP_Sum(vort,mplevels);
+
    velsum_cputime += clock()-velsum_cputime_ref;
    
    /* Uses a special finer grid for merging */
@@ -145,6 +146,12 @@ void dpos_vel_fast(vort)
 
    potential_flow(vort);
 
+   /*
+   if (fabs(mblob[vort].blob0.dx)>2.0)
+     printf("12: %d %12.4e %12.4e %12.4e %12.4e %12.4e\n",
+	    vort,SimTime,mblob[vort].blob0.dx,mblob[vort].blob0.dy,
+	    blobguts[vort].s2,blobguts[vort].a2);
+   */
 }
 
 vector dpos_vel_gen(pos,the_blobguts,parms)
@@ -239,6 +246,20 @@ void correct_vel_4()
 	(tmpparms[i].v_xx*termA + 
 	 (-tmpparms[i].u_xy)*termB + 
 	 2.0*(-tmpparms[i].u_xx)*termC);
+
+      /*
+      if (fabs(mblob[i].blob0.dx)>2.0e0)
+	{
+	  printf("13: %d %12.4e %12.4e %12.4e %12.4e %12.4e\n",
+		 i,SimTime,mblob[i].blob0.dx,mblob[i].blob0.dy,
+		 blobguts[i].s2,blobguts[i].a2);
+	  printf("termA: %12.4e termB: %12.4e termC: %12.4e \n",
+		 termA,termB,termC);
+	  printf("%12.4e %12.4e %12.4e %12.4e %12.4e %12.4e\n",
+		 tmpparms[i].sin2,tmpparms[i].cos2,tmpparms[i].sincos,
+		 tmpparms[i].u_xx,tmpparms[i].u_yy,tmpparms[i].u_xy);
+	}
+      */
     }
 }
 

@@ -176,6 +176,7 @@ void run()
 	  internal_march(&(blobguts[j]),&(tmpparms[j]),TimeStep);
 #endif
 	}
+
       /* Take a full step externally. */
       for (j=0; j<N; ++j)
 	{

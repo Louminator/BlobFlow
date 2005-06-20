@@ -50,10 +50,17 @@ void BoundaryConstrain()
   blobguts[N].s2 = alpha*l2tol;
   blobguts[N].a2 = 1.0;
   blobguts[N].th = 0.0;
+
   mblob[N].blob0.order = 1;
   tmpparms[N].refinecnt = -1;
   tmpparms[N].nint = 1;
   set_blob(&(blobguts[N]),&(tmpparms[N]));
+
+  mblob[N].blob1 = mblob[N].blob0;
+  mblob[N].blob2 = mblob[N].blob0;
+  mblob[N].blob3 = mblob[N].blob0;
+  mblob[N].blob4 = mblob[N].blob0;
+
   ++N;
 
   mblob[N].blob0.strength = circ;
@@ -66,5 +73,11 @@ void BoundaryConstrain()
   tmpparms[N].refinecnt = -1;
   tmpparms[N].nint = 1;
   set_blob(&(blobguts[N]),&(tmpparms[N]));
+
+  mblob[N].blob1 = mblob[N].blob0;
+  mblob[N].blob2 = mblob[N].blob0;
+  mblob[N].blob3 = mblob[N].blob0;
+  mblob[N].blob4 = mblob[N].blob0;
+
   ++N;
 }
