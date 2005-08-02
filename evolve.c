@@ -247,7 +247,8 @@ void run()
 	}
 
       /* Constrain the bdy conditions */
-      if ((SimTime+0.499*TimeStep) >= BoundaryStep*BoundaryFrame)
+      if ( (BoundaryStep > 0.0) &&
+	   ((SimTime+0.499*TimeStep) >= BoundaryStep*BoundaryFrame) )
 	{
 	  ++BoundaryFrame;
 	  BoundaryConstrain();

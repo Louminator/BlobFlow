@@ -291,6 +291,8 @@ void read_ctl()
   char *word,control_name[Title];
   int  i,inputs_size;
 
+  BoundaryStep = -1.0;
+
   sprintf(control_name,"%s%s",filename,".ctl");
    
   /* ASSUME a 32-bit word. */
@@ -951,7 +953,12 @@ void init(int argc, char *argv[])
   TimeStep = PrefStep;
   SimTime = 0.0;
 
-  BoundaryConstrain();
+  if (BoundaryStep>0.0)
+    {
+      BoundaryConstrain();
+    }
+  fprintf(comp_log,"No boundary conditions.\n");
+
   startup_new();
 
   nsplit   = 0;

@@ -33,7 +33,7 @@ vector potential_vel(x,y)
 {
   vector v;
 
-  v.x = 1.0;
+  v.x = 0.0;
   v.y = 0.0;
 
   return(v);
