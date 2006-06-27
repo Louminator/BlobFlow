@@ -54,7 +54,7 @@
 /* PSI_ORDER sets the order of the streamfunction 
    in epsilon in the near field. */
 
-#define PSI_ORDER 6
+#define PSI_ORDER 4
 
 #if PSI_ORDER == 4
 #define maxexp 6

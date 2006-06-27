@@ -162,20 +162,9 @@ void run()
 
       SimTime += TimeStep/2;
 
-      if (SimTime>0.09)
-	{
-	  printf("1: %10.6e %10.6e\n",mblob[1].blob0.dx,mblob[1].blob0.dy);
-	}
-
       vel_cputime_ref = clock();
       vel_field();
       vel_cputime += clock()-vel_cputime_ref;
-
-      if (SimTime>0.09)
-	{
-	  vel_field();
-	  printf("2: %10.6e %10.6e\n",mblob[1].blob0.dx,mblob[1].blob0.dy);
-	}
 
       /* Take a full step internally */
 	
@@ -231,20 +220,8 @@ void run()
       /*SimTime += TimeStep;*/
       SimTime += TimeStep/2;
 	
-      if (SimTime>0.09)
-	{
-	  vel_field();
-	  printf("2.5: %10.6e %10.6e\n",mblob[1].blob0.dx,mblob[1].blob0.dy);
-	}
-
       /* Split horizontally challenged elements. */
       chksplit();
-
-      if (SimTime>0.09)
-	{
-	  vel_field();
-	  printf("3: %10.6e %10.6e\n",mblob[1].blob0.dx,mblob[1].blob0.dy);
-	}
 
       /* Constrain the bdy conditions */
       if ( (BoundaryStep > 0.0) &&
@@ -252,12 +229,6 @@ void run()
 	{
 	  ++BoundaryFrame;
 	  BoundaryConstrain();
-	}
-
-      if (SimTime>0.09)
-	{
-	  vel_field();
-	  printf("4: %10.6e %10.6e\n",mblob[1].blob0.dx,mblob[1].blob0.dy);
 	}
 
       if ((SimTime+0.499*TimeStep) >= MergeStep*MergeFrame)
@@ -333,11 +304,6 @@ void run()
       vel_cputime_ref = clock();
       vel_field();
       vel_cputime += clock()-vel_cputime_ref;
-
-      if (SimTime>0.09)
-	{
-	  printf("5: %10.6e %10.6e\n",mblob[1].blob0.dx,mblob[1].blob0.dy);
-	}
 
       tot_cputime = clock()-tot_cputime_ref;
 

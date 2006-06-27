@@ -37,7 +37,8 @@ void vort_vort_interaction(i,j)
    dx = mblob[i].blob0.x-mblob[j].blob0.x;
    dy = mblob[i].blob0.y-mblob[j].blob0.y;
 	       
-   if ( (dx != 0.0) || (dy != 0.0) )
+   /* if ( (dx != 0.0) || (dy != 0.0) ) */
+   if ((SQR(dx)/blobguts[i].s2 >1.0e-2) || (SQR(dy)/blobguts[i].s2 > 1.0e-2))
      {
        induced_v(&(mblob[j].blob0),
 		 &(blobguts[j]),

@@ -758,12 +758,29 @@ int steps;
    *parms    = tempparms[0];
 }
 
+void stepper_loworder(blobguts,parms,timestep,steps)
+blob_internal *blobguts;
+blobparms *parms;
+double timestep;
+int steps;
+{
+   blob_internal tempguts[3];
+   blobparms     tempparms[3];
+   int i;
+
+   (*blobguts).s2 += visc*timestep*steps;
+}
+
 void internal_march(blobguts,parms,timestep)
 blob_internal *blobguts;
 blobparms *parms;
 double timestep;
 {
+#ifndef CCSVM
   stepper(blobguts,parms,timestep/2.0,2);
+#else
+  stepper_loworder(blobguts,parms,timestep/2.0,2);
+#endif
 }
 
 void OLDinternal_march(blobguts,parms,timestep)
