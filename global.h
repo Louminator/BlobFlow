@@ -325,4 +325,4 @@ extern void stop(int);
 
 extern void chk_nan(int);
 
-
+extern void biot(double, int, double[], double[], int, int, double[]);
