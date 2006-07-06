@@ -1,37 +1,41 @@
 #include <math.h>
 #include "biot_global.h"
 
-// ------------------------------------------------------------------------
-//  Evaluates the Biot-Savart integral (or its dervatives)
-// ------------------------------------------------------------------------
-// double a -> parameter
-// int npts -> number of points for the evaluation
-// double x[] -> x[0] to x[npts-1] contains the x values for the evaluationg
-// double y[] -> y[0] to y[npts-1] contains the y values for the evaluation 
-// int nderx -> number of derivatives to be taken in the x direction
-// int ndery -> number of derivatives to be taken in the y direction
-// double phi[]-> output:
-//             phi[0] to phi[npts-1] values of the solution (or its derivatives)
-//
-//
-// Note: Current implementation is for
-//  ************************************************************
-//                       1/10 < a <10
-//     |x(k)| < 15*max(a,1/a) and  |y(k)| < 15*max(a,1/a) 
-//  ************************************************************
-//
-// by Rodrigo Platte 06/24/2006
+#define npts_max 1
 
-void biot (double a, int npts, double x[], double y[], int nderx, int ndery, double phi[])
+/*
+ ------------------------------------------------------------------------
+  Evaluates the Biot-Savart integral (or its dervatives)
+ ------------------------------------------------------------------------
+ double a -> parameter
+ int npts -> number of points for the evaluation
+ double x[] -> x[0] to x[npts-1] contains the x values for the evaluationg
+ double y[] -> y[0] to y[npts-1] contains the y values for the evaluation 
+ int nderx -> number of derivatives to be taken in the x direction
+ int ndery -> number of derivatives to be taken in the y direction
+ double phi[]-> output:
+             phi[0] to phi[npts-1] values of the solution (or its derivatives)
+
+
+ Note: Current implementation is for
+  ************************************************************
+                       1/10 < a <10
+     |x(k)| < 15*max(a,1/a) and  |y(k)| < 15*max(a,1/a) 
+  ************************************************************
+
+ by Rodrigo Platte 06/24/2006
+*/
+
+void biot(double a, int npts, double x[], double y[], int nderx, int ndery, double phi[])
 {
  
-  int k, idom1[npts],idom2[npts],idom3[npts]; 
+  int k,idom1[npts_max],idom2[npts_max],idom3[npts_max]; 
   
-  if (a<1)   // a=1/a and interchange x and y
+  if (a<1)   /* a=1/a and interchange x and y */
      biot(1/a, npts, y, x, ndery, nderx, phi);
   else
   {
-   // Find domains ----------------
+    /* Find domains ---------------- */
     int j1=0., j2=0., j3=0.;
     for (k=0; k<npts; ++k)
 	{

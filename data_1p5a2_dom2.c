@@ -1,4 +1,4 @@
-// Data function used in biot.c -- do not touch it ... (by R.B.Platte)
+/* Data function used in biot.c -- do not touch it ... (by R.B.Platte) */
 void data_1p5a2_dom2 () 
 {  
 
