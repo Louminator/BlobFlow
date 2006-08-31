@@ -272,11 +272,18 @@ void slave ( void )
 	 {
 	    vort = workbuf1[i];
 	    
+	    /* If vort == -1, 
+	       then you do not really need to do anything. 
+	       The master will ignore any data sent.  Just send
+	       whatever is in sbuf.*/
+	    if (vort != -1)
+	      {
 #ifdef NOFASTMP
-	    dpos_vel(vort);
+		dpos_vel(vort);
 #else
-	    dpos_vel_fast(vort);
+		dpos_vel_fast(vort);
 #endif
+	      }
 	    
 	    /* Better wait here just in case I compute faster than I thought. */
 	    /* sbuf must be protected. */
@@ -287,8 +294,9 @@ void slave ( void )
 	    else
 	      start = 0;
 
-	    blob_to_buffer(&(mblob[vort].blob0),&(tmpparms[vort]),
-			   &(sbuf[i*PARTICLE_DATA_PACKET_SIZE]));
+	    if (vort != -1)
+	      blob_to_buffer(&(mblob[vort].blob0),&(tmpparms[vort]),
+			     &(sbuf[i*PARTICLE_DATA_PACKET_SIZE]));
 
 	    workbuf2[i] = workbuf1[i];
 	 }
