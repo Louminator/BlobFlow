@@ -37,7 +37,16 @@
 #define CARDINALITY  N
 #endif
 
-#define MERGEDIAG
+#undef MERGEDIAG
+
+/* This is a band-aid for the PGI compiler which seems to hit a stack
+   limitation at least on our opteron system.  Using -Mbounds
+   illustrates the problem.
+
+   Efforts to use dynamic memory allocation also fail though it is not
+   at all clear why.  */
+
+blob_external startup_blobs[3][NMax];
 
 /* Script constants. */
 static char *inputs[] =
@@ -422,7 +431,7 @@ void read_ctl()
 void startup_new()
 {
   int i,j;
-  blob_external startup_blobs[3][NMax];
+  /* blob_external *startup_blobs[3]; */
 
   /* Storage for RK4 */
   /* blob1 - temporary use */
@@ -430,8 +439,49 @@ void startup_new()
   /* blob3 - BCE */
   /* blob4 - midpoint */
 
+  fprintf(diag_log,"Check one %d\n",NMax*sizeof(blob_external));
+  fflush(diag_log);
   for (j=0; j<N; ++j)
     startup_blobs[0][j] = mblob[j].blob0;
+  /*
+  startup_blobs[0] = malloc(NMax*sizeof(blob_external));
+  startup_blobs[1] = malloc(NMax*sizeof(blob_external));
+  startup_blobs[2] = malloc(NMax*sizeof(blob_external));
+  */
+
+  fprintf(diag_log,"Check two\n");
+  fflush(diag_log);
+
+  if (startup_blobs[0] == NULL)
+    {
+      fprintf(diag_log,"malloc failed\n");
+      fflush(diag_log);
+    }
+
+  if (startup_blobs[1] == NULL)
+    {
+      fprintf(diag_log,"malloc failed\n");
+      fflush(diag_log);
+    }
+
+  if (startup_blobs[2] == NULL)
+    {
+      fprintf(diag_log,"malloc failed\n");
+      fflush(diag_log);
+    }
+
+  /*
+  for (j=0; j<N; ++j)
+    {
+      fprintf(diag_log,"Pushing %d %d\n",j,j*sizeof(blob_external));
+      fflush(diag_log);
+      
+      *(startup_blobs[0]+j*sizeof(blob_external)) = mblob[j].blob0;
+    }
+  */
+
+  fprintf(diag_log,"Check three\n");
+  fflush(diag_log);
 
   for (i=1; i<3; ++i)
     {
@@ -581,6 +631,10 @@ void startup_new()
 
       for (j=0; j<N; ++j)
 	startup_blobs[i][j] = mblob[j].blob0;
+      /*
+      for (j=0; j<N; ++j)
+	*(startup_blobs[i]+j*sizeof(blob_external)) = mblob[j].blob0;
+      */
 
       /* Dump the startup positions. */
 
@@ -599,16 +653,28 @@ void startup_new()
   for (j=0; j<N; ++j)
     {
       mblob[j].blob0 = startup_blobs[2][j];
+      /*
+      mblob[j].blob0 =*(startup_blobs[2]+j*sizeof(blob_external));
+      */
       mblob[j].blob0.order = MaxOrder;
       mblob[j].blob1 = startup_blobs[2][j];
+      /*
+      mblob[j].blob1 =*(startup_blobs[2]+j*sizeof(blob_external));
+      */
       mblob[j].blob1.order = MaxOrder;
     }
 
+  /*
   for (j=0; j<N; ++j)
-     mblob[j].blob2 = startup_blobs[1][j];
-
+      mblob[j].blob2 =*(startup_blobs[1]+j*sizeof(blob_external));
   for (j=0; j<N; ++j)
-     mblob[j].blob3 = startup_blobs[0][j];
+    mblob[j].blob3 =*(startup_blobs[0]+j*sizeof(blob_external));
+  */
+  for (j=0; j<N; ++j)
+    {
+      mblob[j].blob2 = startup_blobs[1][j];
+      mblob[j].blob3 = startup_blobs[0][j];
+    }
 
   /* Take a half step externally. */
   for (j=0; j<N; ++j)
@@ -643,6 +709,11 @@ void startup_new()
   else
     write_vorts(9999);
 
+  /*
+  free(startup_blobs[0]);
+  free(startup_blobs[1]);
+  free(startup_blobs[2]);
+  */
 }
 
 void startup()
@@ -927,8 +998,6 @@ void init(int argc, char *argv[])
       mblob[i].blob4 = mblob[i].blob0;
     }
 
-  /*chkvel2();*/
-   
 #ifdef MULTIPROC
   /* Have only the 'root' node do the writes */
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -957,7 +1026,8 @@ void init(int argc, char *argv[])
     {
       BoundaryConstrain();
     }
-  fprintf(comp_log,"No boundary conditions.\n");
+  else
+    fprintf(comp_log,"No boundary conditions.\n");
 
   startup_new();
 
