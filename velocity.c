@@ -26,7 +26,6 @@
 #include <stdio.h>
 #include <math.h>
 #include "global.h"
-#include "biot_global.h"
 
 vector induced_vel(the_blob,the_blobguts,parms,tmpdx,tmpdy,r,t,even,odd)
 blob_external *the_blob;
@@ -146,7 +145,7 @@ double even[5],odd[5];
    return(result);
 }
 
-void induced_v_asympt(the_blob,the_blobguts,parms,tmpdx,tmpdy,result)
+void induced_v(the_blob,the_blobguts,parms,tmpdx,tmpdy,result)
 blob_external *the_blob;
 blob_internal *the_blobguts;
 blobparms *parms;
@@ -267,100 +266,3 @@ double result[9];
 }
 
 
-/* Rodrigo's spectral interp code. */
-void induced_v(the_blob,the_blobguts,parms,tmpdx,tmpdy,result)
-blob_external *the_blob;
-blob_internal *the_blobguts;
-blobparms *parms;
-double tmpdx,tmpdy;
-double result[9];
-
-{
-  double psi_x,psi_y,psi_xx,psi_yy,psi_xy;
-  double psi_xxx,psi_xxy,psi_xyy,psi_yyy;
-  int npts=1;
-
-  double str,a2,s2,dx,dy,a,x,y;
-
-  /* Change bases to the local axes. */
-   
-  dx =  (*parms).costh*tmpdx+(*parms).sinth*tmpdy;
-  dy = -(*parms).sinth*tmpdx+(*parms).costh*tmpdy;
-   
-  s2  = (*the_blobguts).s2;
-  a2  = (*the_blobguts).a2;
-  a   = sqrt(a2);
-  str = (*the_blob).strength*2*M_PI;
-  x = dx/sqrt(s2);
-  y = dy/sqrt(s2);
-
-  biot(a, npts, &x, &y, 1, 0, &psi_x);
-  biot(a, npts, &x, &y, 0, 1, &psi_y);
-  biot(a, npts, &x, &y, 2, 0, &psi_xx);
-  biot(a, npts, &x, &y, 1, 1, &psi_xy);
-  biot(a, npts, &x, &y, 0, 2, &psi_yy);
-
-  /* Length scale corrections */
-  psi_x *= str/sqrt(s2);
-  psi_y *= str/sqrt(s2);
-
-  psi_xx *= str/s2;
-  psi_yy *= str/s2;
-  psi_xy *= str/s2;
-#ifdef CORRECTVEL4
-  biot(a, npts, &x, &y, 3, 0, &psi_xxx);
-  biot(a, npts, &x, &y, 2, 1, &psi_xxy);
-  biot(a, npts, &x, &y, 1, 2, &psi_xyy);
-  biot(a, npts, &x, &y, 0, 3, &psi_yyy);
-  psi_xxx *= str/s2/sqrt(s2);
-  psi_xxy *= str/s2/sqrt(s2);
-  psi_xyy *= str/s2/sqrt(s2);
-  psi_yyy *= str/s2/sqrt(s2);
-#endif
-
-  /* Rotate everything back into the standard reference frame. */
-   
-  /* u = -psi_y */
-  result[0] = (*parms).costh*(-psi_y)-(*parms).sinth*psi_x;
-  /* v = psi_x */
-  result[1] = (*parms).sinth*(-psi_y)+(*parms).costh*psi_x;
-
-  /* u_x = -psi_xy */
-  result[2] = (-psi_xy*((*parms).cos2-(*parms).sin2)-
-	       (-psi_yy+psi_xx)*(*parms).sincos);
-   
-  /* u_y = -psi_yy */
-  result[3] = -((*parms).sin2*psi_xx+
-		2.0*(*parms).sincos*psi_xy+
-		(*parms).cos2*psi_yy);
-   
-  /* v_x = psi_xx */
-  result[4] = (2.0*(-psi_xy)*(*parms).sincos-
-	       (-psi_yy)*(*parms).sin2+psi_xx*(*parms).cos2);
-
-#ifdef CORRECTVEL4
-  /* u_xx = -psi_xxy */
-  result[5] = -( (*parms).cos2*(*parms).sinth*(psi_xxx-2.0*psi_xyy)+
-		 (*parms).cos2*(*parms).costh*psi_xxy+
-		 (*parms).sin2*(*parms).costh*(psi_yyy-2.0*psi_xxy)+
-		 (*parms).sin2*(*parms).sinth*psi_xyy );
-
-  /* u_xy = -psi_xyy */
-  result[6] = -( (*parms).sincos*(*parms).sinth*(psi_xxx-2.0*psi_xyy)+
-		 (*parms).cos2*(*parms).costh*psi_xyy-
-		 (*parms).sin2*(*parms).sinth*psi_xxy+
-		 (*parms).sincos*(*parms).costh*(-psi_yyy+2.0*psi_xxy) );
-
-  /* u_yy = -psi_yyy */
-  result[7] = -( (*parms).sin2*(*parms).sinth*psi_xxx+
-		 3.0*(*parms).sin2*(*parms).costh*psi_xxy+
-		 3.0*(*parms).sinth*(*parms).cos2*psi_xyy+
-		 (*parms).cos2*(*parms).costh*psi_yyy );
-
-  /* v_xx = psi_xxx */
-  result[8] = ( (*parms).cos2*(*parms).costh*psi_xxx -
-		3.0*(*parms).cos2*(*parms).sinth*psi_xxy +
-		3.0*(*parms).sin2*(*parms).costh*psi_xyy -
-		(*parms).sin2*(*parms).sinth*psi_yyy );
-#endif
-}
