@@ -52,19 +52,12 @@ OBJECTS = deriv.o evolve.o files.o flip.o init.o \
 	velocity.o partition.o mpsum.o mpcoeffs.o \
 	reflect.o master-slave.o peer.o cache_resort.o \
 	stream_fn.o potential.o boundary.o \
-	polynB.o \
-	biot.o biot_dom1.o biot_dom2.o biot_dom3.o Cheb.o \
-	data_1a1p5_dom1.o  data_2a3_dom1.o  data_4a5_dom1.o  data_6a8_dom1.o \
-	data_1a1p5_dom2.o  data_2a3_dom2.o  data_4a5_dom2.o  data_6a8_dom2.o \
-	data_1a1p5_dom3.o  data_2a3_dom3.o  data_4a5_dom3.o  data_6a8_dom3.o \
-	data_1p5a2_dom1.o  data_3a4_dom1.o  data_5a6_dom1.o  data_8a10_dom1.o \
-	data_1p5a2_dom2.o  data_3a4_dom2.o  data_5a6_dom2.o  data_8a10_dom2.o \
-	data_1p5a2_dom3.o  data_3a4_dom3.o  data_5a6_dom3.o  data_8a10_dom3.o
+	polynB.o 
 
 eflow: $(OBJECTS)
 	$(LN) $(CPROF_FLAGS) -o $(TARGET) $(OBJECTS) $(CLIBS) $(LAMLIB)
 
-$(OBJECTS): global.h multiproc.h biot_global.h
+$(OBJECTS): global.h multiproc.h
 
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPROF_FLAGS) $<
