@@ -31,12 +31,6 @@
 #include "multiproc.h"
 #endif
 
-#ifdef XANTISYMM
-#define CARDINALITY  N/2
-#else
-#define CARDINALITY  N
-#endif
-
 #undef MERGEDIAG
 
 /* This is a band-aid for the PGI compiler which seems to hit a stack
@@ -56,6 +50,7 @@ static char *inputs[] =
   "Viscosity:",
   "VtxInit:",
   "TimeStep:",
+  "BdyInit:",
 
   "MaxOrder:",
   "DtThDelta",
@@ -83,7 +78,7 @@ static char *inputs[] =
 /* Use a lookup table for 15 asymmetric splitting parameters.*/
 
 enum ScriptItems 
-{FRAME_STEP,END_TIME,VISCOSITY,VTX_INIT,TIME_STEP,
+  {FRAME_STEP,END_TIME,VISCOSITY,VTX_INIT,TIME_STEP,BDY_INIT,
  MAX_ORDER,DTTH_DELTA,L2_TOL,ALPHA,SPLIT_METHOD,MERGE_ERROR_ESTIMATOR,
  MERGE_BUDGET,MERGE_STEP,CLUSTER_RADIUS,MERGE_A2_TOL,MERGE_TH_TOL,
  MERGE_MOM3_WT,MERGE_MOM4_WT,MERGE_C,MERGE_GROWTH_RATE,
@@ -117,10 +112,11 @@ void check_sim(char *vtxfilename)
 
 void read_sim()
 {
-  char      sim_name[Title],vtxfilename[Title],temp[Title];
-  FILE      *sim_file;
-  char *word,*p1;
-  int  i,inputs_size;
+  char      sim_name[Title],vtxfilename[Title],
+    bdyfilename[Title]="",temp[Title];
+  FILE      *sim_file,*bdy_file;
+  char      *word,*p1;
+  int       i,inputs_size;
    
   sprintf(sim_name,"%s%s",filename,".sim");
   fprintf(diag_log,"Reading simfile...\n");
@@ -167,6 +163,10 @@ void read_sim()
 		      break;
 		    case VTX_INIT:
 		      fscanf(sim_file,"%s",vtxfilename);
+		      i=inputs_size+1;
+		      break;
+		    case BDY_INIT:
+		      fscanf(sim_file,"%s",bdyfilename);
 		      i=inputs_size+1;
 		      break;
 		    default:
@@ -222,12 +222,43 @@ void read_sim()
    
   fclose(sim_file);
    
+  if (!(strcmp(bdyfilename,"") == 0))
+    {
+      sprintf(temp,"%s/%s",p1,bdyfilename);
+   
+      bdy_file = fopen(temp,"r");
+      
+      fscanf(bdy_file,"%lf%lf%lf%lf%lf",
+	     &walls[0].x,
+	     &walls[0].y,
+	     &walls[0].nx,
+	     &walls[0].ny,
+	     &walls[0].l);
+      B = 1;
+      
+      while (!feof(bdy_file))
+	{
+	  fscanf(bdy_file,"%lf%lf%lf%lf%lf",
+		 &walls[B].x,
+		 &walls[B].y,
+		 &walls[B].nx,
+		 &walls[B].ny,
+		 &walls[B].l);
+	  ++B;
+	}
+      --B;
+   
+      fclose(bdy_file);
+    }
+   
   fprintf(comp_log,"Simulation parameters.\n");
   fprintf(comp_log,"%s %12.4e\n",inputs[FRAME_STEP],FrameStep);
   fprintf(comp_log,"%s %12.4e\n",inputs[END_TIME],EndTime);
   fprintf(comp_log,"%s %12.4e\n",inputs[VISCOSITY],visc);
   fprintf(comp_log,"%s %s\n",inputs[VTX_INIT],vtxfilename);
   fprintf(comp_log,"%d vortices read from %s.\n",N,temp);
+  if (B != 0)
+    fprintf(comp_log,"%d wall elements read from %s.\n",B,temp);
   fflush(comp_log);
 }
 
@@ -439,8 +470,6 @@ void startup_new()
   /* blob3 - BCE */
   /* blob4 - midpoint */
 
-  fprintf(diag_log,"Check one %d\n",NMax*sizeof(blob_external));
-  fflush(diag_log);
   for (j=0; j<N; ++j)
     startup_blobs[0][j] = mblob[j].blob0;
   /*
@@ -448,9 +477,6 @@ void startup_new()
   startup_blobs[1] = malloc(NMax*sizeof(blob_external));
   startup_blobs[2] = malloc(NMax*sizeof(blob_external));
   */
-
-  fprintf(diag_log,"Check two\n");
-  fflush(diag_log);
 
   if (startup_blobs[0] == NULL)
     {
@@ -479,9 +505,6 @@ void startup_new()
       *(startup_blobs[0]+j*sizeof(blob_external)) = mblob[j].blob0;
     }
   */
-
-  fprintf(diag_log,"Check three\n");
-  fflush(diag_log);
 
   for (i=1; i<3; ++i)
     {
@@ -920,6 +943,9 @@ void init(int argc, char *argv[])
 #endif
 
   fprintf(diag_log,"Initializing.\n");
+
+  fprintf(diag_log,"Reading spectral coefficients\n");
+  read_data();
    
   fprintf(comp_log,"ECCSVM base: %s\n",filename);
    
@@ -953,6 +979,12 @@ void init(int argc, char *argv[])
   resort();
    
   Release_Links(mplevels);
+
+  if (B != 0)
+    {
+      fprintf(comp_log,"Building boundary matrix.\n");
+      factor_bdy_matrix(walls,Bpiv,BdyMat);
+    }
 
 #ifdef XANTISYMM
   fprintf(comp_log,"X anti-symmetry imposed.\n");
@@ -1022,12 +1054,14 @@ void init(int argc, char *argv[])
   TimeStep = PrefStep;
   SimTime = 0.0;
 
+  /*
   if (BoundaryStep>0.0)
     {
       BoundaryConstrain();
     }
   else
     fprintf(comp_log,"No boundary conditions.\n");
+  */
 
   startup_new();
 

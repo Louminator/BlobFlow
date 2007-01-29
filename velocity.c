@@ -27,125 +27,19 @@
 #include <math.h>
 #include "global.h"
 
-vector induced_vel(the_blob,the_blobguts,parms,tmpdx,tmpdy,r,t,even,odd)
+void induced_v(the_blob,the_blobguts,parms,tmpdx,tmpdy,result)
 blob_external *the_blob;
 blob_internal *the_blobguts;
-blobparms *parms;
-double tmpdx,tmpdy;
-double r[5],t[5];
-double even[5],odd[5];
-
+blobparms     *parms;
+double        tmpdx,tmpdy;
+double        result[9];
 {
-   double eps,dx,dy;
-   double c0,c1,c2,c3,c4;
-   double s2,s4,s6,s8,s10;
-   
-   double tempu,tempv;
+  int k;
 
-   vector result;
-
-   /* Change bases to the local axes. */
-   
-   dx =  (*parms).costh*tmpdx+(*parms).sinth*tmpdy;
-   
-   dy = -(*parms).sinth*tmpdx+(*parms).costh*tmpdy;
-   
-   eps = (sqrt((*the_blobguts).a2)-1.0)/(sqrt((*the_blobguts).a2)+1.0);
-   
-   s2 = (*the_blobguts).s2;
-   s4 = SQR(s2);
-   s6 = s2*s4;
-   s8 = s4*s4;
-   s10 = s4*s6;
-   
-   r[0] = SQR(dx*(1-eps)/(1+eps))+SQR(dy*(1+eps)/(1-eps));
-   t[0] = (SQR(dx*(1-eps)/(1+eps))-SQR(dy*(1+eps)/(1-eps)))/r[0];
-   
-   r[1] = SQR(r[0]);
-   t[1] = SQR(t[0]);
-   
-   r[2] = r[1]*r[0];
-   t[2] = t[1]*t[0];
-
-   r[3] = SQR(r[1]);
-   t[3] = SQR(t[1]);
-   
-   r[4] = r[2]*r[1];
-   t[4] = t[2]*t[1];
-   
-   
-   even[4] = (224.0-2688.0*t[1]+3584.0*t[3]);
-   odd[4] =  (896.0*t[0]-1792.0*t[2]);
-   
-   even[3] = eps*(-640.0+7040.0*t[1]-8960.0*t[3])-160.0*t[0]+320.0*t[2];
-   odd[3]  = eps*(-1920.0*t[0]+3840.0*t[2])+40.0-160.0*t[1];
-   
-   even[2] = SQR(eps)*(656.0-6464.0*t[1]+7680.0*t[3])+
-     eps*(352.0*t[0]-640.0*t[2])-8.0+32.0*t[1];
-   odd[2]  = SQR(eps)*(1312.0*t[0]-2560.0*t[2])+
-     eps*(-64.0+256.0*t[1])-16.0*t[0];
-   
-   even[1] = SQR(eps)*eps*(-288.0+2400.0*t[1]-2560.0*t[3])+
-     SQR(eps)*(-244.0*t[0]+384.0*t[2])+
-     eps*(16.0-48.0*t[1])+4.0*t[0];
-   odd[1]  = SQR(eps)*eps*(-288.0*t[0]+512.0*t[2])+
-     SQR(eps)*(26.0-96.0*t[1])+
-     eps*16.0*t[0]-2.0;
-   
-   even[0] = SQR(eps)*SQR(eps)*(48.0-288.0*t[1]+256.0*t[3])+
-     SQR(eps)*eps*(52.0*t[0]-64.0*t[2])+
-     SQR(eps)*(-8.0+16.0*t[1])-eps*4.0*t[0]+1.0;
-   odd[0] = 0.0;
-   
-   c4 = SQR(SQR(eps))*(even[4]+odd[4])/r[4];
-   c3 = SQR(eps)*eps*(even[3]+odd[3])/r[3];
-   c2 = SQR(eps)*(even[2]+odd[2])/r[2];
-   c1 = eps*(even[1]+odd[1])/r[1];
-   c0 = (even[0]+odd[0])/r[0];
-   
-   if (r[0]/s2<0.009)
-     tempv = (dx/2.0)*((*the_blob).strength/(2.0*s2))*
-     2.0*(0.5-eps+eps*SQR(eps))*exp(-r[0]/(4.0*s2));
-   else
-     tempv = -(dx/2.0)*((*the_blob).strength/(2.0*s2))*
-     ((r[0]*((c0+s2*(8.0*c1+s2*(96.0*c2+s2*(1536.0*c3+30720.0*c4*s2))))+
-	    r[0]*((c1+s2*(12.0*c2+s2*(192.0*c3+3840.0*c4*s2)))+
-		 r[0]*((c2+s2*(16.0*c3+320.0*c4*s2))+
-		       r[0]*((c3+20.0*c4*s2)+
-			    c4*r[0]))))-
-	2.0*(0.5-eps+eps*SQR(eps)))*exp(-r[0]/(4.0*s2))+
-       (-s2)*(4.0*c0+s2*(32.0*c1+s2*(384.0*c2+s2*(6144.0*c3+s2*122880.0*c4))))*
-       (1-exp(-r[0]/(4.0*s2))));
-
-   c4 = SQR(SQR(eps))*(even[4]-odd[4])/r[4];
-   c3 = SQR(eps)*eps*(even[3]-odd[3])/r[3];
-   c2 = SQR(eps)*(even[2]-odd[2])/r[2];
-   c1 = eps*(even[1]-odd[1])/r[1];
-   c0 = (even[0]-odd[0])/r[0];
-   
-  if (r[0]/s2<0.009)
-    tempu = -(dy/2.0)*((*the_blob).strength/(2.0*s2))*
-      2.0*(0.5+eps-eps*SQR(eps))*exp(-r[0]/(4.0*s2));
-  else
-    tempu = (dy/2.0)*((*the_blob).strength/(2.0*s2))*
-      ((r[0]*((c0+s2*(8.0*c1+s2*(96.0*c2+s2*(1536.0*c3+30720.0*c4*s2))))+
-	     r[0]*((c1+s2*(12.0*c2+s2*(192.0*c3+3840.0*c4*s2)))+
-		  r[0]*((c2+s2*(16.0*c3+320.0*c4*s2))+
-		       r[0]*((c3+20.0*c4*s2)+
-			    c4*r[0]))))-
-	2.0*(0.5+eps-eps*SQR(eps)))*exp(-r[0]/(4.0*s2))+
-       (-s2)*(4.0*c0+s2*(32.0*c1+s2*(384.0*c2+s2*(6144.0*c3+s2*122880.0*c4))))*
-       (1-exp(-r[0]/(4.0*s2))));
-
-   /* Rotate back to the global axes. */
-   
-   result.x = ((*parms).costh*tempu-(*parms).sinth*tempv);
-   result.y = ((*parms).sinth*tempu+(*parms).costh*tempv);
-   
-   return(result);
+  induced_v_platte(the_blob,the_blobguts,parms,tmpdx,tmpdy,result);
 }
 
-void induced_v(the_blob,the_blobguts,parms,tmpdx,tmpdy,result)
+void induced_v_asympt(the_blob,the_blobguts,parms,tmpdx,tmpdy,result)
 blob_external *the_blob;
 blob_internal *the_blobguts;
 blobparms *parms;
@@ -265,4 +159,84 @@ double result[9];
 #endif
 }
 
+/* Rodrigo's spectral interp code. */
 
+void induced_v_platte(the_blob,the_blobguts,parms,tmpdx,tmpdy,result)
+blob_external *the_blob;
+blob_internal *the_blobguts;
+blobparms *parms;
+double tmpdx,tmpdy;
+double result[9];
+
+{
+  double str,a2,s2,a,dx,dy,phi[9];
+
+  s2  = (*the_blobguts).s2;
+  a2  = (*the_blobguts).a2;
+  a   = sqrt(a2);
+  str = (*the_blob).strength*2*M_PI;
+
+  dx = ( (*parms).costh*tmpdx+(*parms).sinth*tmpdy)/sqrt(s2);
+  dy = (-(*parms).sinth*tmpdx+(*parms).costh*tmpdy)/sqrt(s2);
+
+  eval_biot(a, dx, dy, phi);
+
+  phi[0] *= str/sqrt(s2);
+  phi[1] *= str/sqrt(s2);
+  phi[2] *= str/s2;
+  phi[3] *= str/s2;
+  phi[4] *= str/s2;
+#ifdef CORRECTVEL4
+  phi[5] *= str/s2/sqrt(s2);
+  phi[6] *= str/s2/sqrt(s2);
+  phi[7] *= str/s2/sqrt(s2);
+  phi[8] *= str/s2/sqrt(s2);
+#endif
+
+  /* Rotate everything back into the standard reference frame. */
+
+  /* u = -psi_y */
+  result[0] = (*parms).costh*(-phi[1])-(*parms).sinth*phi[0];
+  /* v = psi_x */
+  result[1] = (*parms).sinth*(-phi[1])+(*parms).costh*phi[0];
+
+  /* u_x = -psi_xy */
+  result[2] = (-phi[2]*((*parms).cos2-(*parms).sin2)-
+	       (-phi[4]+phi[3])*(*parms).sincos);
+   
+  /* u_y = -psi_yy */
+  result[3] = -((*parms).sin2*phi[3]+
+		2.0*(*parms).sincos*phi[2]+
+		(*parms).cos2*phi[4]);
+   
+  /* v_x = psi_xx */
+  result[4] = (2.0*(-phi[2])*(*parms).sincos-
+	       (-phi[4])*(*parms).sin2+phi[3]*(*parms).cos2);
+
+#ifdef CORRECTVEL4
+  /* u_xx = -psi_xxy */
+  result[5] = -( (*parms).cos2*(*parms).sinth*(phi[5]-2.0*phi[8])+
+		 (*parms).cos2*(*parms).costh*phi[7]+
+		 (*parms).sin2*(*parms).costh*(phi[6]-2.0*phi[7])+
+		 (*parms).sin2*(*parms).sinth*phi[8] );
+
+  /* u_xy = -psi_xyy */
+  result[6] = -( (*parms).sincos*(*parms).sinth*(phi[5]-2.0*phi[8])+
+		 (*parms).cos2*(*parms).costh*phi[8]-
+		 (*parms).sin2*(*parms).sinth*phi[7]+
+		 (*parms).sincos*(*parms).costh*(-phi[6]+2.0*phi[7]) );
+
+  /* u_yy = -psi_yyy */
+  result[7] = -( (*parms).sin2*(*parms).sinth*phi[5]+
+		 3.0*(*parms).sin2*(*parms).costh*phi[7]+
+		 3.0*(*parms).sinth*(*parms).cos2*phi[8]+
+		 (*parms).cos2*(*parms).costh*phi[6] );
+
+  /* v_xx = psi_xxx */
+  result[8] = ( (*parms).cos2*(*parms).costh*phi[5] -
+		3.0*(*parms).cos2*(*parms).sinth*phi[7] +
+		3.0*(*parms).sin2*(*parms).costh*phi[8] -
+		(*parms).sin2*(*parms).sinth*phi[6] );
+
+#endif
+}

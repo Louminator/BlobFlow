@@ -36,6 +36,27 @@
 #include "global.h"
 
 /* Clip the domain by removing elements that beyond reasonable bounds. */
-void clip()
+void remove_vtx(int i)
 {
+  int k;
+
+  for (k=i; k<N-1; ++k)
+    {
+      mblob[k]    = mblob[k+1];
+      blobguts[k] = blobguts[k+1];
+      tmpparms[k] = tmpparms[k+1];
+    }
+  N--;
+}
+
+void clip(double R)
+{
+  double R2;
+  int k;
+
+  R2 = SQR(R);
+
+  for (k=0; k<N; ++k)
+    if (SQR(mblob[k].blob0.x)+SQR(mblob[k].blob0.y) > R2)
+      remove_vtx(k);
 }

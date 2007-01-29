@@ -29,13 +29,7 @@
 #include "multiproc.h"
 #endif
 
-#ifdef XANTISYMM
-#define CARDINALITY  N/2
-#else
-#define CARDINALITY  N
-#endif
-
-#define MERGEDIAG
+#undef MERGEDIAG
 
 /* Global variables */
 
@@ -81,6 +75,12 @@ double aM2;
 
 FineGridLink **FineGridLinks,*trace;
 
+/* Boundaries */
+
+int    B,Bpiv[BMax];
+panel  walls[BMax];
+double BdyMat[BMax][BMax];
+
 clock_t tot_cputime_ref,tot_cputime,
   vel_cputime_ref,vel_cputime,velsum_cputime_ref,velsum_cputime,
   veldirect_cputime_ref,veldirect_cputime,
@@ -110,6 +110,8 @@ void run()
    
   while (SimTime < EndTime)
     {
+
+      /* clip(1.8*0.99); */
       tot_cputime_ref = clock();
       vel_cputime = 0;
       velsum_cputime = 0;
@@ -224,12 +226,14 @@ void run()
       chksplit();
 
       /* Constrain the bdy conditions */
+      /*
       if ( (BoundaryStep > 0.0) &&
 	   ((SimTime+0.499*TimeStep) >= BoundaryStep*BoundaryFrame) )
 	{
 	  ++BoundaryFrame;
 	  BoundaryConstrain();
 	}
+      */
 
       if ((SimTime+0.499*TimeStep) >= MergeStep*MergeFrame)
 	{

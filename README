@@ -1,8 +1,0 @@
-Build from 5.72-linear-dereg (March 1 2003).
-
-Put 1 -> 5 splitting into the code and try to make it all more flexible.
-
-Fixed bug in chksplit that calls dts2.  Also, updated entries in global.h for
-  dts2, dta2 and dtth.
-
-Improved time-stepping for internal integrator.

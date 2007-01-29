@@ -35,6 +35,26 @@
 #include "multiproc.h"
 #endif
 
+void wipe_vort_vel_field()
+{
+  int i;
+
+  for (i=0; i<N; ++i)
+    {
+      mblob[i].blob0.dx = 0.0;
+      mblob[i].blob0.dy = 0.0;
+
+      tmpparms[i].du11 = 0.0;
+      tmpparms[i].du12 = 0.0;
+      tmpparms[i].du21 = 0.0;
+   
+      tmpparms[i].u_xx = 0.0;
+      tmpparms[i].u_xy = 0.0;
+      tmpparms[i].u_yy = 0.0;
+      tmpparms[i].v_xx = 0.0;
+    }  
+}
+
 void vel_field()
 {
    int j;
@@ -47,6 +67,8 @@ void vel_field()
     * about the x-axis. */
    reflect_X();
 #endif 
+
+   wipe_vort_vel_field();
 
    Create_Hierarchy();
 
@@ -93,6 +115,14 @@ void vel_field()
    correct_vel_4();
 #endif
    Release_Links(mplevels);
+
+   if (B != 0)
+     {
+       solve_bdy_matrix(walls,Bpiv,BdyMat);
+       for (j=0; j<N; ++j)
+	 bdy_vel(mblob[j].blob0.x,mblob[j].blob0.y,
+		 &(mblob[j].blob0.dx),&(mblob[j].blob0.dy));
+     }
 }
 
 void dpos_vel(vort)
@@ -120,20 +150,20 @@ int vort;
 
 void dpos_vel_fast(vort)
 {
+   /* MP_Sum(vort,mplevels-2); */
+
    mblob[vort].blob0.dx = 0.0;
    mblob[vort].blob0.dy = 0.0;
-   
+
    tmpparms[vort].du11 = 0.0;
    tmpparms[vort].du12 = 0.0;
    tmpparms[vort].du21 = 0.0;
-
+   
    tmpparms[vort].u_xx = 0.0;
    tmpparms[vort].u_xy = 0.0;
    tmpparms[vort].u_yy = 0.0;
    tmpparms[vort].v_xx = 0.0;
    
-   /* MP_Sum(vort,mplevels-2); */
-
    velsum_cputime_ref = clock();
    MP_Sum(vort,mplevels);
 
@@ -145,13 +175,6 @@ void dpos_vel_fast(vort)
    veldirect_cputime += clock()-veldirect_cputime_ref;
 
    potential_flow(vort);
-
-   /*
-   if (fabs(mblob[vort].blob0.dx)>2.0)
-     printf("12: %d %12.4e %12.4e %12.4e %12.4e %12.4e\n",
-	    vort,SimTime,mblob[vort].blob0.dx,mblob[vort].blob0.dy,
-	    blobguts[vort].s2,blobguts[vort].a2);
-   */
 }
 
 vector dpos_vel_gen(pos,the_blobguts,parms)
@@ -161,7 +184,7 @@ vector dpos_vel_gen(pos,the_blobguts,parms)
 {
    int i;
    double dx,dy;
-   double r[5],t[5],even[5],odd[5];
+   double result[9];
    vector v,sum;
    
    sum.x = 0.0;
@@ -174,12 +197,11 @@ vector dpos_vel_gen(pos,the_blobguts,parms)
 
 	if ( (dx != 0.0) || (dy != 0.0) )
 	  {
-	     v = induced_vel(&(mblob[i].blob0),&(blobguts[i]),
-			     &(tmpparms[i]),dx,dy,
-			     r,t,even,odd);
+	     induced_v(&(mblob[i].blob0),&(blobguts[i]),
+		       &(tmpparms[i]),dx,dy,result);
 
-	     sum.x += v.x;
-	     sum.y += v.y;
+	     sum.x += result[0];
+	     sum.y += result[1];
 	  }
      }
 

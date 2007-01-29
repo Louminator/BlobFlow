@@ -35,6 +35,7 @@
 #define a2diff(X) (1.0/(X).a2-(X).a2)
 #define MAX(A,B) ((A) > (B) ? (A) : (B))
 #define MIN(A,B) ((A) < (B) ? (A) : (B))
+#define SGN(X) ((X) < (0.0) ? (-1) : (1))
 
 #define CORRECTVEL4
 #undef  NOFASTMP
@@ -47,6 +48,7 @@
 #define PMax 30      /* Maximum number of multipole coefficients. */
 #define LMax 7     /* Maximum number of levels of refinement in 
                         multipole summation */
+#define BMax 250
 #define MaxSplitConf 8 /*Maximum number of elements that a single element */
                        /* can split into. */
 #define Title 500     /* Maximum file name length */
@@ -117,6 +119,12 @@ metablob;
 
 typedef struct
 {
+  double m,x,y,nx,ny,l;
+}
+panel;
+
+typedef struct
+{
    double re,im;
 }
 complex;
@@ -136,6 +144,11 @@ extern blob_internal blobguts[NMax];
 extern blobparms     tmpparms[NMax];
 extern double        visc;                       /* Physical constants */
 extern double        alpha,l2tol,dtth_delta;     /* Numerical parameters */
+
+/* Boundaries */
+extern int    B,Bpiv[BMax];
+extern panel  walls[BMax];
+extern double BdyMat[BMax][BMax];
 
 /* Dynamic memory allocation might be better here. Nah! */
 extern vector       refinevels[NMax][3][MaxSplitConf];
@@ -256,8 +269,13 @@ extern double build_psi_yyy(double,double,double,double,
 			    double[],double[],double[],
 			    double[],double[][],double[][]);
 
+extern void eval_biot(double, double, double, double[]);
 extern void induced_v(blob_external *,blob_internal *,blobparms *,
 		      double, double, double[]);
+extern void induced_v_asympt(blob_external *,blob_internal *,blobparms *,
+			     double, double, double[]);
+extern void induced_v_platte(blob_external *,blob_internal *,blobparms *,
+			     double, double, double[]);
 
 extern double searchlist_uniform(int *, int , double,int *);
 extern double searchlist_distribution(int *, int, double,int *);
@@ -326,3 +344,12 @@ extern void stop(int);
 extern void chk_nan(int);
 
 extern void biot(double, int, double[], double[], int, int, double[]);
+
+extern void solve_bdy_matrix(panel[],int[],double[][]);
+extern void bdy_vel(double, double, double*, double*);
+extern void clip(double);
+
+/* Lapack headers */
+extern int dgesv_(int*,int*,double[][],int*,int[],double[],int*,int*);
+extern int dgetrf_( int*, int*, double[][], int*, int[], int*);
+void dgetrs_( char*, int*, int*, double[][], int*, int[], double[], int*, int*);

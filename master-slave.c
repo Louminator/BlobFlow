@@ -35,6 +35,12 @@
 #define CARDINALITY  N
 #endif
 
+#ifdef CYLINDERSYMM
+#define CARDINALITY  N/2
+#else
+#define CARDINALITY  N
+#endif
+
 double wicked_big_vectah[NMax * PARTICLE_DATA_PACKET_SIZE];
 
 /*  the master-slave approach yields dynamic load balancing, so if certain 
