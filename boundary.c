@@ -35,7 +35,7 @@ double f23(a,b,c,x)
      double a,b,c,x;
 {
   return((x+b/2/a)*log(a*x*x+b*x+c) + 
-	 sqrt(4*a*c-b*b)/a*atan((2*a*x+b)/sqrt(4*a*c-b*b)) - 2*x);
+         sqrt(4*a*c-b*b)/a*atan((2*a*x+b)/sqrt(4*a*c-b*b)) - 2*x);
 }
 
 double f26(A,B,C,x)
@@ -375,7 +375,9 @@ void factor_bdy_matrix(walls,ipiv,A)
   int info,lda=BMax,n=B;
   buildflux(walls,A,B);
 
+#ifndef NOBOUNDARY
   dgetrf_(&n,&n,A,&lda,ipiv,&info);
+#endif
 }
 
 void solve_bdy_matrix(walls,ipiv,A)
@@ -390,7 +392,9 @@ void solve_bdy_matrix(walls,ipiv,A)
   buildrhs(walls,b,B);
   
   /* dgesv_(&n,&nrhs,A,&lda,ipiv,b,&ldb,&info); */
+#ifndef NOBOUNDARY
   dgetrs_(trans,&B,&nrhs,A,&lda,ipiv,b,&ldb,&info);
+#endif
   
   for (k=0; k<B; ++k)
     walls[k].m = b[k];

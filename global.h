@@ -39,6 +39,7 @@
 
 #define CORRECTVEL4
 #undef  NOFASTMP
+#undef  NOBOUNDARY
 
 /* Set LINEAR to impose your own velocity field. */
 #undef  LINEAR
@@ -222,9 +223,9 @@ extern void splitvels(vector[4],blob_external,blob_internal,blobparms);
 extern double expint(double[], double, double);
 
 extern void build_rt(double,double,double,double[],double[]);
-extern void build_psiRT(double,double,double,double[],double[],double[][]);
+extern void build_psiRT(double,double,double,double[],double[],double[][maxexp]);
 extern void build_psi(double,double,double,
-		      double[],double[],double[],double[][]);
+		      double[],double[],double[],double[][maxexp]);
 
 extern void dx_coeff(double[], double[], int, double);
 extern void dy_coeff(double[], double[], int, double);
@@ -235,39 +236,39 @@ extern void dxy_coeff(double[], double[], int, double);
 extern double build_psi_x(double,double,double,double,
 			  double,double,double,
 			  double[],double[],double[],
-			  double[],double[][],double[][]);
+			  double[],double[][maxexp],double[][maxexp]);
 extern double build_psi_y(double,double,double,double,
 			  double,double,double,
 			  double[],double[],double[],
-			  double[],double[][],double[][]);
+			  double[],double[][maxexp],double[][maxexp]);
 extern double build_psi_xx(double,double,double,double,
 			   double,double,double,
 			   double[],double[],double[],
-			   double[],double[][],double[][]);
+			   double[],double[][maxexp],double[][maxexp]);
 extern double build_psi_yy(double,double,double,double,
 			   double,double,double,
 			   double[],double[],double[],
-			   double[],double[][],double[][]);
+			   double[],double[][maxexp],double[][maxexp]);
 extern double build_psi_xy(double,double,double,double,
 			   double,double,double,
 			   double[],double[],double[],
-			   double[],double[][],double[][]);
+			   double[],double[][maxexp],double[][maxexp]);
 extern double build_psi_xxx(double,double,double,double,
 			    double,double,double,
 			    double[],double[],double[],
-			    double[],double[][],double[][]);
+			    double[],double[][maxexp],double[][maxexp]);
 extern double build_psi_xxy(double,double,double,double,
 			    double,double,double,
 			    double[],double[],double[],
-			    double[],double[][],double[][]);
+			    double[],double[][maxexp],double[][maxexp]);
 extern double build_psi_xyy(double,double,double,double,
 			    double,double,double,
 			    double[],double[],double[],
-			    double[],double[][],double[][]);
+			    double[],double[][maxexp],double[][maxexp]);
 extern double build_psi_yyy(double,double,double,double,
 			    double,double,double,
 			    double[],double[],double[],
-			    double[],double[][],double[][]);
+			    double[],double[][maxexp],double[][maxexp]);
 
 extern void eval_biot(double, double, double, double[]);
 extern void induced_v(blob_external *,blob_internal *,blobparms *,
@@ -345,11 +346,13 @@ extern void chk_nan(int);
 
 extern void biot(double, int, double[], double[], int, int, double[]);
 
-extern void solve_bdy_matrix(panel[],int[],double[][]);
+extern void solve_bdy_matrix(panel[],int[],double[][BMax]);
 extern void bdy_vel(double, double, double*, double*);
 extern void clip(double);
 
 /* Lapack headers */
+#ifndef NOBOUNDARY
 extern int dgesv_(int*,int*,double[][],int*,int[],double[],int*,int*);
 extern int dgetrf_( int*, int*, double[][], int*, int[], int*);
 void dgetrs_( char*, int*, int*, double[][], int*, int[], double[], int*, int*);
+#endif
