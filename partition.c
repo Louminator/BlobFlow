@@ -275,10 +275,17 @@ void Init_Fine_Grid(int levels)
 	  }
      }
 
+   MPI_Allreduce(Coeff_Array,Coeff_buff,2*buffsize,MPI_DOUBLE,
+	      MPI_SUM,MPI_COMM_WORLD);
+
+   /*  This is the equivalent of an MPI_All_Reduce and should be
+       removed if the line above works properly. */
+   /*
    MPI_Reduce(Coeff_Array,Coeff_buff,2*buffsize,MPI_DOUBLE,
 	      MPI_SUM,0,MPI_COMM_WORLD);
 
    MPI_Bcast (Coeff_buff, 2*buffsize, MPI_DOUBLE, 0, MPI_COMM_WORLD );
+   */
 
    for (j=0; j<PMax*size*size; ++j)
      *(Coeff_Array+j) = *(Coeff_buff+j);
