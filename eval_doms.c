@@ -87,7 +87,7 @@ void eval_doms(double a, double xp, double yp, double phi[])
 							find_coeffs (a, coeffs, Md9);
 							ymin=3.0; ymax=7.0*sqrt(a);
 						}
-							else if (yp<11.2*a)
+							else if (yp<11.5*a)
 							{
 								find_coeffs (a, coeffs, Md10);
 								ymin=7.0*sqrt(a); ymax=11.5*a;
@@ -119,7 +119,6 @@ void eval_doms(double a, double xp, double yp, double phi[])
 	sx1=(2.0/(xmax-xmin)); sx2=(xmax+xmin)/(xmax-xmin);
 	sy1=(2.0/(ymax-ymin)); sy2=(ymax+ymin)/(ymax-ymin);
 	xr=sx1*xp-sx2; yr=sy1*yp-sy2;
-
 	
 	/* Phi_x **************************************************/
 	xpow=1.0;  phi[0]=0.0; k=17;
@@ -258,4 +257,5 @@ void eval_doms(double a, double xp, double yp, double phi[])
 	phi[8]*=sx1*sy1*sy1;
 
 	} /* End if r>40a **********************/
+
 }
