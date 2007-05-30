@@ -272,21 +272,21 @@ void correct_vel_4()
 }
 
 double dts2(the_blobguts)
-blob_internal *the_blobguts;
+     blob_internal *the_blobguts;
 {
   return((visc/2.0)*( (*the_blobguts).a2 + 1.0/(*the_blobguts).a2 ) );
 }
 
 double dta2(the_blobguts,parms)
-blob_internal *the_blobguts;
-blobparms *parms;
+     blob_internal *the_blobguts;
+     blobparms *parms;
 {
   double base,tmpa2,thresh,out;
 
   base = 2.0*( (*parms).du11*( (*parms).cos2 - (*parms).sin2 ) +
-		( (*parms).du12+(*parms).du21 )*
-		(*parms).sincos )*(*the_blobguts).a2 +
-      (visc/(2.0*(*the_blobguts).s2))*(1.0 - SQR((*the_blobguts).a2));
+	       ( (*parms).du12+(*parms).du21 )*
+	       (*parms).sincos )*(*the_blobguts).a2 +
+    (visc/(2.0*(*the_blobguts).s2))*(1.0 - SQR((*the_blobguts).a2));
 
   tmpa2 = (*the_blobguts).a2;
   if (tmpa2<1.0) tmpa2 = 1.0/tmpa2;

@@ -352,7 +352,7 @@ extern void clip(double);
 
 /* Lapack headers */
 #ifndef NOBOUNDARY
-extern int dgesv_(int*,int*,double[][],int*,int[],double[],int*,int*);
-extern int dgetrf_( int*, int*, double[][], int*, int[], int*);
-void dgetrs_( char*, int*, int*, double[][], int*, int[], double[], int*, int*);
+extern int dgesv_(int*,int*,double[][BMax],int*,int[],double[],int*,int*);
+extern int dgetrf_( int*, int*, double[][BMax], int*, int[], int*);
+void dgetrs_( char*, int*, int*, double[][BMax], int*, int[], double[], int*, int*);
 #endif
