@@ -42,9 +42,9 @@
 #define PARTICLE_DATA_PACKET_SIZE 9
 #define MAX_CPUS 50
 
-int total_processes, rank;
-MPI_Status mpistatus;
-MPI_Request mpireq;
+extern int total_processes, rank;
+extern MPI_Status mpistatus;
+extern MPI_Request mpireq;
 
 extern double wicked_big_vectah[NMax * PARTICLE_DATA_PACKET_SIZE];
 
