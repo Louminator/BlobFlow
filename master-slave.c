@@ -85,7 +85,7 @@ void buffer_to_blob(buffer,blob,parm)
 void master ( void ) 
 {
    int proc,vort,job,flag1;
-   int workbuf[MAX_CPUS][WorkSize],i;
+   int workbuf[WorkSize],i;
    double rbuf[MAX_CPUS][PARTICLE_DATA_PACKET_SIZE*WorkSize];
    MPI_Request mpireqs[MAX_CPUS];
    
@@ -110,16 +110,16 @@ void master ( void )
   for (proc=1; proc<total_processes; proc++)
     {
        for (i=0; i<WorkSize; ++i)
-	 workbuf[proc][i] = job+i;
-       MPI_Send (workbuf[proc],WorkSize,MPI_INT,proc,WORK,MPI_COMM_WORLD);
+	 workbuf[i] = job+i;
+       MPI_Send (workbuf,WorkSize,MPI_INT,proc,WORK,MPI_COMM_WORLD);
        job += WorkSize;
     }
 
   for (proc=1; proc<total_processes; proc++)
     {
        for (i=0; i<WorkSize; ++i)
-	 workbuf[proc][i] = job+i;
-       MPI_Send (workbuf[proc],WorkSize,MPI_INT,proc,WORK,MPI_COMM_WORLD);
+	 workbuf[i] = job+i;
+       MPI_Send (workbuf,WorkSize,MPI_INT,proc,WORK,MPI_COMM_WORLD);
        job += WorkSize;
     }
 
@@ -151,7 +151,7 @@ void master ( void )
 	
 	position = 0;
 	MPI_Get_count(&mpistatus,MPI_PACKED,&msgsize);
-	MPI_Unpack(buffer[proc],msgsize,&position,workbuf[proc],WorkSize,
+	MPI_Unpack(buffer[proc],msgsize,&position,workbuf,WorkSize,
 		   MPI_INT,MPI_COMM_WORLD);
 	MPI_Unpack(buffer[proc],msgsize,&position,rbuf[proc],
 		   WorkSize*PARTICLE_DATA_PACKET_SIZE,
@@ -159,20 +159,20 @@ void master ( void )
 	
 	for (i=0; i<WorkSize; ++i)
 	  {
-	     vort = workbuf[proc][i];
+	     vort = workbuf[i];
 	     
 	     if (vort != -1)
 	       buffer_to_blob(&(rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i]),
 			      &(mblob[vort].blob0),&(tmpparms[vort]));
 	     if (job < CARDINALITY)
-	       workbuf[proc][i] = job;
+	       workbuf[i] = job;
 	     else
-	       workbuf[proc][i] = -1;
+	       workbuf[i] = -1;
 	     ++job;
 	  }
 	
 	MPI_Start(&(mpireqs[proc-1]));
-	MPI_Send(workbuf[proc],WorkSize,MPI_INT,proc,WORK,
+	MPI_Send(workbuf,WorkSize,MPI_INT,proc,WORK,
 		 MPI_COMM_WORLD);
      }
    
@@ -184,7 +184,7 @@ void master ( void )
 	
 	position = 0;
 	MPI_Get_count(&mpistatus,MPI_PACKED,&msgsize);
-	MPI_Unpack(buffer[proc],msgsize,&position,workbuf[proc],WorkSize,
+	MPI_Unpack(buffer[proc],msgsize,&position,workbuf,WorkSize,
 		   MPI_INT,MPI_COMM_WORLD);
 	MPI_Unpack(buffer[proc],msgsize,&position,rbuf[proc],
 		   WorkSize*PARTICLE_DATA_PACKET_SIZE,
@@ -192,7 +192,7 @@ void master ( void )
 	
 	for (i=0; i<WorkSize; ++i)
 	  {
-	    vort = workbuf[proc][i];
+	    vort = workbuf[i];
 	     
 	     if (vort != -1)
 	       buffer_to_blob(&(rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i]),
@@ -208,7 +208,7 @@ void master ( void )
 	
 	position = 0;
 	MPI_Get_count(&mpistatus,MPI_PACKED,&msgsize);
-	MPI_Unpack(buffer[proc],msgsize,&position,workbuf[proc],WorkSize,
+	MPI_Unpack(buffer[proc],msgsize,&position,workbuf,WorkSize,
 		   MPI_INT,MPI_COMM_WORLD);
 	MPI_Unpack(buffer[proc],msgsize,&position,rbuf[proc],
 		   WorkSize*PARTICLE_DATA_PACKET_SIZE,
@@ -216,7 +216,7 @@ void master ( void )
 	
 	for (i=0; i<WorkSize; ++i)
 	  {
-	     vort = workbuf[proc][i];
+	     vort = workbuf[i];
 	     
 	     if (vort != -1)
 	       buffer_to_blob(&(rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i]),
@@ -239,7 +239,7 @@ void master ( void )
 
 void slave ( void ) 
 {
-   int vort,start,workbuf1[WorkSize],workbuf2[WorkSize],i;  
+   int vort,workbuf1[WorkSize],i;  
    double sbuf[PARTICLE_DATA_PACKET_SIZE*WorkSize];
    MPI_Request master_req,slave_resp;
    int position,membersize,packsize;
@@ -260,19 +260,17 @@ void slave ( void )
    MPI_Send_init (buffer, packsize, MPI_PACKED, 0, 
 		  rank+RESERVED_TAGS, MPI_COMM_WORLD,&slave_resp);
    
-  start = 1;
-
   while (1)
     {
       MPI_Start(&master_req);
       MPI_Wait(&master_req,&mpistatus);
-
       if  ( mpistatus.MPI_TAG == DONE )
 	{
 	  /* Wait for the last send to complete. */
 	  MPI_Wait(&slave_resp,&mpistatus);
 	  break;
 	}
+
 
        for (i=0; i<WorkSize; ++i)
 	 {
@@ -290,25 +288,21 @@ void slave ( void )
 		dpos_vel_fast(vort);
 #endif
 	      }
-	    
-	    /* Better wait here just in case I compute faster than I thought. */
-	    /* sbuf must be protected. */
-	    if (!start)
-	      {
-		 MPI_Wait(&slave_resp,&mpistatus);
-	      }
-	    else
-	      start = 0;
 
 	    if (vort != -1)
 	      blob_to_buffer(&(mblob[vort].blob0),&(tmpparms[vort]),
 			     &(sbuf[i*PARTICLE_DATA_PACKET_SIZE]));
-
-	    workbuf2[i] = workbuf1[i];
 	 }
 
+	    
+       /* Better wait here just in case I compute faster than I thought. */
+       /* buffer must be protected. */
+
+
+       MPI_Wait(&slave_resp,&mpistatus);
+
        position=0;
-       MPI_Pack(workbuf2,WorkSize,MPI_INT,buffer,packsize,&position,
+       MPI_Pack(workbuf1,WorkSize,MPI_INT,buffer,packsize,&position,
 		MPI_COMM_WORLD);
        MPI_Pack(sbuf,PARTICLE_DATA_PACKET_SIZE*WorkSize,
 		MPI_DOUBLE,buffer,packsize,&position,
