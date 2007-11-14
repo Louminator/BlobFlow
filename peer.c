@@ -12,8 +12,6 @@
 #define CARDINALITY  N
 #endif
 
-double wicked_big_vectah[NMax * PARTICLE_DATA_PACKET_SIZE];
-
 void peer(void)
 {
    int workqueue[NMax],worksize,donelist[NMax];
