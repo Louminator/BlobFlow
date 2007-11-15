@@ -81,10 +81,20 @@ int    B,Bpiv[BMax];
 panel  walls[BMax];
 double BdyMat[BMax][BMax];
 
+double phase,mxx,mxy,myy,old_mxx,old_mxy,old_myy;
+
 clock_t tot_cputime_ref,tot_cputime,
   vel_cputime_ref,vel_cputime,velsum_cputime_ref,velsum_cputime,
   veldirect_cputime_ref,veldirect_cputime,
   mp_cputime,mp_cputime_ref;
+
+#ifdef MULTIPROC
+int total_processes, rank;
+MPI_Status mpistatus;
+MPI_Request mpireq;
+
+double wicked_big_vectah[NMax * PARTICLE_DATA_PACKET_SIZE];
+#endif
 
 
 /* Subroutine to stop everything if there is a problem. */
@@ -111,7 +121,7 @@ void run()
   while (SimTime < EndTime)
     {
 
-      /* clip(1.8*0.99); */
+      /* clip(2.5); */
       tot_cputime_ref = clock();
       vel_cputime = 0;
       velsum_cputime = 0;
@@ -123,6 +133,13 @@ void run()
       nsplit = 0;
       nmerge = 0;
 	
+      /* Track second moments for Travis' forcing */
+      old_mxx = mxx;
+      old_mxy = mxy;
+      old_myy = myy;
+      calc_moments(&mxx,&myy,&mxy);
+      /* */
+
       oldN = N;
 
       /* All computational elements march forward with split step. */

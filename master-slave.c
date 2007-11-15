@@ -41,8 +41,6 @@
 #define CARDINALITY  N
 #endif
 
-double wicked_big_vectah[NMax * PARTICLE_DATA_PACKET_SIZE];
-
 /*  the master-slave approach yields dynamic load balancing, so if certain 
     nodes on the multicomputer are busier, they are given less work  */
 
