@@ -134,10 +134,12 @@ void run()
       nmerge = 0;
 	
       /* Track second moments for Travis' forcing */
+      /*
       old_mxx = mxx;
       old_mxy = mxy;
       old_myy = myy;
       calc_moments(&mxx,&myy,&mxy);
+      */
       /* */
 
       oldN = N;
