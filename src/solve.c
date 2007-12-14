@@ -33,7 +33,7 @@
 #define rkck_err_dereg 1.0e-12
 
 void push(mblob)
-    metablob *mblob;
+    Metablob *mblob;
 {
     (*mblob).blob4 = (*mblob).blob3;
     (*mblob).blob3 = (*mblob).blob2;
@@ -42,8 +42,8 @@ void push(mblob)
 }
 
 void set_blob(the_blobguts,parms)
-blob_internal *the_blobguts;
-blobparms *parms;
+Blob_internal *the_blobguts;
+Blob_parms *parms;
 {
     (*parms).costh = cos((*the_blobguts).th);
     (*parms).sinth = sin((*the_blobguts).th);
@@ -53,8 +53,8 @@ blobparms *parms;
 }
 
 void ab2(mblob,parms,timestep)
-metablob *mblob;
-blobparms *parms;
+Metablob *mblob;
+Blob_parms *parms;
 double timestep;
 {
   (*mblob).blob0.x = (*mblob).blob1.x +
@@ -64,8 +64,8 @@ double timestep;
 }
 
 void ab3(mblob,parms,timestep)
-metablob *mblob;
-blobparms *parms;
+Metablob *mblob;
+Blob_parms *parms;
 double timestep;
 {
   (*mblob).blob0.x  = (*mblob).blob1.x +
@@ -79,7 +79,7 @@ double timestep;
 }
 
 void ab4(mblob,parms,timestep)
-metablob *mblob;
+Metablob *mblob;
 double timestep;
 {
   (*mblob).blob0.x  = (*mblob).blob1.x +
@@ -95,7 +95,7 @@ double timestep;
 }
 
 void am4(mblob,parms,timestep)
-metablob *mblob;
+Metablob *mblob;
 double timestep;
 {
     (*mblob).blob0.x  = (*mblob).blob1.x + 
@@ -111,8 +111,8 @@ double timestep;
 }
 
 void ab2half(mblob,parms,timestep)
-metablob *mblob;
-blobparms *parms;
+Metablob *mblob;
+Blob_parms *parms;
 double timestep;
 {
   (*mblob).blob0.x = (*mblob).blob1.x + 
@@ -122,8 +122,8 @@ double timestep;
 }
 
 void ab3half(mblob,parms,timestep)
-metablob *mblob;
-blobparms *parms;
+Metablob *mblob;
+Blob_parms *parms;
 double timestep;
 {
   (*mblob).blob0.x  = (*mblob).blob1.x + 
@@ -137,7 +137,7 @@ double timestep;
 }
 
 void ab4half(mblob,parms,timestep)
-metablob *mblob;
+Metablob *mblob;
 double timestep;
 {
   (*mblob).blob0.x  = (*mblob).blob1.x + 
@@ -153,8 +153,8 @@ double timestep;
 }
 
 void th_slave(blobguts,parms)
-blob_internal *blobguts;
-blobparms     *parms;
+Blob_internal *blobguts;
+Blob_parms     *parms;
 {
   double temp,arg;
 
@@ -196,8 +196,8 @@ blobparms     *parms;
 }
 
 void dy_slave(blobguts,parms,ds2,da2)
-blob_internal *blobguts;
-blobparms     *parms;
+Blob_internal *blobguts;
+Blob_parms     *parms;
 double        *ds2,*da2;
 {
   *ds2 = dts2(blobguts);
@@ -205,8 +205,8 @@ double        *ds2,*da2;
 }
 
 void dy(blobguts,parms,ds2,da2,dth)
-blob_internal *blobguts;
-blobparms     *parms;
+Blob_internal *blobguts;
+Blob_parms     *parms;
 double        *ds2,*da2,*dth;
 {
   *dth = dtth(blobguts,parms);
@@ -215,12 +215,12 @@ double        *ds2,*da2,*dth;
 }
 
 void rk4step(blobguts,parms,prefstep)
-blob_internal *blobguts;
-blobparms *parms;
+Blob_internal *blobguts;
+Blob_parms *parms;
 double prefstep;
 {
-   blob_internal tempguts[5];
-   blobparms     tempparms[5];
+   Blob_internal tempguts[5];
+   Blob_parms     tempparms[5];
    double     ds2[4],da2[4],dth[4];
 
    tempguts[0] = *blobguts;
@@ -272,12 +272,12 @@ double prefstep;
 }
    
 void rk4step_slave(blobguts,parms,prefstep)
-blob_internal *blobguts;
-blobparms *parms;
+Blob_internal *blobguts;
+Blob_parms *parms;
 double prefstep;
 {
-   blob_internal tempguts[5];
-   blobparms     tempparms[5];
+   Blob_internal tempguts[5];
+   Blob_parms     tempparms[5];
    double     ds2[4],da2[4];
 
    tempguts[0] = *blobguts;
@@ -326,13 +326,13 @@ double prefstep;
 }
    
 void rkckstep(blobguts,bloberrs,parms,refscale,step)
-blob_internal *blobguts,*bloberrs;
-blobparms *parms;
+Blob_internal *blobguts,*bloberrs;
+Blob_parms *parms;
 double refscale[3];
 double step;
 {
-   blob_internal tempguts[8];
-   blobparms     tempparms[8];
+   Blob_internal tempguts[8];
+   Blob_parms     tempparms[8];
    double        ds2[6],da2[6],dth[6];
 
    /* The a's are for use if there is an explicit time dependence. */
@@ -526,13 +526,13 @@ double step;
 }
    
 void rkckmarch(blobguts,parms,timestep,reltol)
-blob_internal *blobguts;
-blobparms *parms;
+Blob_internal *blobguts;
+Blob_parms *parms;
 double timestep,reltol;
 {
   double        prefstep,T,err[3],superr,refscale[3];
-  blob_internal currblob,testerr,testblob;
-  blobparms     currparm,testparm;
+  Blob_internal currblob,testerr,testblob;
+  Blob_parms     currparm,testparm;
   
   currblob = *blobguts;
   testblob = *blobguts;
@@ -597,8 +597,8 @@ double timestep,reltol;
 }
 
 void Jac_int(blobguts,parms,a,b,c,d,e,f,g)
-blob_internal blobguts;
-blobparms parms;
+Blob_internal blobguts;
+Blob_parms parms;
 double *a,*b,*c,*d,*e,*f,*g;
 {
   *a = 2.0*(parms.du11*(parms.cos2-parms.sin2)+
@@ -614,12 +614,12 @@ double *a,*b,*c,*d,*e,*f,*g;
 }
 
 void BDF2_step(newguts,newparms,blobguts1,parms1,blobguts2,parms2,step)
-     blob_internal *newguts,blobguts1,blobguts2;
-     blobparms *newparms,parms1,parms2;
+     Blob_internal *newguts,blobguts1,blobguts2;
+     Blob_parms *newparms,parms1,parms2;
      double step;
 {
-   blob_internal tempguts[2];
-   blobparms     tempparms[2];
+   Blob_internal tempguts[2];
+   Blob_parms     tempparms[2];
    double        ds2,da2,dth;
 
    double a,b,c,d,e,f,g,alpha;
@@ -708,13 +708,13 @@ void BDF2_step(newguts,newparms,blobguts1,parms1,blobguts2,parms2,step)
 }
 
 void stepper(blobguts,parms,timestep,steps)
-blob_internal *blobguts;
-blobparms *parms;
+Blob_internal *blobguts;
+Blob_parms *parms;
 double timestep;
 int steps;
 {
-   blob_internal tempguts[3];
-   blobparms     tempparms[3];
+   Blob_internal tempguts[3];
+   Blob_parms     tempparms[3];
    int i;
 
    tempguts[0]  = tempguts[1]  = tempguts[2]  = *blobguts;
@@ -759,21 +759,21 @@ int steps;
 }
 
 void stepper_loworder(blobguts,parms,timestep,steps)
-blob_internal *blobguts;
-blobparms *parms;
+Blob_internal *blobguts;
+Blob_parms *parms;
 double timestep;
 int steps;
 {
-   blob_internal tempguts[3];
-   blobparms     tempparms[3];
+   Blob_internal tempguts[3];
+   Blob_parms     tempparms[3];
    int i;
 
    (*blobguts).s2 += visc*timestep*steps;
 }
 
 void internal_march(blobguts,parms,timestep)
-blob_internal *blobguts;
-blobparms *parms;
+Blob_internal *blobguts;
+Blob_parms *parms;
 double timestep;
 {
 #ifndef CCSVM
@@ -784,14 +784,14 @@ double timestep;
 }
 
 void OLDinternal_march(blobguts,parms,timestep)
-blob_internal *blobguts;
-blobparms *parms;
+Blob_internal *blobguts;
+Blob_parms *parms;
 double timestep;
 {
   int           steps;
   double        prefstep,err;
-  blob_internal testblob1,testblob2;
-  blobparms     testparm1,testparm2;
+  Blob_internal testblob1,testblob2;
+  Blob_parms     testparm1,testparm2;
    
   testblob1 = *blobguts;
   testblob2 = *blobguts;

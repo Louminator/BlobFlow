@@ -151,12 +151,12 @@ int vort;
 
 }
 
-vector dpos_vel_gen_linear(pos,the_blobguts,parms)
-     vector    pos;
-     blob_internal the_blobguts;
-     blobparms parms;
+Vector dpos_vel_gen_linear(pos,the_blobguts,parms)
+     Vector    pos;
+     Blob_internal the_blobguts;
+     Blob_parms parms;
 {
-  vector v;
+  Vector v;
 
   double x,y,r2;
   double U,V;

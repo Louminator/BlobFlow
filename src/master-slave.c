@@ -45,8 +45,8 @@
     nodes on the multicomputer are busier, they are given less work  */
 
 void blob_to_buffer(blob,parm,buffer)
-     blob_external *blob;
-     blobparms     *parm;
+     Blob_external *blob;
+     Blob_parms     *parm;
      double        *buffer;
 {
   *buffer     = (*blob).dx;
@@ -61,8 +61,8 @@ void blob_to_buffer(blob,parm,buffer)
 }
 
 void buffer_to_blob(buffer,blob,parm)
-     blob_external *blob;
-     blobparms     *parm;
+     Blob_external *blob;
+     Blob_parms     *parm;
      double        *buffer;
 {
   (*blob).dx   = *buffer;

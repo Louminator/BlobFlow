@@ -47,12 +47,12 @@ int C(int n, int k)
    return(sum);
 }
 
-complex cpowi(c,n)
-complex c;
+Complex cpowi(c,n)
+Complex c;
 int     n;
 {
    int     i;
-   complex result;
+   Complex result;
    
    result = c;
    
@@ -62,10 +62,10 @@ int     n;
    return(result);
 }
 
-complex cmult(c1,c2)
-complex c1,c2;
+Complex cmult(c1,c2)
+Complex c1,c2;
 {
-   complex result;
+   Complex result;
    
    result.re = c1.re*c2.re-c1.im*c2.im;
    result.im = c1.re*c2.im+c1.im*c2.re;
@@ -216,11 +216,11 @@ void partition(int levels)
 void Init_Fine_Grid(int levels)
 {
    int i,j,p,size;
-   complex *Coeff_Array,tmpz,dz,mp[PMAX];
+   Complex *Coeff_Array,tmpz,dz,mp[PMAX];
 
 #ifdef MULTIPROC
    int start,end,rank,total_processes,buffsize;
-   complex *Coeff_buff;
+   Complex *Coeff_buff;
 #endif
    
    /* These need to be explicitly determined here for some reason.*/
@@ -249,7 +249,7 @@ void Init_Fine_Grid(int levels)
 
    buffsize = PMAX*((int) ldexp(1.0,2*(levels)));
 
-   Coeff_buff = malloc(sizeof(complex)*buffsize);
+   Coeff_buff = malloc(sizeof(Complex)*buffsize);
 
    start = rank*((int) CARDINALITY/total_processes);
    end   = (rank+1)*((int) CARDINALITY/total_processes);
@@ -318,7 +318,7 @@ void Init_Fine_Grid(int levels)
 void Advance_Coeffs(int levels)
 {
    int i,j,p,p1,l,size;
-   complex *Coeff_Array,*Coeff_Array_Finer,tmpz,dz[PMAX+1];
+   Complex *Coeff_Array,*Coeff_Array_Finer,tmpz,dz[PMAX+1];
    
    for (l=levels-2; l>=0; --l)
      {

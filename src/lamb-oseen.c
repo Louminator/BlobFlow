@@ -291,12 +291,12 @@ int vort;
     }
 }
 
-vector dpos_vel_gen_linear(pos,the_blobguts,parms)
-     vector    pos;
-     blob_internal the_blobguts;
-     blobparms parms;
+Vector dpos_vel_gen_linear(pos,the_blobguts,parms)
+     Vector    pos;
+     Blob_internal the_blobguts;
+     Blob_parms parms;
 {
-  vector v;
+  Vector v;
 
   double s2,r2,decay,oneminusdecay;
   double Uxx,Uyy,Uxy,Vxx,Vyy,Vxy;

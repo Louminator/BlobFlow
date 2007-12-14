@@ -81,7 +81,7 @@ typedef struct
 {
     double x,y;
 }
-vector;
+Vector;
 
 typedef struct
 {
@@ -90,13 +90,13 @@ typedef struct
     double dx,dy;
     int    order;
 }
-blob_external;
+Blob_external;
 
 typedef struct
 {
     double a2,s2,th;
 }
-blob_internal;
+Blob_internal;
 
 typedef struct
 {
@@ -104,31 +104,31 @@ typedef struct
   double u_xx,u_xy,u_yy,v_xx;
   int    refinecnt,nint;
 }
-blobparms;
+Blob_parms;
 
 typedef struct
 {
    double du11,du12,du21;  
 }
-tensor;
+Tensor;
 
 typedef struct
 {
-    blob_external blob0,blob1,blob2,blob3,blob4;
+    Blob_external blob0,blob1,blob2,blob3,blob4;
 }
-metablob;
+Metablob;
 
 typedef struct
 {
   double m,x,y,nx,ny,l;
 }
-panel;
+Panel;
 
 typedef struct
 {
    double re,im;
 }
-complex;
+Complex;
 
 typedef struct EltLink
 {
@@ -140,19 +140,19 @@ FineGridLink;
 extern FILE          *comp_log,*diag_log,*mpi_log,*cpu_log;
 
 extern int           N,oldN;
-extern metablob      mblob[NMAX];
-extern blob_internal blobguts[NMAX];
-extern blobparms     tmpparms[NMAX];
+extern Metablob      mblob[NMAX];
+extern Blob_internal blobguts[NMAX];
+extern Blob_parms    tmpparms[NMAX];
 extern double        visc;                       /* Physical constants */
 extern double        alpha,l2tol,dtth_delta;     /* Numerical parameters */
 
 /* Boundaries */
 extern int    B,Bpiv[BMAX];
-extern panel  walls[BMAX];
+extern Panel  walls[BMAX];
 extern double BdyMat[BMAX][BMAX];
 
 /* Dynamic memory allocation might be better here. Nah! */
-extern vector       refinevels[NMAX][3][MAX_SPLIT_CONF];
+extern Vector       refinevels[NMAX][3][MAX_SPLIT_CONF];
 extern int          refineindex[NMAX],refinestack;
 
 /* Time integration parameters */
@@ -174,7 +174,7 @@ extern double *split_parm_ptr;
 
 /*Fast multipole variables*/
 extern double       minX,maxX,minY,maxY,distX,distY;
-extern complex      *Level_Ptr[LMAX];
+extern Complex      *Level_Ptr[LMAX];
 extern int          gridx[LMAX][NMAX], gridy[LMAX][NMAX], mplevels;
 extern FineGridLink **FineGridLinks;
 extern int          numk2;
@@ -196,12 +196,12 @@ extern void rectify();
 extern void flip_blob();
 extern void set_blob();
 
-extern double dta2(blob_internal*,blobparms*);
-extern double dts2(blob_internal*);
-extern double dtth(blob_internal*,blobparms*);
+extern double dta2(Blob_internal*,Blob_parms*);
+extern double dts2(Blob_internal*);
+extern double dtth(Blob_internal*,Blob_parms*);
 
-extern vector induced_vel();
-extern tensor induced_veldev();
+extern Vector induced_vel();
+extern Tensor induced_veldev();
 
 extern void push();
 extern void ab2();
@@ -212,11 +212,11 @@ extern void ab2half();
 extern void ab3half();
 extern void ab4half();
 extern void am4half();
-extern void split14(blob_external *, blob_internal *, blobparms *,
-		    blob_external *, blob_internal *, blobparms *,
-		    blob_external *, blob_internal *, blobparms *,
-		    blob_external *, blob_internal *, blobparms *);
-extern void splitvels(vector[4],blob_external,blob_internal,blobparms);
+extern void split14(Blob_external *, Blob_internal *, Blob_parms *,
+		    Blob_external *, Blob_internal *, Blob_parms *,
+		    Blob_external *, Blob_internal *, Blob_parms *,
+		    Blob_external *, Blob_internal *, Blob_parms *);
+extern void splitvels(Vector[4],Blob_external,Blob_internal,Blob_parms);
 
 /* Streamfunction approximation routines. */
 
@@ -271,11 +271,11 @@ extern double build_psi_yyy(double,double,double,double,
 			    double[],double[][maxexp],double[][maxexp]);
 
 extern void eval_biot(double, double, double, double[]);
-extern void induced_v(blob_external *,blob_internal *,blobparms *,
+extern void induced_v(Blob_external *,Blob_internal *,Blob_parms *,
 		      double, double, double[]);
-extern void induced_v_asympt(blob_external *,blob_internal *,blobparms *,
+extern void induced_v_asympt(Blob_external *,Blob_internal *,Blob_parms *,
 			     double, double, double[]);
-extern void induced_v_platte(blob_external *,blob_internal *,blobparms *,
+extern void induced_v_platte(Blob_external *,Blob_internal *,Blob_parms *,
 			     double, double, double[]);
 
 extern double searchlist_uniform(int *, int , double,int *);
@@ -285,9 +285,9 @@ extern int  Set_Level();
 extern void partition(int);
 extern void InitFineGrid(int);
 extern int  C(int,int);
-extern complex cmult(complex, complex);
-extern complex cpowi(complex, int);
-extern void Calc_Coeffs(int, complex, complex[]);
+extern Complex cmult(Complex, Complex);
+extern Complex cpowi(Complex, int);
+extern void Calc_Coeffs(int, Complex, Complex[]);
 extern void correct_vel_4();
 extern void dpos_vel_fast(int);
 extern void dpos_vel_exact(int);
@@ -299,41 +299,41 @@ extern void MP_Sum(int, int);
 extern void MP_Direct(int, int);
 extern void MP_Direct2(int, int);
 extern void MP_Direct3(int, int);
-extern void rk4internal(blob_internal*, blobparms*, double);
-extern void internal_march(blob_internal*, blobparms*, double);
-extern void rkckmarch(blob_internal*, blobparms*, double,double);
+extern void rk4internal(Blob_internal*, Blob_parms*, double);
+extern void internal_march(Blob_internal*, Blob_parms*, double);
+extern void rkckmarch(Blob_internal*, Blob_parms*, double,double);
 extern void chksplit();
-extern void split14vels(vector*, blob_external, blob_internal, blobparms);
-extern void split14(blob_external*, blob_internal*, blobparms*,
-		    blob_external*, blob_internal*, blobparms*,
-		    blob_external*, blob_internal*, blobparms*,
-		    blob_external*, blob_internal*, blobparms*);
-extern void split15vels(vector*, blob_external, blob_internal, blobparms);
-extern void split15(blob_external*, blob_internal*, blobparms*,
-		    blob_external*, blob_internal*, blobparms*,
-		    blob_external*, blob_internal*, blobparms*,
-		    blob_external*, blob_internal*, blobparms*,
-		    blob_external*, blob_internal*, blobparms*);
-extern void split15asymvels(vector*, blob_external, blob_internal, blobparms, double*);
-extern void split15asym(blob_external*, blob_internal*, blobparms*,
-			blob_external*, blob_internal*, blobparms*,
-			blob_external*, blob_internal*, blobparms*,
-			blob_external*, blob_internal*, blobparms*,
-			blob_external*, blob_internal*, blobparms*, double*);
+extern void split14vels(Vector*, Blob_external, Blob_internal, Blob_parms);
+extern void split14(Blob_external*, Blob_internal*, Blob_parms*,
+		    Blob_external*, Blob_internal*, Blob_parms*,
+		    Blob_external*, Blob_internal*, Blob_parms*,
+		    Blob_external*, Blob_internal*, Blob_parms*);
+extern void split15vels(Vector*, Blob_external, Blob_internal, Blob_parms);
+extern void split15(Blob_external*, Blob_internal*, Blob_parms*,
+		    Blob_external*, Blob_internal*, Blob_parms*,
+		    Blob_external*, Blob_internal*, Blob_parms*,
+		    Blob_external*, Blob_internal*, Blob_parms*,
+		    Blob_external*, Blob_internal*, Blob_parms*);
+extern void split15asymvels(Vector*, Blob_external, Blob_internal, Blob_parms, double*);
+extern void split15asym(Blob_external*, Blob_internal*, Blob_parms*,
+			Blob_external*, Blob_internal*, Blob_parms*,
+			Blob_external*, Blob_internal*, Blob_parms*,
+			Blob_external*, Blob_internal*, Blob_parms*,
+			Blob_external*, Blob_internal*, Blob_parms*, double*);
 extern void merge();
 extern void resort();
 extern void Release_Links(int);
 extern void write_vorts(int);
 extern void write_pmvorts(int);
 extern void write_partition(int);
-extern void split12(blob_external*, blob_internal*, blobparms*, blob_external*, blob_internal*, blobparms*);
+extern void split12(Blob_external*, Blob_internal*, Blob_parms*, Blob_external*, Blob_internal*, Blob_parms*);
 extern void dpos_vel(int);
-extern vector dpos_vel_gen(vector,blob_internal,blobparms);
-extern vector dpos_vel_gen_linear(vector,blob_internal,blobparms);
-extern vector vel_gen(double,double);
+extern Vector dpos_vel_gen(Vector,Blob_internal,Blob_parms);
+extern Vector dpos_vel_gen_linear(Vector,Blob_internal,Blob_parms);
+extern Vector vel_gen(double,double);
 extern void dpos_vel_linear(int);
 extern void potential_flow(int);
-extern vector potential_vel(double,double);
+extern Vector potential_vel(double,double);
 extern void reflect_X();
 extern void cache_resort();
 extern void vel_field();
@@ -346,7 +346,7 @@ extern void chk_nan(int);
 
 extern void biot(double, int, double[], double[], int, int, double[]);
 
-extern void solve_bdy_matrix(panel[],int[],double[][BMAX]);
+extern void solve_bdy_matrix(Panel[],int[],double[][BMAX]);
 extern void bdy_vel(double, double, double*, double*);
 extern void clip(double);
 
