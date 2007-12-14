@@ -38,7 +38,7 @@ void cache_resort()
    int i,j,index,size;
    FineGridLink *trace;
    
-   if (N > NMax/2+1)
+   if (N > NMAX/2+1)
      fprintf(comp_log,
 	     "Time %12.4e: Cache resorting is not possible.  Problem size is too large.\n",
 	     SimTime);

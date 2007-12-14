@@ -99,7 +99,7 @@ void chksplit()
 		 {
 		   refineindex[k] = refineindex[k+1];
 		   for (l=0; l<3; ++l)
-		     for (m=0; m<MaxSplitConf; ++m)
+		     for (m=0; m<MAX_SPLIT_CONF; ++m)
 		       refinevels[k][l][m] = refinevels[k+1][l][m];
 		 }
 
@@ -171,7 +171,7 @@ void chksplit()
 		 {
 		   refineindex[k] = refineindex[k+1];
 		   for (l=0; l<3; ++l)
-		     for (m=0; m<MaxSplitConf; ++m)
+		     for (m=0; m<MAX_SPLIT_CONF; ++m)
 		       refinevels[k][l][m] = refinevels[k+1][l][m];
 		 }
 
@@ -246,7 +246,7 @@ void chksplit()
 		 {
 		   refineindex[k] = refineindex[k+1];
 		   for (l=0; l<3; ++l)
-		     for (m=0; m<MaxSplitConf; ++m)
+		     for (m=0; m<MAX_SPLIT_CONF; ++m)
 		       refinevels[k][l][m] = refinevels[k+1][l][m];
 		 }
 

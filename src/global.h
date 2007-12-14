@@ -39,20 +39,20 @@
 
 #define CORRECTVEL4
 #undef  NOFASTMP
-#define  NOBOUNDARY
+#define NOBOUNDARY
 
 /* Set LINEAR to impose your own velocity field. */
 #undef  LINEAR
 #undef  cashkarp
 
-#define NMax 50000   /* Maximum number of computational elements. */
-#define PMax 30      /* Maximum number of multipole coefficients. */
-#define LMax 7     /* Maximum number of levels of refinement in 
-                        multipole summation */
-#define BMax 250
-#define MaxSplitConf 8 /*Maximum number of elements that a single element */
-                       /* can split into. */
-#define Title 500     /* Maximum file name length */
+#define NMAX 50000       /* Maximum number of computational elements. */
+#define PMAX 30          /* Maximum number of multipole coefficients. */
+#define LMAX 7           /* Maximum number of levels of refinement in 
+                            multipole summation */
+#define BMAX 250
+#define MAX_SPLIT_CONF 8 /* Maximum number of elements that a single element */
+                         /* can split into. */
+#define FILENAME_LEN 500 /* Maximum file name length */
 
 /* PSI_ORDER sets the order of the streamfunction 
    in epsilon in the near field. */
@@ -140,20 +140,20 @@ FineGridLink;
 extern FILE          *comp_log,*diag_log,*mpi_log,*cpu_log;
 
 extern int           N,oldN;
-extern metablob      mblob[NMax];
-extern blob_internal blobguts[NMax];
-extern blobparms     tmpparms[NMax];
+extern metablob      mblob[NMAX];
+extern blob_internal blobguts[NMAX];
+extern blobparms     tmpparms[NMAX];
 extern double        visc;                       /* Physical constants */
 extern double        alpha,l2tol,dtth_delta;     /* Numerical parameters */
 
 /* Boundaries */
-extern int    B,Bpiv[BMax];
-extern panel  walls[BMax];
-extern double BdyMat[BMax][BMax];
+extern int    B,Bpiv[BMAX];
+extern panel  walls[BMAX];
+extern double BdyMat[BMAX][BMAX];
 
 /* Dynamic memory allocation might be better here. Nah! */
-extern vector       refinevels[NMax][3][MaxSplitConf];
-extern int          refineindex[NMax],refinestack;
+extern vector       refinevels[NMAX][3][MAX_SPLIT_CONF];
+extern int          refineindex[NMAX],refinestack;
 
 /* Time integration parameters */
 extern double TimeStep,PrefStep,FrameStep,EndTime,SimTime;
@@ -174,8 +174,8 @@ extern double *split_parm_ptr;
 
 /*Fast multipole variables*/
 extern double       minX,maxX,minY,maxY,distX,distY;
-extern complex      *Level_Ptr[LMax];
-extern int          gridx[LMax][NMax], gridy[LMax][NMax], mplevels;
+extern complex      *Level_Ptr[LMAX];
+extern int          gridx[LMAX][NMAX], gridy[LMAX][NMAX], mplevels;
 extern FineGridLink **FineGridLinks;
 extern int          numk2;
 
@@ -346,13 +346,13 @@ extern void chk_nan(int);
 
 extern void biot(double, int, double[], double[], int, int, double[]);
 
-extern void solve_bdy_matrix(panel[],int[],double[][BMax]);
+extern void solve_bdy_matrix(panel[],int[],double[][BMAX]);
 extern void bdy_vel(double, double, double*, double*);
 extern void clip(double);
 
 /* Lapack headers */
 #ifndef NOBOUNDARY
-extern int dgesv_(int*,int*,double[][BMax],int*,int[],double[],int*,int*);
-extern int dgetrf_( int*, int*, double[][BMax], int*, int[], int*);
-void dgetrs_( char*, int*, int*, double[][BMax], int*, int[], double[], int*, int*);
+extern int dgesv_(int*,int*,double[][BMAX],int*,int[],double[],int*,int*);
+extern int dgetrf_( int*, int*, double[][BMAX], int*, int[], int*);
+void dgetrs_( char*, int*, int*, double[][BMAX], int*, int[], double[], int*, int*);
 #endif

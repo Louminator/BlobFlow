@@ -37,7 +37,7 @@ void write_vorts(frameno)
      int frameno;
 {
   int         i;
-  char        vortex_name[Title];
+  char        vortex_name[FILENAME_LEN];
   FILE        *vortex_file,*fopen();
    
   sprintf(vortex_name,"%s%04d%s",filename,frameno,".vtx");
@@ -58,7 +58,7 @@ void write_pmvorts(frameno)
      int frameno;
 {
   int         i;
-  char        vortex_name[Title];
+  char        vortex_name[FILENAME_LEN];
   FILE        *vortex_file,*fopen();
    
   sprintf(vortex_name,"%s_pm%04d%s",filename,frameno,".vtx");
@@ -80,7 +80,7 @@ void write_partition(frameno)
 int frameno;
 {
    int i,l;
-   char grid_name[Title];
+   char grid_name[FILENAME_LEN];
    FILE *gridfile,*fopen();
    
    sprintf(grid_name,"%s%04d%s",filename,frameno,".mp");

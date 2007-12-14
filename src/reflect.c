@@ -37,7 +37,7 @@ void reflect_X()
 {
    int i;
    
-   if (2*N > NMax)
+   if (2*N > NMAX)
      {
 	fprintf(comp_log,"The problem size is too big!\n");
 	fprintf(comp_log,"Note: If you use XANTISYMMETRY, NMAX must be adjusted to buffer twice\n");

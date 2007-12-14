@@ -14,7 +14,7 @@
 
 void peer(void)
 {
-   int workqueue[NMax],worksize,donelist[NMax];
+   int workqueue[NMAX],worksize,donelist[NMAX];
    int i,peer_proc,dummy,more_flag,msg,count,outcount,done_flag;
    
    MPI_Request mpireq;

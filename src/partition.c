@@ -137,7 +137,7 @@ int Set_Level()
    else
      level = level1;
    
-   if (level > LMax) level = LMax;
+   if (level > LMAX) level = LMAX;
    if (level < 1) level = 1;
 
    /* Calculate the smallest prudent grid cell. */
@@ -216,7 +216,7 @@ void partition(int levels)
 void Init_Fine_Grid(int levels)
 {
    int i,j,p,size;
-   complex *Coeff_Array,tmpz,dz,mp[PMax];
+   complex *Coeff_Array,tmpz,dz,mp[PMAX];
 
 #ifdef MULTIPROC
    int start,end,rank,total_processes,buffsize;
@@ -240,14 +240,14 @@ void Init_Fine_Grid(int levels)
    
    for (i=0; i < size; ++i)
      for (j=0; j < size; ++j)
-       for (p=0; p<PMax; ++p)
-	 *(Coeff_Array+(i+j*size)*PMax+p) = tmpz;
+       for (p=0; p<PMAX; ++p)
+	 *(Coeff_Array+(i+j*size)*PMAX+p) = tmpz;
 
 #ifdef MULTIPROC
    MPI_Comm_size(MPI_COMM_WORLD, &total_processes);
    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-   buffsize = PMax*((int) ldexp(1.0,2*(levels)));
+   buffsize = PMAX*((int) ldexp(1.0,2*(levels)));
 
    Coeff_buff = malloc(sizeof(complex)*buffsize);
 
@@ -264,13 +264,13 @@ void Init_Fine_Grid(int levels)
 
 	Calc_Coeffs(i,dz,mp);
 	
-	for (p=0; p<PMax; ++p)
+	for (p=0; p<PMAX; ++p)
 	  {
 	     (*(Coeff_Array+
-	       (gridx[levels-1][i]+gridy[levels-1][i]*size)*PMax+p)).re +=
+	       (gridx[levels-1][i]+gridy[levels-1][i]*size)*PMAX+p)).re +=
 	       mp[p].re;
 	     (*(Coeff_Array+
-	       (gridx[levels-1][i]+gridy[levels-1][i]*size)*PMax+p)).im +=
+	       (gridx[levels-1][i]+gridy[levels-1][i]*size)*PMAX+p)).im +=
 	       mp[p].im;
 	  }
      }
@@ -287,7 +287,7 @@ void Init_Fine_Grid(int levels)
    MPI_Bcast (Coeff_buff, 2*buffsize, MPI_DOUBLE, 0, MPI_COMM_WORLD );
    */
 
-   for (j=0; j<PMax*size*size; ++j)
+   for (j=0; j<PMAX*size*size; ++j)
      *(Coeff_Array+j) = *(Coeff_buff+j);
 
    free(Coeff_buff);
@@ -299,13 +299,13 @@ void Init_Fine_Grid(int levels)
 
 	Calc_Coeffs(i,dz,mp);
 	
-	for (p=0; p<PMax; ++p)
+	for (p=0; p<PMAX; ++p)
 	  {
 	     (*(Coeff_Array+
-	       (gridx[levels-1][i]+gridy[levels-1][i]*size)*PMax+p)).re +=
+	       (gridx[levels-1][i]+gridy[levels-1][i]*size)*PMAX+p)).re +=
 	       mp[p].re;
 	     (*(Coeff_Array+
-	       (gridx[levels-1][i]+gridy[levels-1][i]*size)*PMax+p)).im +=
+	       (gridx[levels-1][i]+gridy[levels-1][i]*size)*PMAX+p)).im +=
 	       mp[p].im;
 	  }
      }
@@ -318,7 +318,7 @@ void Init_Fine_Grid(int levels)
 void Advance_Coeffs(int levels)
 {
    int i,j,p,p1,l,size;
-   complex *Coeff_Array,*Coeff_Array_Finer,tmpz,dz[PMax+1];
+   complex *Coeff_Array,*Coeff_Array_Finer,tmpz,dz[PMAX+1];
    
    for (l=levels-2; l>=0; --l)
      {
@@ -330,8 +330,8 @@ void Advance_Coeffs(int levels)
 	tmpz.re = 0.0; tmpz.im = 0.0;
 	for (i=0; i<size; ++i)
 	  for (j=0; j<size; ++j)
-	    for (p=0; p<PMax; ++p)
-	      *(Coeff_Array+(i+j*size)*PMax+p) = tmpz;
+	    for (p=0; p<PMAX; ++p)
+	      *(Coeff_Array+(i+j*size)*PMAX+p) = tmpz;
 
 	dz[0].re = 1.0;
 	dz[0].im = 0.0;
@@ -342,7 +342,7 @@ void Advance_Coeffs(int levels)
 	dz[1].re = -distX/size/4.0;
 	dz[1].im = -distY/size/4.0;
 	
-	for (p=2; p<=PMax; ++p)
+	for (p=2; p<=PMAX; ++p)
 	  {
 	     if (p % 2 == 0)
 	       dz[p] = cmult(dz[p/2],dz[p/2]);
@@ -352,14 +352,14 @@ void Advance_Coeffs(int levels)
 
 	for (i=0; i<size; ++i)
 	  for (j=0; j<size; ++j)
-	    for (p=0; p<PMax; ++p)
+	    for (p=0; p<PMAX; ++p)
 	      for (p1=0; p1<=p; ++p1)
 	  {
 	     tmpz = cmult(dz[p-p1],
-			  *(Coeff_Array_Finer+(2*i+2*j*2*size)*PMax+p1));
-	     (*(Coeff_Array+(i+j*size)*PMax+p)).re +=
+			  *(Coeff_Array_Finer+(2*i+2*j*2*size)*PMAX+p1));
+	     (*(Coeff_Array+(i+j*size)*PMAX+p)).re +=
 	       tmpz.re*C(p,p1);
-	     (*(Coeff_Array+(i+j*size)*PMax+p)).im +=
+	     (*(Coeff_Array+(i+j*size)*PMAX+p)).im +=
 	       tmpz.im*C(p,p1);
 	  }
 
@@ -368,7 +368,7 @@ void Advance_Coeffs(int levels)
 	dz[1].re =  distX/size/4.0;
 	dz[1].im = -distY/size/4.0;
 	
-	for (p=2; p<=PMax; ++p)
+	for (p=2; p<=PMAX; ++p)
 	  {
 	     if (p % 2 == 0)
 	       dz[p] = cmult(dz[p/2],dz[p/2]);
@@ -378,14 +378,14 @@ void Advance_Coeffs(int levels)
 
 	for (i=0; i<size; ++i)
 	  for (j=0; j<size; ++j)
-	    for (p=0; p<PMax; ++p)
+	    for (p=0; p<PMAX; ++p)
 	      for (p1=0; p1<=p; ++p1)
 	  {
 	     tmpz = cmult(dz[p-p1],
-			  *(Coeff_Array_Finer+(2*i+1+2*j*2*size)*PMax+p1));
-	     (*(Coeff_Array+(i+j*size)*PMax+p)).re +=
+			  *(Coeff_Array_Finer+(2*i+1+2*j*2*size)*PMAX+p1));
+	     (*(Coeff_Array+(i+j*size)*PMAX+p)).re +=
 	       tmpz.re*C(p,p1);
-	     (*(Coeff_Array+(i+j*size)*PMax+p)).im +=
+	     (*(Coeff_Array+(i+j*size)*PMAX+p)).im +=
 	       tmpz.im*C(p,p1);
 	  }
 
@@ -394,7 +394,7 @@ void Advance_Coeffs(int levels)
 	dz[1].re = -distX/size/4.0;
 	dz[1].im =  distY/size/4.0;
 	
-	for (p=2; p<=PMax; ++p)
+	for (p=2; p<=PMAX; ++p)
 	  {
 	     if (p % 2 == 0)
 	       dz[p] = cmult(dz[p/2],dz[p/2]);
@@ -404,14 +404,14 @@ void Advance_Coeffs(int levels)
 
 	for (i=0; i<size; ++i)
 	  for (j=0; j<size; ++j)
-	    for (p=0; p<PMax; ++p)
+	    for (p=0; p<PMAX; ++p)
 	      for (p1=0; p1<=p; ++p1)
 	  {
 	     tmpz = cmult(dz[p-p1],
-			  *(Coeff_Array_Finer+(2*i+(2*j+1)*2*size)*PMax+p1));
-	     (*(Coeff_Array+(i+j*size)*PMax+p)).re +=
+			  *(Coeff_Array_Finer+(2*i+(2*j+1)*2*size)*PMAX+p1));
+	     (*(Coeff_Array+(i+j*size)*PMAX+p)).re +=
 	       tmpz.re*C(p,p1);
-	     (*(Coeff_Array+(i+j*size)*PMax+p)).im +=
+	     (*(Coeff_Array+(i+j*size)*PMAX+p)).im +=
 	       tmpz.im*C(p,p1);
 	  }
 
@@ -420,7 +420,7 @@ void Advance_Coeffs(int levels)
 	dz[1].re =  distX/size/4.0;
 	dz[1].im =  distY/size/4.0;
 	
-	for (p=2; p<=PMax; ++p)
+	for (p=2; p<=PMAX; ++p)
 	  {
 	     if (p % 2 == 0)
 	       dz[p] = cmult(dz[p/2],dz[p/2]);
@@ -430,14 +430,14 @@ void Advance_Coeffs(int levels)
 
 	for (i=0; i<size; ++i)
 	  for (j=0; j<size; ++j)
-	    for (p=0; p<PMax; ++p)
+	    for (p=0; p<PMAX; ++p)
 	      for (p1=0; p1<=p; ++p1)
 	  {
 	     tmpz = cmult(dz[p-p1],
-			  *(Coeff_Array_Finer+(2*i+1+(2*j+1)*2*size)*PMax+p1));
-	     (*(Coeff_Array+(i+j*size)*PMax+p)).re +=
+			  *(Coeff_Array_Finer+(2*i+1+(2*j+1)*2*size)*PMAX+p1));
+	     (*(Coeff_Array+(i+j*size)*PMAX+p)).re +=
 	       tmpz.re*C(p,p1);
-	     (*(Coeff_Array+(i+j*size)*PMax+p)).im +=
+	     (*(Coeff_Array+(i+j*size)*PMAX+p)).im +=
 	       tmpz.im*C(p,p1);
 	  }
      }

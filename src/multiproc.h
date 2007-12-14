@@ -46,7 +46,7 @@ extern int total_processes, rank;
 extern MPI_Status mpistatus;
 extern MPI_Request mpireq;
 
-extern double wicked_big_vectah[NMax * PARTICLE_DATA_PACKET_SIZE];
+extern double wicked_big_vectah[NMAX * PARTICLE_DATA_PACKET_SIZE];
 
 /* CAUTION: Maximum number of processes is hardwired at 30. */
 

@@ -113,10 +113,10 @@ void split15(the_blob,the_blobguts,parms,
    blob_internal old_blobguts;
    double     r,r2,a2,amp;
    
-   if (N >= NMax-5)
+   if (N >= NMAX-5)
      {
 	fprintf(comp_log,
-		"Overload!  The problem size has grown beyond NMax.\n");
+		"Overload!  The problem size has grown beyond NMAX.\n");
 	stop(-1);
      }
    

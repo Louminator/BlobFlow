@@ -199,11 +199,11 @@ double m_yyyy(int vort)
 }
 
 double searchlist_distribution(ind,indmax,maxerr,size)
-int ind[NMax],indmax;
+int ind[NMAX],indmax;
 double maxerr;
 int *size;
 {
-   int mergelist[NMax],mergeable,i,j,k,l,m,gotone,listorder;
+   int mergelist[NMAX],mergeable,i,j,k,l,m,gotone,listorder;
    double precost,postcost,tmppostcost;
    
    double cum_tot[15],this_tot[15],trial_tot[15],tmpa2,tmpa4,tmps2;
@@ -658,11 +658,11 @@ int *size;
 }
 
 double searchlist_uniform(ind,indmax,maxerr,size)
-int ind[NMax],indmax;
+int ind[NMAX],indmax;
 double maxerr;
 int    *size;
 {
-   int mergelist[NMax],mergeable,i,j,k,gotone;
+   int mergelist[NMAX],mergeable,i,j,k,gotone;
    
    double cum_tot[6],this_tot[6],trial_tot[6],tmpa2,tmpa4,tmps2,
              a2_rescale,s2_rescale,r_rescale,relerr2,relerr3,temp,relerr;
@@ -880,16 +880,16 @@ int    *size;
 }
 
 double clusterlist(ind,indmax,maxerr,searchlist)
-int ind[NMax],indmax;
+int ind[NMAX],indmax;
 double maxerr;
 double (*searchlist)(int *, int, double,int *);
 {
-   int clusterlist[NMax],clustersize,i,j,size;
+   int clusterlist[NMAX],clustersize,i,j,size;
    
    double scale1,scale2,dx,dy,dx_rescale,dy_rescale,budget;
 
    /* Some sort variables. */
-   double clusterdist[NMax],currR2,tmpR2;
+   double clusterdist[NMAX],currR2,tmpR2;
    int k,l,currind;
    
    budget = 0.0;
@@ -1025,7 +1025,7 @@ double (*searchlist)(int *, int, double,int *);
 
 double posneglists(double avail_budget,int k, int l, int size)
 {
-   int indp[NMax],indpmax,indn[NMax],indnmax;
+   int indp[NMAX],indpmax,indn[NMAX],indnmax;
    
    FineGridLink *trace;
    
@@ -1143,7 +1143,7 @@ void merge()
 
 void resort()
 {
-    int  i,j,removed,tmpindex[NMax];
+    int  i,j,removed,tmpindex[NMAX];
 
     removed = 0;
 

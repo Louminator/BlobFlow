@@ -36,8 +36,8 @@
 FILE *comp_log,*diag_log,*mpi_log,*cpu_log;
 
 int N,oldN;
-metablob mblob[NMax];
-blob_internal blobguts[NMax];
+metablob mblob[NMAX];
+blob_internal blobguts[NMAX];
 double    visc;
 double    alpha,l2tol,dtth_delta;
 double    TimeStep,PrefStep,FrameStep,EndTime,SimTime;
@@ -53,21 +53,21 @@ int       merge_estimator,nsplit,nmerge,totmerge,totsplit,MergeFrame;
 double    BoundaryStep;
 int       BoundaryFrame;
 
-char      filename[Title];
+char      filename[FILENAME_LEN];
 
-blobparms tmpparms[NMax];
+blobparms tmpparms[NMAX];
 
 /* Dynamic memory allocation might be better here. Nah! */
-vector       refinevels[NMax][3][MaxSplitConf];
-int          refineindex[NMax],refinestack;
+vector       refinevels[NMAX][3][MAX_SPLIT_CONF];
+int          refineindex[NMAX],refinestack;
 
 /*Fast multipole variables*/
 
 double minX,maxX,minY,maxY,distX,distY;
 
-complex *Level_Ptr[LMax];
+complex *Level_Ptr[LMAX];
 
-int gridx[LMax][NMax], gridy[LMax][NMax], mplevels;
+int gridx[LMAX][NMAX], gridy[LMAX][NMAX], mplevels;
 
 int numk2;
 
@@ -77,9 +77,9 @@ FineGridLink **FineGridLinks,*trace;
 
 /* Boundaries */
 
-int    B,Bpiv[BMax];
-panel  walls[BMax];
-double BdyMat[BMax][BMax];
+int    B,Bpiv[BMAX];
+panel  walls[BMAX];
+double BdyMat[BMAX][BMAX];
 
 double phase,mxx,mxy,myy,old_mxx,old_mxy,old_myy;
 
@@ -93,7 +93,7 @@ int total_processes, rank;
 MPI_Status mpistatus;
 MPI_Request mpireq;
 
-double wicked_big_vectah[NMax * PARTICLE_DATA_PACKET_SIZE];
+double wicked_big_vectah[NMAX * PARTICLE_DATA_PACKET_SIZE];
 #endif
 
 
