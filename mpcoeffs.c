@@ -35,10 +35,10 @@
 
 #define R2 256.0
 
-void Calc_Coeffs(int vort, complex z, complex mp[])
+void Calc_Coeffs(int vort, Complex z, Complex mp[])
 {
    double Gamma,a2,s2,dx,dy,tmp1;
-   complex ctmp1,ctmp2,bdy_corr;
+   Complex ctmp1,ctmp2,bdy_corr;
    int    i,j;
    
    Gamma = mblob[vort].blob0.strength;

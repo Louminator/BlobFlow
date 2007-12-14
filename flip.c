@@ -36,7 +36,7 @@
 #include "global.h"
 
 void flip_blob(the_blobguts)
-blob_internal *the_blobguts;
+Blob_internal *the_blobguts;
 {
    double newa2,newth;
    

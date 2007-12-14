@@ -34,15 +34,15 @@
 
 
 void split15asymvels(vels,the_blob,the_blobguts,parms,parm_ptr)
-     vector        *vels;
-     blob_external the_blob;
-     blob_internal the_blobguts;
-     blobparms     parms;
+     Vector        *vels;
+     Blob_external the_blob;
+     Blob_internal the_blobguts;
+     Blob_parms     parms;
      double        *parm_ptr;
 {
      double     rA,rB;
      double     gammaA,gammaB,aA2;
-     vector     pos;
+     Vector     pos;
 
      rA = (*parm_ptr)*sqrt(the_blobguts.s2*the_blobguts.a2);
      rB = *(parm_ptr+1)*sqrt(the_blobguts.s2/the_blobguts.a2);
@@ -112,14 +112,14 @@ void split15asym(the_blob,the_blobguts,parms,
 		 new_blob2,new_blobguts2,new_parms2,
 		 new_blob3,new_blobguts3,new_parms3,
 		 new_blob4,new_blobguts4,new_parms4,parm_ptr)
-     blob_external *the_blob,*new_blob1,*new_blob2,*new_blob3,*new_blob4;
-     blob_internal *the_blobguts,*new_blobguts1,*new_blobguts2,
+     Blob_external *the_blob,*new_blob1,*new_blob2,*new_blob3,*new_blob4;
+     Blob_internal *the_blobguts,*new_blobguts1,*new_blobguts2,
        *new_blobguts3,*new_blobguts4;
-     blobparms *parms,*new_parms1,*new_parms2,*new_parms3,*new_parms4;
+     Blob_parms *parms,*new_parms1,*new_parms2,*new_parms3,*new_parms4;
      double        *parm_ptr;
 {
-   blob_external old_blob;
-   blob_internal old_blobguts;
+   Blob_external old_blob;
+   Blob_internal old_blobguts;
    double     rA,rB;
    double     gammaA,gammaB,aA2;
    

@@ -50,8 +50,8 @@ extern double wicked_big_vectah[NMAX * PARTICLE_DATA_PACKET_SIZE];
 
 /* CAUTION: Maximum number of processes is hardwired at 30. */
 
-void blob_to_buffer(blob_external * ,blobparms * ,double *);
-void buffer_to_blob(double *, blob_external * ,blobparms *);
+void blob_to_buffer(Blob_external * ,Blob_parms * ,double *);
+void buffer_to_blob(double *, Blob_external * ,Blob_parms *);
 void master ( void );
 void master2 ( int levels );
 void slave   ( void );

@@ -1,3 +1,5 @@
+#include "global.h"
+
 void chkvel()
 {
   int vort;

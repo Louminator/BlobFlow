@@ -156,7 +156,7 @@ double wallflux(x1,y1,n1x,n1y,l1,x0,y0,n0x,n0y,l0)
 /* Build matrix expressing the flux into the walls induced by other
    wall elements. */
 void buildflux(walls,A,n)
-     panel  walls[BMAX];
+     Panel  walls[BMAX];
      double A[BMAX][BMAX];
      int n;
 {
@@ -235,7 +235,7 @@ void calc_phase(mxx,myy,mzz)
 
 /* Calculate the flux out of the walls from the fluid flow. */
 void vort_panel_flux(wall,b,n,k)
-     panel  wall[BMAX];
+     Panel  wall[BMAX];
      double b[BMAX];
      int    n,k;
 {
@@ -288,7 +288,7 @@ void vort_panel_flux(wall,b,n,k)
 
 #ifdef MULTIPROC  
 void buildrhs_master(wall,b,n)
-     panel  wall[BMAX];
+     Panel  wall[BMAX];
      double b[BMAX];
      int    n;
 {
@@ -319,7 +319,7 @@ void buildrhs_master(wall,b,n)
 }
 
 void buildrhs_slave(wall,b,n)
-     panel  wall[BMAX];
+     Panel  wall[BMAX];
      double b[BMAX];
      int    n;
 {
@@ -348,7 +348,7 @@ void buildrhs_slave(wall,b,n)
 
 /* Calculate the flux out of the walls from the fluid flow. */
 void buildrhs(wall,b,n)
-     panel  wall[BMAX];
+     Panel  wall[BMAX];
      double b[BMAX];
      int    n;
 {
@@ -368,7 +368,7 @@ void buildrhs(wall,b,n)
 }
 
 void factor_bdy_matrix(walls,ipiv,A)
-     panel  walls[BMAX];
+     Panel  walls[BMAX];
      double A[BMAX][BMAX];
      int    ipiv[BMAX];
 {
@@ -381,7 +381,7 @@ void factor_bdy_matrix(walls,ipiv,A)
 }
 
 void solve_bdy_matrix(walls,ipiv,A)
-     panel  walls[BMAX];
+     Panel  walls[BMAX];
      double A[BMAX][BMAX];
      int    ipiv[BMAX];
 {

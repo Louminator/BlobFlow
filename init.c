@@ -40,7 +40,7 @@
    Efforts to use dynamic memory allocation also fail though it is not
    at all clear why.  */
 
-blob_external startup_blobs[3][NMAX];
+Blob_external startup_blobs[3][NMAX];
 
 /* Script constants. */
 static char *inputs[] =
@@ -462,7 +462,7 @@ void read_ctl()
 void startup_new()
 {
   int i,j;
-  /* blob_external *startup_blobs[3]; */
+  /* Blob_external *startup_blobs[3]; */
 
   /* Storage for RK4 */
   /* blob1 - temporary use */
@@ -473,9 +473,9 @@ void startup_new()
   for (j=0; j<N; ++j)
     startup_blobs[0][j] = mblob[j].blob0;
   /*
-  startup_blobs[0] = malloc(NMAX*sizeof(blob_external));
-  startup_blobs[1] = malloc(NMAX*sizeof(blob_external));
-  startup_blobs[2] = malloc(NMAX*sizeof(blob_external));
+  startup_blobs[0] = malloc(NMAX*sizeof(Blob_external));
+  startup_blobs[1] = malloc(NMAX*sizeof(Blob_external));
+  startup_blobs[2] = malloc(NMAX*sizeof(Blob_external));
   */
 
   if (startup_blobs[0] == NULL)
@@ -499,10 +499,10 @@ void startup_new()
   /*
   for (j=0; j<N; ++j)
     {
-      fprintf(diag_log,"Pushing %d %d\n",j,j*sizeof(blob_external));
+      fprintf(diag_log,"Pushing %d %d\n",j,j*sizeof(Blob_external));
       fflush(diag_log);
       
-      *(startup_blobs[0]+j*sizeof(blob_external)) = mblob[j].blob0;
+      *(startup_blobs[0]+j*sizeof(Blob_external)) = mblob[j].blob0;
     }
   */
 
@@ -656,7 +656,7 @@ void startup_new()
 	startup_blobs[i][j] = mblob[j].blob0;
       /*
       for (j=0; j<N; ++j)
-	*(startup_blobs[i]+j*sizeof(blob_external)) = mblob[j].blob0;
+	*(startup_blobs[i]+j*sizeof(Blob_external)) = mblob[j].blob0;
       */
 
       /* Dump the startup positions. */
@@ -677,21 +677,21 @@ void startup_new()
     {
       mblob[j].blob0 = startup_blobs[2][j];
       /*
-      mblob[j].blob0 =*(startup_blobs[2]+j*sizeof(blob_external));
+      mblob[j].blob0 =*(startup_blobs[2]+j*sizeof(Blob_external));
       */
       mblob[j].blob0.order = MaxOrder;
       mblob[j].blob1 = startup_blobs[2][j];
       /*
-      mblob[j].blob1 =*(startup_blobs[2]+j*sizeof(blob_external));
+      mblob[j].blob1 =*(startup_blobs[2]+j*sizeof(Blob_external));
       */
       mblob[j].blob1.order = MaxOrder;
     }
 
   /*
   for (j=0; j<N; ++j)
-      mblob[j].blob2 =*(startup_blobs[1]+j*sizeof(blob_external));
+      mblob[j].blob2 =*(startup_blobs[1]+j*sizeof(Blob_external));
   for (j=0; j<N; ++j)
-    mblob[j].blob3 =*(startup_blobs[0]+j*sizeof(blob_external));
+    mblob[j].blob3 =*(startup_blobs[0]+j*sizeof(Blob_external));
   */
   for (j=0; j<N; ++j)
     {
@@ -908,7 +908,7 @@ void init(int argc, char *argv[])
   /*Allocate memory for multipole coefficients.*/
   for (i=0; i<LMAX; ++i)
     Level_Ptr[i] = 
-      malloc(sizeof(complex)*PMAX*((int) ldexp(1.0,2*(i+1))));
+      malloc(sizeof(Complex)*PMAX*((int) ldexp(1.0,2*(i+1))));
  
   p1 = getenv("ECCSVM_HOME");
   if (p1 == NULL)

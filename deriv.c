@@ -177,15 +177,15 @@ void dpos_vel_fast(vort)
    potential_flow(vort);
 }
 
-vector dpos_vel_gen(pos,the_blobguts,parms)
-     vector pos;
-     blob_internal the_blobguts;
-     blobparms parms;
+Vector dpos_vel_gen(pos,the_blobguts,parms)
+     Vector pos;
+     Blob_internal the_blobguts;
+     Blob_parms parms;
 {
    int i;
    double dx,dy;
    double result[9];
-   vector v,sum;
+   Vector v,sum;
    
    sum.x = 0.0;
    sum.y = 0.0;
@@ -208,10 +208,10 @@ vector dpos_vel_gen(pos,the_blobguts,parms)
    return(sum);
 }
 
-vector vel_gen(x,y)
+Vector vel_gen(x,y)
      double x,y;
 {
-  vector v,w;
+  Vector v,w;
   double dx,dy;
   double result[9];
   int i;
@@ -272,14 +272,14 @@ void correct_vel_4()
 }
 
 double dts2(the_blobguts)
-     blob_internal *the_blobguts;
+     Blob_internal *the_blobguts;
 {
   return((visc/2.0)*( (*the_blobguts).a2 + 1.0/(*the_blobguts).a2 ) );
 }
 
 double dta2(the_blobguts,parms)
-     blob_internal *the_blobguts;
-     blobparms *parms;
+     Blob_internal *the_blobguts;
+     Blob_parms *parms;
 {
   double base,tmpa2,thresh,out;
 
@@ -305,8 +305,8 @@ double dta2(the_blobguts,parms)
 }
 
 double dtth(the_blobguts,parms)
-blob_internal *the_blobguts;
-blobparms *parms;
+Blob_internal *the_blobguts;
+Blob_parms *parms;
 {
   return( ((*parms).du21 - (*parms).du12)/2.0 +
 	  ( (((*parms).du21 + (*parms).du12)/2.0)*

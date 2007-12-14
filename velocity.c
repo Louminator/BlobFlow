@@ -28,9 +28,9 @@
 #include "global.h"
 
 void induced_v(the_blob,the_blobguts,parms,tmpdx,tmpdy,result)
-blob_external *the_blob;
-blob_internal *the_blobguts;
-blobparms     *parms;
+Blob_external *the_blob;
+Blob_internal *the_blobguts;
+Blob_parms     *parms;
 double        tmpdx,tmpdy;
 double        result[9];
 {
@@ -40,9 +40,9 @@ double        result[9];
 }
 
 void induced_v_asympt(the_blob,the_blobguts,parms,tmpdx,tmpdy,result)
-blob_external *the_blob;
-blob_internal *the_blobguts;
-blobparms *parms;
+Blob_external *the_blob;
+Blob_internal *the_blobguts;
+Blob_parms *parms;
 double tmpdx,tmpdy;
 double result[9];
 
@@ -162,9 +162,9 @@ double result[9];
 /* Rodrigo's spectral interp code. */
 
 void induced_v_platte(the_blob,the_blobguts,parms,tmpdx,tmpdy,result)
-blob_external *the_blob;
-blob_internal *the_blobguts;
-blobparms *parms;
+Blob_external *the_blob;
+Blob_internal *the_blobguts;
+Blob_parms *parms;
 double tmpdx,tmpdy;
 double result[9];
 

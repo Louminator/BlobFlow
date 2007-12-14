@@ -26,13 +26,13 @@
 #include "global.h"
 
 void split15vels(vels,the_blob,the_blobguts,parms)
-     vector        *vels;
-     blob_external the_blob;
-     blob_internal the_blobguts;
-     blobparms     parms;
+     Vector        *vels;
+     Blob_external the_blob;
+     Blob_internal the_blobguts;
+     Blob_parms     parms;
 {
      double     r,r2;
-     vector     pos;
+     Vector     pos;
    
 #ifdef XANTISYMM
      /* Double the number of computational elements by reflecting them
@@ -104,13 +104,13 @@ void split15(the_blob,the_blobguts,parms,
 	     new_blob2,new_blobguts2,new_parms2,
 	     new_blob3,new_blobguts3,new_parms3,
 	     new_blob4,new_blobguts4,new_parms4)
-     blob_external *the_blob,*new_blob1,*new_blob2,*new_blob3,*new_blob4;
-     blob_internal *the_blobguts,*new_blobguts1,*new_blobguts2,
+     Blob_external *the_blob,*new_blob1,*new_blob2,*new_blob3,*new_blob4;
+     Blob_internal *the_blobguts,*new_blobguts1,*new_blobguts2,
        *new_blobguts3,*new_blobguts4;
-     blobparms *parms,*new_parms1,*new_parms2,*new_parms3,*new_parms4;
+     Blob_parms *parms,*new_parms1,*new_parms2,*new_parms3,*new_parms4;
 {
-   blob_external old_blob;
-   blob_internal old_blobguts;
+   Blob_external old_blob;
+   Blob_internal old_blobguts;
    double     r,r2,a2,amp;
    
    if (N >= NMAX-5)

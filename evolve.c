@@ -36,8 +36,8 @@
 FILE *comp_log,*diag_log,*mpi_log,*cpu_log;
 
 int N,oldN;
-metablob mblob[NMAX];
-blob_internal blobguts[NMAX];
+Metablob mblob[NMAX];
+Blob_internal blobguts[NMAX];
 double    visc;
 double    alpha,l2tol,dtth_delta;
 double    TimeStep,PrefStep,FrameStep,EndTime,SimTime;
@@ -55,17 +55,17 @@ int       BoundaryFrame;
 
 char      filename[FILENAME_LEN];
 
-blobparms tmpparms[NMAX];
+Blob_parms tmpparms[NMAX];
 
 /* Dynamic memory allocation might be better here. Nah! */
-vector       refinevels[NMAX][3][MAX_SPLIT_CONF];
+Vector       refinevels[NMAX][3][MAX_SPLIT_CONF];
 int          refineindex[NMAX],refinestack;
 
 /*Fast multipole variables*/
 
 double minX,maxX,minY,maxY,distX,distY;
 
-complex *Level_Ptr[LMAX];
+Complex *Level_Ptr[LMAX];
 
 int gridx[LMAX][NMAX], gridy[LMAX][NMAX], mplevels;
 
@@ -78,7 +78,7 @@ FineGridLink **FineGridLinks,*trace;
 /* Boundaries */
 
 int    B,Bpiv[BMAX];
-panel  walls[BMAX];
+Panel  walls[BMAX];
 double BdyMat[BMAX][BMAX];
 
 double phase,mxx,mxy,myy,old_mxx,old_mxy,old_myy;

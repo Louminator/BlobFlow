@@ -28,10 +28,10 @@
 #include "global.h"
 
 /* Enter potential flow field information here. */
-vector potential_vel(x,y)
+Vector potential_vel(x,y)
      double x,y;
 {
-  vector v;
+  Vector v;
 
   v.x = 0.0;
   v.y = 0.0;
@@ -43,7 +43,7 @@ void potential_flow(vort)
      int vort;
 
 {
-  vector v;
+  Vector v;
 
   v = potential_vel(mblob[vort].blob0.x,mblob[vort].blob0.y);
 

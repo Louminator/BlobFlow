@@ -31,7 +31,7 @@ void vort_vort_interaction(i,j)
      int i,j;
 {
    double dx,dy;
-   tensor a;
+   Tensor a;
    double result[9];
 
    dx = mblob[i].blob0.x-mblob[j].blob0.x;
@@ -97,7 +97,7 @@ double maxC()
 void MP_Sum(int vort, int levels)
 {
    int i,j,p,l,size,mini,maxi,minj,maxj,Pallowed;
-   complex *Coeff_Array,z[PMAX+1],tmpz;
+   Complex *Coeff_Array,z[PMAX+1],tmpz;
    double R2,mC;
    
    mC = maxC();
