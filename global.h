@@ -39,7 +39,7 @@
 
 #define CORRECTVEL4
 #undef  NOFASTMP
-#undef  NOBOUNDARY
+#define  NOBOUNDARY
 
 /* Set LINEAR to impose your own velocity field. */
 #undef  LINEAR
