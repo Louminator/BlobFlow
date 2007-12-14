@@ -97,7 +97,7 @@ double maxC()
 void MP_Sum(int vort, int levels)
 {
    int i,j,p,l,size,mini,maxi,minj,maxj,Pallowed;
-   complex *Coeff_Array,z[PMax+1],tmpz;
+   complex *Coeff_Array,z[PMAX+1],tmpz;
    double R2,mC;
    
    mC = maxC();
@@ -130,14 +130,14 @@ void MP_Sum(int vort, int levels)
 #endif
 		  
 		  if (mC == 0.0)
-		    Pallowed = PMax;
+		    Pallowed = PMAX;
 		  else
 		    {
 		       R2 = SQR((i-gridx[l][vort])*distX/size)+
 			 SQR((j-gridy[l][vort])*distY/size);
 		       Pallowed = ((int) (R2/mC))-1;
 		       /*printf("Pallowed: %d maxC: %12.4e\n",Pallowed,mC);*/
-		       if (Pallowed>PMax) Pallowed=PMax;
+		       if (Pallowed>PMAX) Pallowed=PMAX;
 		    }
 		  
 		  tmpz.re = (mblob[vort].blob0.x-(minX+(distX/size)*(i+0.5)));
@@ -156,12 +156,12 @@ void MP_Sum(int vort, int levels)
 		  
 		  for (p=0; p<Pallowed; ++p)
 		    {
-		       tmpz = cmult(z[p],*(Coeff_Array+(i+j*size)*PMax+p));
+		       tmpz = cmult(z[p],*(Coeff_Array+(i+j*size)*PMAX+p));
 			
 		       mblob[vort].blob0.dx += tmpz.re;
 		       mblob[vort].blob0.dy -= tmpz.im;
 		       
-		       tmpz = cmult(z[p+1],*(Coeff_Array+(i+j*size)*PMax+p));
+		       tmpz = cmult(z[p+1],*(Coeff_Array+(i+j*size)*PMAX+p));
 		       /* or */
 		       /* tmpz = cmult(tmpz,z[0]); */
 		       
@@ -212,14 +212,14 @@ void MP_Sum(int vort, int levels)
 #endif
 		  
 		  if (mC == 0.0)
-		    Pallowed = PMax;
+		    Pallowed = PMAX;
 		  else
 		    {
 		       R2 = SQR((i-gridx[l][vort])*distX/size)+
 			 SQR((j-gridy[l][vort])*distY/size);
 		       Pallowed = ((int) (R2/mC))-1;
 		       /*printf("Pallowed: %d maxC: %12.4e\n",Pallowed,mC);*/
-		       if (Pallowed>PMax) Pallowed=PMax;
+		       if (Pallowed>PMAX) Pallowed=PMAX;
 		    }
 		  
 		  tmpz.re = (mblob[vort].blob0.x-(minX+(distX/size)*(i+0.5)));
@@ -238,12 +238,12 @@ void MP_Sum(int vort, int levels)
 		  
 		  for (p=0; p<Pallowed; ++p)
 		    {
-		       tmpz = cmult(z[p],*(Coeff_Array+(i+j*size)*PMax+p));
+		       tmpz = cmult(z[p],*(Coeff_Array+(i+j*size)*PMAX+p));
 		       
 		       mblob[vort].blob0.dx += tmpz.re;
 		       mblob[vort].blob0.dy -= tmpz.im;
 		       
-		       tmpz = cmult(z[p+1],*(Coeff_Array+(i+j*size)*PMax+p));
+		       tmpz = cmult(z[p+1],*(Coeff_Array+(i+j*size)*PMAX+p));
 		       /* or */
 		       /* tmpz = cmult(tmpz,z[0]); */
 		       
@@ -292,14 +292,14 @@ void MP_Sum(int vort, int levels)
 #endif
 		  
 		  if (mC == 0.0)
-		    Pallowed = PMax;
+		    Pallowed = PMAX;
 		  else
 		    {
 		       R2 = SQR((i-gridx[l][vort])*distX/size)+
 			 SQR((j-gridy[l][vort])*distY/size);
 		       Pallowed = ((int) (R2/mC))-1;
 		       /*printf("Pallowed: %d maxC: %12.4e\n",Pallowed,mC);*/
-		       if (Pallowed>PMax) Pallowed=PMax;
+		       if (Pallowed>PMAX) Pallowed=PMAX;
 		    }
 		  
 		  tmpz.re = (mblob[vort].blob0.x-(minX+(distX/size)*(i+0.5)));
@@ -318,12 +318,12 @@ void MP_Sum(int vort, int levels)
 		  
 		  for (p=0; p<Pallowed; ++p)
 		    {
-		       tmpz = cmult(z[p],*(Coeff_Array+(i+j*size)*PMax+p));
+		       tmpz = cmult(z[p],*(Coeff_Array+(i+j*size)*PMAX+p));
 		       
 		       mblob[vort].blob0.dx += tmpz.re;
 		       mblob[vort].blob0.dy -= tmpz.im;
 		       
-		       tmpz = cmult(z[p+1],*(Coeff_Array+(i+j*size)*PMax+p));
+		       tmpz = cmult(z[p+1],*(Coeff_Array+(i+j*size)*PMAX+p));
 		       
 		       tmpparms[vort].du11 += -(p+1)*tmpz.re;
 		       tmpparms[vort].du12 -= -(p+1)*tmpz.im;

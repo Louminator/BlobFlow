@@ -129,10 +129,10 @@ void split15asym(the_blob,the_blobguts,parms,
    gammaB = *(parm_ptr+3);
    aA2 = *(parm_ptr+4);
    
-   if (N >= NMax-5)
+   if (N >= NMAX-5)
      {
 	fprintf(comp_log,
-		"Overload!  The problem size has grown beyond NMax.\n");
+		"Overload!  The problem size has grown beyond NMAX.\n");
 	stop(-1);
      }
    

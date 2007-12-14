@@ -54,7 +54,7 @@ void Calc_Coeffs(int vort, complex z, complex mp[])
    mp[1].re = -(Gamma)*dy*(1.0-exp(-R2));
    mp[1].im = (Gamma)*dx*(1.0-exp(-R2));
 
-   for (i=2; i<PMax; ++i)
+   for (i=2; i<PMAX; ++i)
      {
 	/* Calculate the boundary truncation correction. */
 	bdy_corr.re = 0.0;

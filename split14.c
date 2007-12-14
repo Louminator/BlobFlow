@@ -99,10 +99,10 @@ blobparms *parms,*new_parms1,*new_parms2,*new_parms3;
    blob_internal old_blobguts;
    double     r,r2;
    
-   if (N >= NMax-4)
+   if (N >= NMAX-4)
      {
 	fprintf(comp_log,
-		"Overload!  The problem size has grown beyond NMax.\n");
+		"Overload!  The problem size has grown beyond NMAX.\n");
 	stop(-1);
      }
    

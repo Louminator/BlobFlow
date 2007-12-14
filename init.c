@@ -40,7 +40,7 @@
    Efforts to use dynamic memory allocation also fail though it is not
    at all clear why.  */
 
-blob_external startup_blobs[3][NMax];
+blob_external startup_blobs[3][NMAX];
 
 /* Script constants. */
 static char *inputs[] =
@@ -112,8 +112,8 @@ void check_sim(char *vtxfilename)
 
 void read_sim()
 {
-  char      sim_name[Title],vtxfilename[Title],
-    bdyfilename[Title]="",temp[Title];
+  char      sim_name[FILENAME_LEN],vtxfilename[FILENAME_LEN],
+    bdyfilename[FILENAME_LEN]="",temp[FILENAME_LEN];
   FILE      *sim_file,*bdy_file;
   char      *word,*p1;
   int       i,inputs_size;
@@ -328,7 +328,7 @@ void check_ctl()
 void read_ctl()
 {
   FILE *control_file;
-  char *word,control_name[Title];
+  char *word,control_name[FILENAME_LEN];
   int  i,inputs_size;
 
   BoundaryStep = -1.0;
@@ -473,9 +473,9 @@ void startup_new()
   for (j=0; j<N; ++j)
     startup_blobs[0][j] = mblob[j].blob0;
   /*
-  startup_blobs[0] = malloc(NMax*sizeof(blob_external));
-  startup_blobs[1] = malloc(NMax*sizeof(blob_external));
-  startup_blobs[2] = malloc(NMax*sizeof(blob_external));
+  startup_blobs[0] = malloc(NMAX*sizeof(blob_external));
+  startup_blobs[1] = malloc(NMAX*sizeof(blob_external));
+  startup_blobs[2] = malloc(NMAX*sizeof(blob_external));
   */
 
   if (startup_blobs[0] == NULL)
@@ -742,7 +742,7 @@ void startup_new()
 void startup()
 {
   int i,j;
-  double saveab4dx[NMax],saveab4dy[NMax];
+  double saveab4dx[NMAX],saveab4dy[NMAX];
 
   /* Take eight steps at first order. */
   for (i=0; i<8; ++i)
@@ -898,7 +898,7 @@ void startup()
 
 void init(int argc, char *argv[]) 
 {
-  char      sim_name[Title],control_name[Title],temp[Title],*p1;
+  char      sim_name[FILENAME_LEN],control_name[FILENAME_LEN],temp[FILENAME_LEN],*p1;
   int       i;
 
   /* Defaults */
@@ -906,9 +906,9 @@ void init(int argc, char *argv[])
   MaxOrder   = 3;
    
   /*Allocate memory for multipole coefficients.*/
-  for (i=0; i<LMax; ++i)
+  for (i=0; i<LMAX; ++i)
     Level_Ptr[i] = 
-      malloc(sizeof(complex)*PMax*((int) ldexp(1.0,2*(i+1))));
+      malloc(sizeof(complex)*PMAX*((int) ldexp(1.0,2*(i+1))));
  
   p1 = getenv("ECCSVM_HOME");
   if (p1 == NULL)
