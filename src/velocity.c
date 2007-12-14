@@ -47,22 +47,22 @@ double tmpdx,tmpdy;
 double result[9];
 
 {
-  double r[maxexp],t[maxexp];
+  double r[MAXEXP],t[MAXEXP];
 
-  double psi_RT[maxpolyn][maxexp];
-  double psi_x_RT[maxpolyn][maxexp],psi_y_RT[maxpolyn][maxexp];
-  double psi_xx_RT[maxpolyn][maxexp],psi_yy_RT[maxpolyn][maxexp];
-  double psi_xy_RT[maxpolyn][maxexp];
-  double psi_xxx_RT[maxpolyn][maxexp],psi_xxy_RT[maxpolyn][maxexp];
-  double psi_xyy_RT[maxpolyn][maxexp],psi_yyy_RT[maxpolyn][maxexp];
+  double psi_RT[MAXPOLYN][MAXEXP];
+  double psi_x_RT[MAXPOLYN][MAXEXP],psi_y_RT[MAXPOLYN][MAXEXP];
+  double psi_xx_RT[MAXPOLYN][MAXEXP],psi_yy_RT[MAXPOLYN][MAXEXP];
+  double psi_xy_RT[MAXPOLYN][MAXEXP];
+  double psi_xxx_RT[MAXPOLYN][MAXEXP],psi_xxy_RT[MAXPOLYN][MAXEXP];
+  double psi_xyy_RT[MAXPOLYN][MAXEXP],psi_yyy_RT[MAXPOLYN][MAXEXP];
 
   double psi_x,psi_y,psi_xx,psi_yy,psi_xy;
   double psi_xxx,psi_xxy,psi_xyy,psi_yyy;
 
-  double psi_c[maxpolyn],psi_x_c[maxpolyn],psi_y_c[maxpolyn];
-  double psi_xx_c[maxpolyn],psi_xy_c[maxpolyn],psi_yy_c[maxpolyn];
-  double psi_xxx_c[maxpolyn],psi_xxy_c[maxpolyn];
-  double psi_xyy_c[maxpolyn],psi_yyy_c[maxpolyn];
+  double psi_c[MAXPOLYN],psi_x_c[MAXPOLYN],psi_y_c[MAXPOLYN];
+  double psi_xx_c[MAXPOLYN],psi_xy_c[MAXPOLYN],psi_yy_c[MAXPOLYN];
+  double psi_xxx_c[MAXPOLYN],psi_xxy_c[MAXPOLYN];
+  double psi_xyy_c[MAXPOLYN],psi_yyy_c[MAXPOLYN];
 
   double eps,str,a2,s2,s4,dx,dy;
 

@@ -60,18 +60,18 @@
 #define PSI_ORDER 6
 
 #if PSI_ORDER == 4
-#define maxexp 6
-#define maxpolyn 5
+#define MAXEXP 6
+#define MAXPOLYN 5
 #endif
 
 #if PSI_ORDER == 5
-#define maxexp 7
-#define maxpolyn 6
+#define MAXEXP 7
+#define MAXPOLYN 6
 #endif
 
 #if PSI_ORDER == 6
-#define maxexp 8
-#define maxpolyn 7
+#define MAXEXP 8
+#define MAXPOLYN 7
 #endif
 
 #define psi2coeffA 1.0/(1.0+a2)
@@ -223,9 +223,9 @@ extern void splitvels(Vector[4],Blob_external,Blob_internal,Blob_parms);
 extern double expint(double[], double, double);
 
 extern void build_rt(double,double,double,double[],double[]);
-extern void build_psiRT(double,double,double,double[],double[],double[][maxexp]);
+extern void build_psiRT(double,double,double,double[],double[],double[][MAXEXP]);
 extern void build_psi(double,double,double,
-		      double[],double[],double[],double[][maxexp]);
+		      double[],double[],double[],double[][MAXEXP]);
 
 extern void dx_coeff(double[], double[], int, double);
 extern void dy_coeff(double[], double[], int, double);
@@ -236,39 +236,39 @@ extern void dxy_coeff(double[], double[], int, double);
 extern double build_psi_x(double,double,double,double,
 			  double,double,double,
 			  double[],double[],double[],
-			  double[],double[][maxexp],double[][maxexp]);
+			  double[],double[][MAXEXP],double[][MAXEXP]);
 extern double build_psi_y(double,double,double,double,
 			  double,double,double,
 			  double[],double[],double[],
-			  double[],double[][maxexp],double[][maxexp]);
+			  double[],double[][MAXEXP],double[][MAXEXP]);
 extern double build_psi_xx(double,double,double,double,
 			   double,double,double,
 			   double[],double[],double[],
-			   double[],double[][maxexp],double[][maxexp]);
+			   double[],double[][MAXEXP],double[][MAXEXP]);
 extern double build_psi_yy(double,double,double,double,
 			   double,double,double,
 			   double[],double[],double[],
-			   double[],double[][maxexp],double[][maxexp]);
+			   double[],double[][MAXEXP],double[][MAXEXP]);
 extern double build_psi_xy(double,double,double,double,
 			   double,double,double,
 			   double[],double[],double[],
-			   double[],double[][maxexp],double[][maxexp]);
+			   double[],double[][MAXEXP],double[][MAXEXP]);
 extern double build_psi_xxx(double,double,double,double,
 			    double,double,double,
 			    double[],double[],double[],
-			    double[],double[][maxexp],double[][maxexp]);
+			    double[],double[][MAXEXP],double[][MAXEXP]);
 extern double build_psi_xxy(double,double,double,double,
 			    double,double,double,
 			    double[],double[],double[],
-			    double[],double[][maxexp],double[][maxexp]);
+			    double[],double[][MAXEXP],double[][MAXEXP]);
 extern double build_psi_xyy(double,double,double,double,
 			    double,double,double,
 			    double[],double[],double[],
-			    double[],double[][maxexp],double[][maxexp]);
+			    double[],double[][MAXEXP],double[][MAXEXP]);
 extern double build_psi_yyy(double,double,double,double,
 			    double,double,double,
 			    double[],double[],double[],
-			    double[],double[][maxexp],double[][maxexp]);
+			    double[],double[][MAXEXP],double[][MAXEXP]);
 
 extern void eval_biot(double, double, double, double[]);
 extern void induced_v(Blob_external *,Blob_internal *,Blob_parms *,

@@ -29,7 +29,7 @@
 
 /* This is (3.47) of UDel Math Tech Report 2001-4 */
 double expint(c,s2,r2)
-     double c[maxpolyn],s2,r2;
+     double c[MAXPOLYN],s2,r2;
 {
   double integral;
 
@@ -66,7 +66,7 @@ double expint(c,s2,r2)
 }
 
 void build_rt(dx,dy,eps,r,t)
-     double dx,dy,eps,r[maxexp],t[maxexp];
+     double dx,dy,eps,r[MAXEXP],t[MAXEXP];
 {
   int i;
 
@@ -76,7 +76,7 @@ void build_rt(dx,dy,eps,r,t)
   r[1] = SQR(r[0]);
   t[1] = SQR(t[0]);
 
-  for (i=2; i<maxexp; ++i)
+  for (i=2; i<MAXEXP; ++i)
     {
       r[i] = r[i-1]*r[0];
       t[i] = t[i-1]*t[0];
@@ -84,14 +84,14 @@ void build_rt(dx,dy,eps,r,t)
 }     
 
 void build_psiRT(dx,dy,eps,r,t,RT)
-  double dx,dy,eps,r[maxexp],t[maxexp],RT[maxpolyn][maxexp];
+  double dx,dy,eps,r[MAXEXP],t[MAXEXP],RT[MAXPOLYN][MAXEXP];
 {
   int p,m;
 
   build_rt(dx,dy,eps,r,t);
 
-  for (p=0; p<maxpolyn; ++p)
-    for (m=0; m<maxexp; ++m)
+  for (p=0; p<MAXPOLYN; ++p)
+    for (m=0; m<MAXEXP; ++m)
       RT[p][m] = 0.0;
 
   RT[0][0] = 0.25 - 4.0*SQR(SQR(eps))+SQR(eps);
@@ -191,8 +191,8 @@ void build_psiRT(dx,dy,eps,r,t,RT)
 }
 
 void build_psi(dx,dy,eps,r,t,psi_c,psi_RT)
-  double dx,dy,eps,r[maxexp],t[maxexp];
-  double psi_c[maxpolyn],psi_RT[maxpolyn][maxexp];
+  double dx,dy,eps,r[MAXEXP],t[MAXEXP];
+  double psi_c[MAXPOLYN],psi_RT[MAXPOLYN][MAXEXP];
 {
   int p,m;
 
@@ -200,10 +200,10 @@ void build_psi(dx,dy,eps,r,t,psi_c,psi_RT)
 
   build_psiRT(dx,dy,eps,r,t,psi_RT);
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     {
       psi_c[p] = 0.0;
-      for (m=0; m<maxexp; ++m)
+      for (m=0; m<MAXEXP; ++m)
 	{
 	  if (p==0)
 	    if (m == 0)
@@ -224,15 +224,15 @@ void build_psi(dx,dy,eps,r,t,psi_c,psi_RT)
 
 /* These results must be multiplied by dx */
 void dx_coeff(oldRT,RT,offset_exp,a2)
-     double oldRT[maxexp],RT[maxexp],a2;
+     double oldRT[MAXEXP],RT[MAXEXP],a2;
      int    offset_exp;
 {
   int i,m;
 
-  for (i=0; i<maxexp; ++i)
+  for (i=0; i<MAXEXP; ++i)
     RT[i] = 0.0;
 
-  for (m=0; m<maxexp; ++m)
+  for (m=0; m<MAXEXP; ++m)
     {
       if (m>0)
 	RT[m-1] += (2.0/a2)*m*oldRT[m];
@@ -242,15 +242,15 @@ void dx_coeff(oldRT,RT,offset_exp,a2)
 
 /* These results must be multiplied by dy */
 void dy_coeff(oldRT,RT,offset_exp,a2)
-     double oldRT[maxexp],RT[maxexp],a2;
+     double oldRT[MAXEXP],RT[MAXEXP],a2;
      int    offset_exp;
 {
   int i,m;
 
-  for (i=0; i<maxexp; ++i)
+  for (i=0; i<MAXEXP; ++i)
     RT[i] = 0.0;
 
-  for (m=0; m<maxexp; ++m)
+  for (m=0; m<MAXEXP; ++m)
     {
       if (m>0)
 	RT[m-1] -= (2.0*a2)*m*oldRT[m];
@@ -259,58 +259,58 @@ void dy_coeff(oldRT,RT,offset_exp,a2)
 }
 
 void dxx_coeff(oldRT,RT,offset_exp,a2)
-     double oldRT[maxexp],RT[maxexp],a2;
+     double oldRT[MAXEXP],RT[MAXEXP],a2;
      int    offset_exp;
 {
   int i,m;
 
-  for (i=0; i<maxexp; ++i)
+  for (i=0; i<MAXEXP; ++i)
     RT[i] = 0.0;
 
-  for (m=0; m<maxexp; ++m)
+  for (m=0; m<MAXEXP; ++m)
     {
       if (m > 1)
 	RT[m-2] += (2.0/a2)*m*(m-1)*oldRT[m];
       if (m > 0)
 	RT[m-1] += (2.0/a2)*m*(m-2*(m+offset_exp))*oldRT[m];
       RT[m] += (2.0/a2)*(m+offset_exp)*(m+offset_exp-2*m)*oldRT[m];
-      if (m < maxexp-1)
+      if (m < MAXEXP-1)
 	RT[m+1] += (2.0/a2)*(m+offset_exp)*(m+offset_exp+1)*oldRT[m];
     }
 }
 
 void dyy_coeff(oldRT,RT,offset_exp,a2)
-     double oldRT[maxexp],RT[maxexp],a2;
+     double oldRT[MAXEXP],RT[MAXEXP],a2;
      int    offset_exp;
 {
   int i,m;
 
-  for (i=0; i<maxexp; ++i)
+  for (i=0; i<MAXEXP; ++i)
     RT[i] = 0.0;
 
-  for (m=0; m<maxexp; ++m)
+  for (m=0; m<MAXEXP; ++m)
     {
       if (m>1)
 	RT[m-2] += 2.0*a2*m*(m-1)*oldRT[m];
       if (m>0)
 	RT[m-1] += 2.0*a2*m*(2*(m+offset_exp)-m)*oldRT[m];
       RT[m] += 2.0*a2*(m+offset_exp)*(m+offset_exp-2*m)*oldRT[m];
-      if (m < maxexp-1)
+      if (m < MAXEXP-1)
 	RT[m+1] -= 2.0*a2*(m+offset_exp)*(m+offset_exp+1)*oldRT[m];
     }
 }
 
 /* These results must be multiplied by dx*dy */
 void dxy_coeff(oldRT,RT,offset_exp,a2)
-     double oldRT[maxexp],RT[maxexp],a2;
+     double oldRT[MAXEXP],RT[MAXEXP],a2;
      int    offset_exp;
 {
   int i,m;
 
-  for (i=0; i<maxexp; ++i)
+  for (i=0; i<MAXEXP; ++i)
     RT[i] = 0.0;
 
-  for (m=0; m<maxexp; ++m)
+  for (m=0; m<MAXEXP; ++m)
     {
       if (m>1)
 	RT[m-2] -= 4.0*m*(m-1)*oldRT[m];
@@ -319,25 +319,25 @@ void dxy_coeff(oldRT,RT,offset_exp,a2)
 }
 
 double build_psi_x(dx,dy,str,s2,s4,a2,eps,r,t,psi_c,psi_x_c,psi_RT,psi_x_RT)
-  double dx,dy,str,s2,s4,a2,eps,r[maxexp],t[maxexp];
-  double psi_c[maxpolyn],psi_x_c[maxpolyn];
-  double psi_RT[maxpolyn][maxexp],psi_x_RT[maxpolyn][maxexp];
+  double dx,dy,str,s2,s4,a2,eps,r[MAXEXP],t[MAXEXP];
+  double psi_c[MAXPOLYN],psi_x_c[MAXPOLYN];
+  double psi_RT[MAXPOLYN][MAXEXP],psi_x_RT[MAXPOLYN][MAXEXP];
 {
   int p,m;
   double psi_x;
 
   /*** Build psi_x polynomial ***/
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     dx_coeff(psi_RT[p],psi_x_RT[p],p,a2);
 
   /* Don't forget the log term. */
   psi_x_RT[0][0] += 0.5/a2;
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     {
       psi_x_c[p] = 0.0;
-      for (m=0; m<maxexp; ++m)
+      for (m=0; m<MAXEXP; ++m)
 	{
 	  if (m == 0)
 	    psi_x_c[p] += psi_x_RT[p][m]/r[p];
@@ -346,7 +346,7 @@ double build_psi_x(dx,dy,str,s2,s4,a2,eps,r,t,psi_c,psi_x_c,psi_RT,psi_x_RT)
 	}
     }
   
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     psi_x_c[p] *= dx;
   
   psi_x = str*expint(psi_x_c,s2,r[0]);
@@ -362,25 +362,25 @@ double build_psi_x(dx,dy,str,s2,s4,a2,eps,r,t,psi_c,psi_x_c,psi_RT,psi_x_RT)
 }
 
 double build_psi_y(dx,dy,str,s2,s4,a2,eps,r,t,psi_c,psi_y_c,psi_RT,psi_y_RT)
-  double dx,dy,str,s2,s4,a2,eps,r[maxexp],t[maxexp];
-  double psi_c[maxpolyn],psi_y_c[maxpolyn];
-  double psi_RT[maxpolyn][maxexp],psi_y_RT[maxpolyn][maxexp];
+  double dx,dy,str,s2,s4,a2,eps,r[MAXEXP],t[MAXEXP];
+  double psi_c[MAXPOLYN],psi_y_c[MAXPOLYN];
+  double psi_RT[MAXPOLYN][MAXEXP],psi_y_RT[MAXPOLYN][MAXEXP];
 {
   int p,m;
   double psi_y;
 
   /*** Build psi_y polynomial ***/
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     dy_coeff(psi_RT[p],psi_y_RT[p],p,a2);
 
   /* Don't forget the log term. */
   psi_y_RT[0][0] += 0.5*a2;
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     {
       psi_y_c[p] = 0.0;
-      for (m=0; m<maxexp; ++m)
+      for (m=0; m<MAXEXP; ++m)
 	{
 	  if (m == 0)
 	    psi_y_c[p] += psi_y_RT[p][m]/r[p];
@@ -389,7 +389,7 @@ double build_psi_y(dx,dy,str,s2,s4,a2,eps,r,t,psi_c,psi_y_c,psi_RT,psi_y_RT)
 	}
     }
   
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     psi_y_c[p] *= dy;
 
   psi_y = str*expint(psi_y_c,s2,r[0]);
@@ -406,25 +406,25 @@ double build_psi_y(dx,dy,str,s2,s4,a2,eps,r,t,psi_c,psi_y_c,psi_RT,psi_y_RT)
 
 double build_psi_xx(dx,dy,str,s2,s4,a2,eps,r,t,
 		    psi_x_c,psi_xx_c,psi_RT,psi_xx_RT)
-  double dx,dy,str,s2,s4,a2,eps,r[maxexp],t[maxexp];
-  double psi_x_c[maxpolyn],psi_xx_c[maxpolyn];
-  double psi_RT[maxpolyn][maxexp],psi_xx_RT[maxpolyn][maxexp];
+  double dx,dy,str,s2,s4,a2,eps,r[MAXEXP],t[MAXEXP];
+  double psi_x_c[MAXPOLYN],psi_xx_c[MAXPOLYN];
+  double psi_RT[MAXPOLYN][MAXEXP],psi_xx_RT[MAXPOLYN][MAXEXP];
 {
   int p,m;
   double psi_xx;
 
   /*** Build psi_xx polynomial ***/
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     dxx_coeff(psi_RT[p],psi_xx_RT[p],p,a2);
 
   /* Don't forget the log term. */
   psi_xx_RT[0][1] -= 0.5/a2;
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     {
       psi_xx_c[p] = 0.0;
-      for (m=0; m<maxexp; ++m)
+      for (m=0; m<MAXEXP; ++m)
 	{
 	  if (m == 0)
 	    psi_xx_c[p] += psi_xx_RT[p][m]/r[p];
@@ -446,25 +446,25 @@ double build_psi_xx(dx,dy,str,s2,s4,a2,eps,r,t,
 
 double build_psi_yy(dx,dy,str,s2,s4,a2,eps,r,t,
 		    psi_y_c,psi_yy_c,psi_RT,psi_yy_RT)
-  double dx,dy,str,s2,s4,a2,eps,r[maxexp],t[maxexp];
-  double psi_y_c[maxpolyn],psi_yy_c[maxpolyn];
-  double psi_RT[maxpolyn][maxexp],psi_yy_RT[maxpolyn][maxexp];
+  double dx,dy,str,s2,s4,a2,eps,r[MAXEXP],t[MAXEXP];
+  double psi_y_c[MAXPOLYN],psi_yy_c[MAXPOLYN];
+  double psi_RT[MAXPOLYN][MAXEXP],psi_yy_RT[MAXPOLYN][MAXEXP];
 {
   int p,m;
   double psi_yy;
 
   /*** Build psi_yy polynomial ***/
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     dyy_coeff(psi_RT[p],psi_yy_RT[p],p,a2);
 
   /* Don't forget the log term. */
   psi_yy_RT[0][1] += 0.5*a2;
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     {
       psi_yy_c[p] = 0.0;
-      for (m=0; m<maxexp; ++m)
+      for (m=0; m<MAXEXP; ++m)
 	{
 	  if (m == 0)
 	    psi_yy_c[p] += psi_yy_RT[p][m]/r[p];
@@ -486,25 +486,25 @@ double build_psi_yy(dx,dy,str,s2,s4,a2,eps,r,t,
 
 double build_psi_xy(dx,dy,str,s2,s4,a2,eps,r,t,
 		    psi_y_c,psi_xy_c,psi_RT,psi_xy_RT)
-  double dx,dy,str,s2,s4,a2,eps,r[maxexp],t[maxexp];
-  double psi_y_c[maxpolyn],psi_xy_c[maxpolyn];
-  double psi_RT[maxpolyn][maxexp],psi_xy_RT[maxpolyn][maxexp];
+  double dx,dy,str,s2,s4,a2,eps,r[MAXEXP],t[MAXEXP];
+  double psi_y_c[MAXPOLYN],psi_xy_c[MAXPOLYN];
+  double psi_RT[MAXPOLYN][MAXEXP],psi_xy_RT[MAXPOLYN][MAXEXP];
 {
   int p,m;
   double psi_xy;
 
   /*** Build psi_xy polynomial ***/
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     dxy_coeff(psi_RT[p],psi_xy_RT[p],p,a2);
 
   /* Don't forget the log term. */
   psi_xy_RT[0][0] -= 1.0;
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     {
       psi_xy_c[p] = 0.0;
-      for (m=0; m<maxexp; ++m)
+      for (m=0; m<MAXEXP; ++m)
 	{
 	  if (m == 0)
 	    psi_xy_c[p] += psi_xy_RT[p][m]/r[p]/r[0];
@@ -513,7 +513,7 @@ double build_psi_xy(dx,dy,str,s2,s4,a2,eps,r,t,
 	}
     }
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     psi_xy_c[p] *= dx*dy;
 
   psi_xy = str*expint(psi_xy_c,s2,r[0]);
@@ -526,22 +526,22 @@ double build_psi_xy(dx,dy,str,s2,s4,a2,eps,r,t,
 
 double build_psi_xxx(dx,dy,str,s2,s4,a2,eps,r,t,
 		    psi_xx_c,psi_xxx_c,psi_xx_RT,psi_xxx_RT)
-  double dx,dy,str,s2,s4,a2,eps,r[maxexp],t[maxexp];
-  double psi_xx_c[maxpolyn],psi_xxx_c[maxpolyn];
-  double psi_xx_RT[maxpolyn][maxexp],psi_xxx_RT[maxpolyn][maxexp];
+  double dx,dy,str,s2,s4,a2,eps,r[MAXEXP],t[MAXEXP];
+  double psi_xx_c[MAXPOLYN],psi_xxx_c[MAXPOLYN];
+  double psi_xx_RT[MAXPOLYN][MAXEXP],psi_xxx_RT[MAXPOLYN][MAXEXP];
 {
   int p,m;
   double psi_xxx;
 
   /*** Build psi_xxx polynomial ***/
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     dx_coeff(psi_xx_RT[p],psi_xxx_RT[p],p+1,a2);
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     {
       psi_xxx_c[p] = 0.0;
-      for (m=0; m<maxexp; ++m)
+      for (m=0; m<MAXEXP; ++m)
 	{
 	  if (m == 0)
 	    psi_xxx_c[p] += psi_xxx_RT[p][m]/r[p]/r[0];
@@ -550,14 +550,14 @@ double build_psi_xxx(dx,dy,str,s2,s4,a2,eps,r,t,
 	}
     }
   
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     psi_xxx_c[p] *= dx;
   
   psi_xxx = str*expint(psi_xxx_c,s2,r[0]);
 
   /* Leibnitz rule correction.*/
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     psi_xxx += str/4.0/s4*exp(-r[0]/4.0/s2)*dx/a2*psi_xx_c[p]*r[p];
   psi_xxx -= str/4.0/s4*exp(-r[0]/4.0/s2)*dx/a2*psi2coeffA;
 
@@ -568,22 +568,22 @@ double build_psi_xxx(dx,dy,str,s2,s4,a2,eps,r,t,
 
 double build_psi_xxy(dx,dy,str,s2,s4,a2,eps,r,t,
 		    psi_xx_c,psi_xxy_c,psi_xx_RT,psi_xxy_RT)
-  double dx,dy,str,s2,s4,a2,eps,r[maxexp],t[maxexp];
-  double psi_xx_c[maxpolyn],psi_xxy_c[maxpolyn];
-  double psi_xx_RT[maxpolyn][maxexp],psi_xxy_RT[maxpolyn][maxexp];
+  double dx,dy,str,s2,s4,a2,eps,r[MAXEXP],t[MAXEXP];
+  double psi_xx_c[MAXPOLYN],psi_xxy_c[MAXPOLYN];
+  double psi_xx_RT[MAXPOLYN][MAXEXP],psi_xxy_RT[MAXPOLYN][MAXEXP];
 {
   int p,m;
   double psi_xxy;
 
  /*** Build psi_xxy polynomial ***/
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     dy_coeff(psi_xx_RT[p],psi_xxy_RT[p],p+1,a2);
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     {
       psi_xxy_c[p] = 0.0;
-      for (m=0; m<maxexp; ++m)
+      for (m=0; m<MAXEXP; ++m)
 	{
 	  if (m == 0)
 	    psi_xxy_c[p] += psi_xxy_RT[p][m]/r[p]/r[0];
@@ -592,14 +592,14 @@ double build_psi_xxy(dx,dy,str,s2,s4,a2,eps,r,t,
 	}
     }
   
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     psi_xxy_c[p] *= dy;
   
   psi_xxy = str*expint(psi_xxy_c,s2,r[0]);
 
   /* Leibnitz rule correction.*/
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     psi_xxy += str/4.0/s4*exp(-r[0]/4.0/s2)*dy*a2*psi_xx_c[p]*r[p];
   psi_xxy -= str/4.0/s4*exp(-r[0]/4.0/s2)*dy*a2*psi2coeffA;
 
@@ -610,22 +610,22 @@ double build_psi_xxy(dx,dy,str,s2,s4,a2,eps,r,t,
 
 double build_psi_xyy(dx,dy,str,s2,s4,a2,eps,r,t,
 		    psi_yy_c,psi_xyy_c,psi_yy_RT,psi_xyy_RT)
-  double dx,dy,str,s2,s4,a2,eps,r[maxexp],t[maxexp];
-  double psi_yy_c[maxpolyn],psi_xyy_c[maxpolyn];
-  double psi_yy_RT[maxpolyn][maxexp],psi_xyy_RT[maxpolyn][maxexp];
+  double dx,dy,str,s2,s4,a2,eps,r[MAXEXP],t[MAXEXP];
+  double psi_yy_c[MAXPOLYN],psi_xyy_c[MAXPOLYN];
+  double psi_yy_RT[MAXPOLYN][MAXEXP],psi_xyy_RT[MAXPOLYN][MAXEXP];
 {
   int p,m;
   double psi_xyy;
 
   /*** Build psi_xyy polynomial ***/
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     dx_coeff(psi_yy_RT[p],psi_xyy_RT[p],p+1,a2);
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     {
       psi_xyy_c[p] = 0.0;
-      for (m=0; m<maxexp; ++m)
+      for (m=0; m<MAXEXP; ++m)
 	{
 	  if (m == 0)
 	    psi_xyy_c[p] += psi_xyy_RT[p][m]/r[p]/r[0];
@@ -634,14 +634,14 @@ double build_psi_xyy(dx,dy,str,s2,s4,a2,eps,r,t,
 	}
     }
   
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     psi_xyy_c[p] *= dx;
   
   psi_xyy = str*expint(psi_xyy_c,s2,r[0]);
 
   /* Leibnitz rule correction.*/
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     psi_xyy += str/4.0/s4*exp(-r[0]/4.0/s2)*dx/a2*psi_yy_c[p]*r[p];
   psi_xyy -= str/4.0/s4*exp(-r[0]/4.0/s2)*dx/a2*psi2coeffB;
 
@@ -652,22 +652,22 @@ double build_psi_xyy(dx,dy,str,s2,s4,a2,eps,r,t,
 
 double build_psi_yyy(dx,dy,str,s2,s4,a2,eps,r,t,
 		    psi_yy_c,psi_yyy_c,psi_yy_RT,psi_yyy_RT)
-  double dx,dy,str,s2,s4,a2,eps,r[maxexp],t[maxexp];
-  double psi_yy_c[maxpolyn],psi_yyy_c[maxpolyn];
-  double psi_yy_RT[maxpolyn][maxexp],psi_yyy_RT[maxpolyn][maxexp];
+  double dx,dy,str,s2,s4,a2,eps,r[MAXEXP],t[MAXEXP];
+  double psi_yy_c[MAXPOLYN],psi_yyy_c[MAXPOLYN];
+  double psi_yy_RT[MAXPOLYN][MAXEXP],psi_yyy_RT[MAXPOLYN][MAXEXP];
 {
   int p,m;
   double psi_yyy;
 
   /*** Build psi_yyy polynomial ***/
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     dy_coeff(psi_yy_RT[p],psi_yyy_RT[p],p+1,a2);
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     {
       psi_yyy_c[p] = 0.0;
-      for (m=0; m<maxexp; ++m)
+      for (m=0; m<MAXEXP; ++m)
 	{
 	  if (m == 0)
 	    psi_yyy_c[p] += psi_yyy_RT[p][m]/r[p]/r[0];
@@ -676,14 +676,14 @@ double build_psi_yyy(dx,dy,str,s2,s4,a2,eps,r,t,
 	}
     }
   
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     psi_yyy_c[p] *= dy;
   
   psi_yyy = str*expint(psi_yyy_c,s2,r[0]);
 
   /* Leibnitz rule correction.*/
 
-  for (p=0; p<maxpolyn; ++p)
+  for (p=0; p<MAXPOLYN; ++p)
     psi_yyy += str/4.0/s4*exp(-r[0]/4.0/s2)*dy*a2*psi_yy_c[p]*r[p];
   psi_yyy -= str/4.0/s4*exp(-r[0]/4.0/s2)*dy*a2*psi2coeffB;
 
