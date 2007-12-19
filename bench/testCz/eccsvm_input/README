@@ -1,0 +1,4 @@
+make
+
+export ECCSVM_HOME=. ECCSVM_BASENAME=test
+eflow
