@@ -1,0 +1,13 @@
+TimeStep: 0.001
+MaxOrder: 3
+l2Tol: 1.0
+alpha: 0.8
+SplitMethod: 2
+MergeErrorEstimator: 1
+MergeBudget: 0.0e-2
+MergeStep: 0.1
+ClusterRadius: 1.0
+Mergea2Tol: 0.1
+MergeThTol: 0.1
+MergeMom3Wt: 2.0e-1
+MergeMom4Wt: 8.0e-1

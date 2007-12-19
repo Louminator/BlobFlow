@@ -1,0 +1,4 @@
+FrameStep: 0.1
+EndTime: 4.0
+Viscosity: 1.0e-4
+VtxInit: test.vtx 
