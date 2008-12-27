@@ -2,6 +2,8 @@
 #include <math.h>
 #include "global_matrices.h"
 
+extern void find_coeffs (double, double[], double[][700]);
+
 void eval_doms(double a, double xp, double yp, double phi[])
 {
  

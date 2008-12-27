@@ -1,5 +1,7 @@
 #include <math.h>
 
+extern void eval_doms(double, double, double, double[]);
+
 /*
  ------------------------------------------------------------------------
   Evaluates the derivatives the Biot-Savart integral 
@@ -30,7 +32,6 @@
 void eval_biot(double a, double x, double y, double phi[9])
 {
  
-  int k; 
   double temp;
 
   if (a<1-1e-11)   /* a=1/a and interchange x and y */

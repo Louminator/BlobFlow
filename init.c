@@ -110,13 +110,19 @@ void check_sim(char *vtxfilename)
     }
 }
 
+void bailout_simfile(int i)
+{
+  printf("Fatal error: Cannot read sim file %s value.\n",inputs[i]);
+  exit(-1);
+};
+
 void read_sim()
 {
   char      sim_name[FILENAME_LEN],vtxfilename[FILENAME_LEN],
     bdyfilename[FILENAME_LEN]="",temp[FILENAME_LEN];
   FILE      *sim_file,*bdy_file;
   char      *word,*p1;
-  int       i,inputs_size;
+  int       i,scan_test,inputs_size;
    
   sprintf(sim_name,"%s%s",filename,".sim");
   fprintf(diag_log,"Reading simfile...\n");
@@ -126,7 +132,11 @@ void read_sim()
   inputs_size = sizeof(inputs)/4;
   word = malloc(100*sizeof(char));
    
-  fscanf(sim_file,"%s",word);
+  if (fscanf(sim_file,"%s",word) == 0)
+    {
+      printf("Fatal error: Cannot read sim file keyword.\n");
+      exit(-1);
+    };
 
   while (!feof(sim_file))
     {
@@ -150,23 +160,28 @@ void read_sim()
 		  switch (i)
 		    {
 		    case FRAME_STEP:
-		      fscanf(sim_file,"%lf",&FrameStep);
+		      if (fscanf(sim_file,"%lf",&FrameStep) != 1)
+			bailout_simfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case END_TIME:  
-		      fscanf(sim_file,"%lf",&EndTime);
+		      if (fscanf(sim_file,"%lf",&EndTime) != 1)
+			bailout_simfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case VISCOSITY:
-		      fscanf(sim_file,"%lf",&visc);
+		      if (fscanf(sim_file,"%lf",&visc) != 1)
+			bailout_simfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case VTX_INIT:
-		      fscanf(sim_file,"%s",vtxfilename);
+		      if (fscanf(sim_file,"%s",vtxfilename) != 1)
+			bailout_simfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case BDY_INIT:
-		      fscanf(sim_file,"%s",bdyfilename);
+		      if (fscanf(sim_file,"%s",bdyfilename) != 1)
+			bailout_simfile(i);
 		      i=inputs_size+1;
 		      break;
 		    default:
@@ -176,7 +191,11 @@ void read_sim()
 	    if (i==inputs_size)
 	      printf("Unrecognized input variable: %s\n",word);
 	  }
-      fscanf(sim_file,"%s",word);
+      if (fscanf(sim_file,"%s",word) == 0)
+	{
+	  printf("Fatal error: Cannot read sim file keyword.\n");
+	  exit(-1);
+	};
     }
   fclose(sim_file);
 
@@ -191,11 +210,15 @@ void read_sim()
    
   sim_file = fopen(temp,"r");
 
-  fscanf(sim_file,"%lf%lf%lf%lf%lf%lf",
-	 &mblob[0].blob0.x,
-	 &mblob[0].blob0.y,
-	 &mblob[0].blob0.strength,&blobguts[0].s2,
-	 &blobguts[0].a2,&blobguts[0].th);
+  if (fscanf(sim_file,"%lf%lf%lf%lf%lf%lf",
+	     &mblob[0].blob0.x,
+	     &mblob[0].blob0.y,
+	     &mblob[0].blob0.strength,&blobguts[0].s2,
+	     &blobguts[0].a2,&blobguts[0].th) != 6)
+    {
+      printf("Fatal error reading initial data.\n");
+      exit(-1);
+    }
    
   mblob[0].blob0.order = 1;
   tmpparms[0].refinecnt = -1;
@@ -206,12 +229,17 @@ void read_sim()
    
   while (!feof(sim_file))
     {
-      fscanf(sim_file,"%lf%lf%lf%lf%lf%lf",
-	     &mblob[N].blob0.x,
-	     &mblob[N].blob0.y,
-	     &mblob[N].blob0.strength,&blobguts[N].s2,
-	     &blobguts[N].a2,&blobguts[N].th);
-	
+      scan_test = fscanf(sim_file,"%lf%lf%lf%lf%lf%lf",
+			 &mblob[N].blob0.x,
+			 &mblob[N].blob0.y,
+			 &mblob[N].blob0.strength,&blobguts[N].s2,
+			 &blobguts[N].a2,&blobguts[N].th);
+      if ( (scan_test != 6) && (scan_test > 0) )
+	{
+	  printf("Fatal error reading initial data. ");
+	  printf("Read %d numbers.\n",scan_test);
+	  exit(-1);
+	} 
       mblob[N].blob0.order = 1;
       tmpparms[N].refinecnt = -1;
       tmpparms[N].nint = 1;
@@ -228,22 +256,32 @@ void read_sim()
    
       bdy_file = fopen(temp,"r");
       
-      fscanf(bdy_file,"%lf%lf%lf%lf%lf",
+      if (fscanf(bdy_file,"%lf%lf%lf%lf%lf",
 	     &walls[0].x,
 	     &walls[0].y,
 	     &walls[0].nx,
 	     &walls[0].ny,
-	     &walls[0].l);
+	     &walls[0].l)!= 5)
+	{
+	  printf("Fatal error reading boundary data.\n");
+	  exit(-1);
+	};
+
       B = 1;
       
       while (!feof(bdy_file))
 	{
-	  fscanf(bdy_file,"%lf%lf%lf%lf%lf",
-		 &walls[B].x,
-		 &walls[B].y,
-		 &walls[B].nx,
-		 &walls[B].ny,
-		 &walls[B].l);
+	  scan_test = fscanf(bdy_file,"%lf%lf%lf%lf%lf",
+			     &walls[B].x,
+			     &walls[B].y,
+			     &walls[B].nx,
+			     &walls[B].ny,
+			     &walls[B].l);
+	  if ( (scan_test !=5 ) && (scan_test > 0) )
+	    {
+	      printf("Fatal error reading boundary data.\n");
+	      exit(-1);
+	    };
 	  ++B;
 	}
       --B;
@@ -325,6 +363,12 @@ void check_ctl()
     }
 }
 
+void bailout_ctlfile(int i)
+{
+  printf("Fatal error: Cannot read ctl file %s value.\n",inputs[i]);
+  exit(-1);
+};
+
 void read_ctl()
 {
   FILE *control_file;
@@ -342,7 +386,11 @@ void read_ctl()
 
   control_file = fopen(control_name,"r");
    
-  fscanf(control_file,"%s",word);
+  if (fscanf(control_file,"%s",word) == 0)
+    {
+      printf("Fatal error: Cannot read ctl file keyword.\n");
+      exit(-1);
+    };
 
   while (!feof(control_file))
     {
@@ -366,71 +414,88 @@ void read_ctl()
 		  switch (i)
 		    {
 		    case TIME_STEP:
-		      fscanf(control_file,"%lf",&PrefStep);
+		      if (fscanf(control_file,"%lf",&PrefStep) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case MAX_ORDER:
-		      fscanf(control_file,"%d",&MaxOrder);
+		      if (fscanf(control_file,"%d",&MaxOrder) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case DTTH_DELTA:
-		      fscanf(control_file,"%lf",&dtth_delta);
+		      if (fscanf(control_file,"%lf",&dtth_delta) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case L2_TOL:
-		      fscanf(control_file,"%lf",&l2tol);
+		      if (fscanf(control_file,"%lf",&l2tol) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case ALPHA:
-		      fscanf(control_file,"%lf",&alpha);
+		      if (fscanf(control_file,"%lf",&alpha) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case SPLIT_METHOD:
-		      fscanf(control_file,"%d",&split_method);
+		      if (fscanf(control_file,"%d",&split_method) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_ERROR_ESTIMATOR:
-		      fscanf(control_file,"%d",&merge_estimator);
+		      if (fscanf(control_file,"%d",&merge_estimator) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_BUDGET:
-		      fscanf(control_file,"%lf",&merge_budget);
+		      if (fscanf(control_file,"%lf",&merge_budget) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case CLUSTER_RADIUS:
-		      fscanf(control_file,"%lf",&clusterR);
+		      if (fscanf(control_file,"%lf",&clusterR) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_STEP:
-		      fscanf(control_file,"%lf",&MergeStep);
+		      if (fscanf(control_file,"%lf",&MergeStep) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_A2_TOL:
-		      fscanf(control_file,"%lf",&merge_a2tol);
+		      if (fscanf(control_file,"%lf",&merge_a2tol) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_TH_TOL:
-		      fscanf(control_file,"%lf",&merge_thtol);
+		      if (fscanf(control_file,"%lf",&merge_thtol) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_MOM3_WT:
-		      fscanf(control_file,"%lf",&merge_mom3wt);
+		      if (fscanf(control_file,"%lf",&merge_mom3wt) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_MOM4_WT:
-		      fscanf(control_file,"%lf",&merge_mom4wt);
+		      if (fscanf(control_file,"%lf",&merge_mom4wt) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_C:
-		      fscanf(control_file,"%lf",&merge_c);
+		      if (fscanf(control_file,"%lf",&merge_c) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_GROWTH_RATE:
-		      fscanf(control_file,"%lf",&merge_growth_rate);
+		      if (fscanf(control_file,"%lf",&merge_growth_rate) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    case BOUNDARY_STEP:
-		      fscanf(control_file,"%lf",&BoundaryStep);
+		      if (fscanf(control_file,"%lf",&BoundaryStep) != 1)
+			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
 		    default:
@@ -440,7 +505,12 @@ void read_ctl()
 	    if (i==inputs_size)
 	      printf("Unrecognized input variable: %s\n",word);
 	  }
-      fscanf(control_file,"%s",word);
+      if (fscanf(control_file,"%s",word) == 0)
+	{
+	  printf("Fatal error: Cannot read ctl file keyword.\n");
+	  exit(-1);
+	};
+
     }
   fclose(control_file);
 

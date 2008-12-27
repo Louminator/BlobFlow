@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "global_matrices.h"
 
 double Md1[289][700], Md2[289][700], Md3[289][700], Md4[289][700], Md5[289][700];
@@ -12,7 +13,7 @@ void read_data_file(char file_name[30], double data_matrix[289][700])
      FILE   *xfile;
      char   full_file_name[100];
 #ifndef DATA_ROOT
-#define DATA_ROOT "/home/rossi/src/eccsvm/"
+#define DATA_ROOT "/home/rossi/Dom_dat/"
 
 #endif
 
@@ -23,7 +24,11 @@ void read_data_file(char file_name[30], double data_matrix[289][700])
      {
        for (col=0; col<700; ++col)  
 	{
-         fscanf(xfile,"%lf",&data_matrix[row][col]);
+	  if (fscanf(xfile,"%lf",&data_matrix[row][col]) != 1)
+	    {
+	      printf("Dude! I cannot read Rodrigo's data file!\n");
+	      exit(-1);
+	    }
 	}
      }
 

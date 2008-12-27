@@ -764,10 +764,6 @@ Blob_parms *parms;
 double timestep;
 int steps;
 {
-   Blob_internal tempguts[3];
-   Blob_parms     tempparms[3];
-   int i;
-
    (*blobguts).s2 += visc*timestep*steps;
 }
 

@@ -185,7 +185,7 @@ Vector dpos_vel_gen(pos,the_blobguts,parms)
    int i;
    double dx,dy;
    double result[9];
-   Vector v,sum;
+   Vector sum;
    
    sum.x = 0.0;
    sum.y = 0.0;
