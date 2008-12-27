@@ -347,8 +347,12 @@ extern void chk_nan(int);
 extern void biot(double, int, double[], double[], int, int, double[]);
 
 extern void solve_bdy_matrix(Panel[],int[],double[][BMAX]);
+extern void factor_bdy_matrix(Panel[],int[],double[][BMAX]);
 extern void bdy_vel(double, double, double*, double*);
 extern void clip(double);
+
+/* Rodrigo's code */
+extern void read_data(void);
 
 /* Lapack headers */
 #ifndef NOBOUNDARY

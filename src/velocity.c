@@ -34,8 +34,6 @@ Blob_parms     *parms;
 double        tmpdx,tmpdy;
 double        result[9];
 {
-  int k;
-
   induced_v_platte(the_blob,the_blobguts,parms,tmpdx,tmpdy,result);
 }
 

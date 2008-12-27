@@ -372,7 +372,10 @@ void factor_bdy_matrix(walls,ipiv,A)
      double A[BMAX][BMAX];
      int    ipiv[BMAX];
 {
+#ifndef NOBOUNDARY
   int info,lda=BMAX,n=B;
+#endif
+
   buildflux(walls,A,B);
 
 #ifndef NOBOUNDARY
@@ -385,9 +388,12 @@ void solve_bdy_matrix(walls,ipiv,A)
      double A[BMAX][BMAX];
      int    ipiv[BMAX];
 {
-  int    k,info,lda=BMAX,ldb=BMAX,n=B,nrhs=1;
   double b[BMAX];
+  int k;
+#ifndef NOBOUNDARY
+  int    info,lda=BMAX,ldb=BMAX,n=B,nrhs=1;
   char   trans[]={'N'};
+#endif
 
   buildrhs(walls,b,B);
   
