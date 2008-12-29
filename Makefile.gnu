@@ -67,7 +67,7 @@ OBJECTS = deriv.o evolve.o files.o flip.o init.o \
 	split14.o split15.o split15asym.o \
 	velocity.o partition.o mpsum.o mpcoeffs.o \
 	reflect.o master-slave.o peer.o cache_resort.o \
-	polynB.o
+	polynB.o potential.o
 #	lamb-oseen.o
 
 eflow: $(OBJECTS)
