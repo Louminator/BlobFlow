@@ -25,8 +25,8 @@ blob2 = blob1;
 blob2.th = blob.th + 0.5*step*dthdt(blob1,dv1);
 blob2.a2 = blob.a2 + 0.5*step*da2dt(blob1,dv1,visc);
 blob2.s2 = blob.s2 + 0.5*step*ds2dt(blob1,visc);
-blob2.x = blob.x + 0.5*step*v1(1);
-blob2.y = blob.y + 0.5*step*v1(2);
+blob2.x  = blob.x  + 0.5*step*v1(1);
+blob2.y  = blob.y  + 0.5*step*v1(2);
 
 blob2 = set_blob(blob2);
 
@@ -39,8 +39,8 @@ blob3 = blob2;
 blob3.th = blob.th + step*dthdt(blob2,dv2);
 blob3.a2 = blob.a2 + step*da2dt(blob2,dv2,visc);
 blob3.s2 = blob.s2 + step*ds2dt(blob2,visc);
-blob3.x = blob.x + step*v2(1);
-blob3.y = blob.y + step*v2(2);
+blob3.x  = blob.x  + step*v2(1);
+blob3.y  = blob.y  + step*v2(2);
 
 blob3 = set_blob(blob3);
 
