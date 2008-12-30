@@ -17,4 +17,6 @@ if ((blob.a2-1/blob.a2)*...
     
 end
 
+th = atan2(-dv(1,1)+sqrt(dv(1,1)^2+(dv(1,2)+dv(2,1))^2/4),(dv(1,2)+dv(2,1))/2);
+
 blob = set_blob(blob);
