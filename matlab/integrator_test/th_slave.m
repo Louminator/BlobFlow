@@ -1,4 +1,4 @@
-function th = th_slave(blob,dv)
+function blob = th_slave(blob,dv)
 
 temp = dv(1,1)*(blob.a2+1/blob.a2);
 

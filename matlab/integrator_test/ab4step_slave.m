@@ -19,4 +19,5 @@ blob.a2 = blob1.a2 + step/24*...
     37*da2dt(blob3,dv3,visc)-9*da2dt(blob4,dv4,visc));
 
 [v,dv] = velset(blob);
-blob.th = th_slave(blob,dv);
+blob = th_slave(blob,dv);
+
