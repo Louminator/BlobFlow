@@ -27,7 +27,7 @@ j = 10;
 blob.x = 1;
 blob.y = 0;
 blob.s2 = 0.01;
-blob.a2 = 1.0;
+blob.a2 = 1.01;
 blob.th = 0;
 
 blob=set_blob(blob);
@@ -57,15 +57,30 @@ err_rk4_th = [];
 err_rk4_a2 = [];
 err_rk4_s2 = [];
 err_rk4_pos = [];
+err_rk4_w = [];
 
 numpts = 8;
+
+    a2 = max(refblob.a2,1/refblob.a2);
+    x = linspace(refblob.x-4*sqrt(a2*refblob.s2),...
+        refblob.x+4*sqrt(a2*refblob.s2),20);
+    y = linspace(refblob.y-4*sqrt(a2*refblob.s2),...
+        refblob.y+4*sqrt(a2*refblob.s2),20);
+    dA = (x(2)-x(1))*(y(2)-y(1));
+    [xa,ya] = meshgrid(x,y);
+    tmpx = xa-refblob.x;
+    tmpy = ya-refblob.y;
+    tmp = -((tmpx*refblob.costh+tmpy*refblob.sinth).^2/refblob.a2 + ...
+        (tmpy*refblob.costh-tmpx*refblob.sinth).^2*refblob.a2);
+    refw = 1./(4*pi*refblob.s2).*exp(tmp./4./refblob.s2);
+
 
 for j = 1:numpts
     
     blob.x = 1;
     blob.y = 0;
     blob.s2 = 0.01;
-    blob.a2 = 1.0;
+    blob.a2 = 1.01;
     blob.th = 0;
     
     blob=set_blob(blob);
@@ -83,23 +98,29 @@ for j = 1:numpts
     end
     
     disp(j);
-    err_rk4(end+1) = 1-blob.x^2-blob.y^2;
-    
-    err_rk4_th(end+1) = sqrt((blob.th-refblob.th)^2);
-    err_rk4_s2(end+1) = sqrt((blob.s2-refblob.s2)^2);
-    if ( (refblob.a2-1)*(blob.a2-1) > 0)
-        err_rk4_a2(end+1) = ...
-            sqrt((sqrt(blob.cos2*blob.a2)-sqrt(refblob.cos2*refblob.a2))^2+...
-            (sqrt(blob.sin2*blob.a2)-sqrt(refblob.sin2*refblob.a2))^2);
-    else
-        err_rk4_a2(end+1) = ...
-            sqrt((sqrt(blob.sin2*1/blob.a2)-sqrt(refblob.cos2*refblob.a2))^2+...
-            (sqrt(blob.cos2*1/blob.a2)-sqrt(refblob.sin2*refblob.a2))^2);
-    end
+%     err_rk4(end+1) = 1-blob.x^2-blob.y^2;
+%     
+%     err_rk4_th(end+1) = sqrt((blob.th-refblob.th)^2);
+%     err_rk4_s2(end+1) = sqrt((blob.s2-refblob.s2)^2);
+%     if ( (refblob.a2-1)*(blob.a2-1) > 0)
+%         err_rk4_a2(end+1) = ...
+%             sqrt((sqrt(blob.cos2*blob.a2)-sqrt(refblob.cos2*refblob.a2))^2+...
+%             (sqrt(blob.sin2*blob.a2)-sqrt(refblob.sin2*refblob.a2))^2);
+%     else
+%         err_rk4_a2(end+1) = ...
+%             sqrt((sqrt(blob.sin2*1/blob.a2)-sqrt(refblob.cos2*refblob.a2))^2+...
+%             (sqrt(blob.cos2*1/blob.a2)-sqrt(refblob.sin2*refblob.a2))^2);
+%     end
     err_rk4_pos(end+1) = sqrt((blob.x-refblob.x)^2+(blob.y-refblob.y)^2);
+    tmpx = xa-blob.x;
+    tmpy = ya-blob.y;
+    tmp = -((tmpx*blob.costh+tmpy*blob.sinth).^2/blob.a2 + ...
+        (tmpy*blob.costh-tmpx*blob.sinth).^2*blob.a2);
+    w = 1./(4*pi*blob.s2).*exp(tmp./4./blob.s2);
+    err_rk4_w(end+1) = sqrt(sum(sum((w-refw).^2))*dA);
 end
 
-loglog(1./2.^(1:numpts),err_rk4,'o-');
+loglog(1./2.^(1:numpts),err_rk4_w,'o-');
 grid on;
 
 %% AB 4
