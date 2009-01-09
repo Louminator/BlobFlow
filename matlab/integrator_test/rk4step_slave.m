@@ -67,4 +67,11 @@ blob4 = set_blob(blob4);
 [v4,dv4] = velset(blob4);
 blob4 = th_slave(blob4,dv4);
 
+% str = [num2str(blob.th) ' ' num2str(blob1.th) ' ' num2str(blob2.th) ' ' ...
+%     num2str(blob3.th) ' ' num2str(blob4.th)];
+% disp(str);
+% 
+% str = [num2str(blob.a2) ' ' num2str(blob1.a2) ' ' num2str(blob2.a2) ' ' ...
+%     num2str(blob3.a2) ' ' num2str(blob4.a2)];
+% disp(str);
 

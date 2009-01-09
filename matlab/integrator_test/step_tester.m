@@ -18,7 +18,7 @@ blob=set_blob(blob);
 
 visc = 1.0e-4;
 
-axisymmtol = 1.0e-6;
+axisymmtol = 2.5e-3;
 
 % Set j to a big number like 8.
 
@@ -37,7 +37,7 @@ step = 1.0/N;
 
 for k=1:N
     
-    if (abs(blob.a2-1/blob.a2)<axisymmtol)
+    if (abs(blob.a2-1/blob.a2)/step<axisymmtol)
         blob = rk4step_slave(blob,step,visc);
     else
         blob = rk4step(blob,step,visc);
@@ -50,7 +50,7 @@ refblob=blob;
 
 visc = 1.0e-4;
 
-axisymmtol = 1.0e-6;
+axisymmtol = 2.5e-3;
 
 err_rk4 = [];
 err_rk4_th = [];
@@ -90,7 +90,7 @@ for j = 1:numpts
     
     for k=1:N
         
-        if (abs(blob.a2-1/blob.a2)<axisymmtol)
+        if (abs(blob.a2-1/blob.a2)/step<axisymmtol)
             blob = rk4step_slave(blob,step,visc);
         else
             blob = rk4step(blob,step,visc);

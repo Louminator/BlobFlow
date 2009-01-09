@@ -63,7 +63,14 @@ blob4.y = blob.y + step*(v(2) + 2*v1(2) + 2*v2(2) + v3(2))/6;
 
 blob4 = set_blob(blob4);
 
-
-
+% str = [num2str(blob.th) ' ' num2str(blob1.th) ' ' num2str(blob2.th) ' ' ...
+%     num2str(blob3.th) ' ' num2str(blob4.th)];
+% disp(str);
+% 
+% str = [num2str(blob.a2) ' ' num2str(blob1.a2) ' ' num2str(blob2.a2) ' ' ...
+%     num2str(blob3.a2) ' ' num2str(blob4.a2)];
+% disp(str);
+% 
+% 
 
 
