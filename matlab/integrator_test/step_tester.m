@@ -27,7 +27,7 @@ j = 10;
 blob.x = 1;
 blob.y = 0;
 blob.s2 = 0.01;
-blob.a2 = 1.01;
+blob.a2 = 1.0;
 blob.th = 0;
 
 blob=set_blob(blob);
@@ -80,7 +80,7 @@ for j = 1:numpts
     blob.x = 1;
     blob.y = 0;
     blob.s2 = 0.01;
-    blob.a2 = 1.01;
+    blob.a2 = 1.0;
     blob.th = 0;
     
     blob=set_blob(blob);
