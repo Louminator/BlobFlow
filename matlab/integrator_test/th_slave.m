@@ -7,7 +7,11 @@ else
 end
 
 % Add an epsilon correction.
-blob.th = blob.th - (1/blob.a2-blob.a2)/(1/blob.a2+blob.a2)*(dv(2,1)-dv(1,2))/2/...
+epsilon = (1/blob.a2-blob.a2)/(1/blob.a2+blob.a2);
+
+th1 = -(dv(2,1)-dv(1,2))/2/...
      (4*sin(blob.th)*cos(blob.th)*(dv(1,2)+dv(2,1))/2*(1+(dv(1,1)*2/(dv(1,2)+dv(2,1)))^2));
+
+blob.th = blob.th + epsilon*th1 + 2/3*epsilon^3*th1^3;
  
 blob = set_blob(blob);
