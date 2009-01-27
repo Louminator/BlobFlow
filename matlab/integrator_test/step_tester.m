@@ -38,7 +38,7 @@ step = 1.0/N;
 for k=1:N
     
     if (abs(blob.a2-1/blob.a2)/step<axisymmtol)
-        blob = rk4step_slave(blob,step,visc);
+        blob = rk4step_slave3(blob,step,visc);
     else
         blob = rk4step(blob,step,visc);
     end
@@ -89,11 +89,14 @@ for j = 1:numpts
     step = 1.0/N;
     
     for k=1:N
-        
         if (abs(blob.a2-1/blob.a2)/step<axisymmtol)
-            blob = rk4step_slave(blob,step,visc);
+            blob = rk4step_slave3(blob,step,visc);
         else
             blob = rk4step(blob,step,visc);
+        end
+        if (j == numpts)
+            th(k) = blob.th;
+            a2(k) = blob.a2;
         end
     end
     
