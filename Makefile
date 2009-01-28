@@ -13,8 +13,8 @@ CC	= mpicc
 LN	= mpicc
 MPICFLAGS  = -DMULTIPROC
 else
-CC		= pgcc
-LN		= pgcc
+CC		= gcc
+LN		= gcc
 endif
 
 # Set your optional C flags here.  It depends upon your compiler and 
@@ -29,9 +29,14 @@ endif
 # This one is an example of how to change the location of Rodrigo's
 # data files at compile time.
 #COPTFLAGS	= -fast  -D'DATA_ROOT="/home/rossi/ugh/"'
+COPTFLAGS	= -O3
 
 ifeq ($(ccsvm),on)
 CCSVM   = -DCCSVM
+endif
+
+ifeq ($(HOSTTYPE),i686)
+CLIBS 		= -lm -llapack -lblas
 endif
 
 ifeq ($(HOSTTYPE),i386-linux)
