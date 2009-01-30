@@ -308,10 +308,17 @@ double dtth(the_blobguts,parms)
 Blob_internal *the_blobguts;
 Blob_parms *parms;
 {
-  return( ((*parms).du21 - (*parms).du12)/2.0 +
-	  ( (((*parms).du21 + (*parms).du12)/2.0)*
-	    ((*parms).sin2-(*parms).cos2) +
-	    2.0*(*parms).du11*(*parms).sincos )*
-	  (1.0/(*the_blobguts).a2 + (*the_blobguts).a2)/
-	  (1.0/(*the_blobguts).a2 - (*the_blobguts).a2) );
+  double retval;
+
+  retval = ((*parms).du21 - (*parms).du12)/2.0 +
+    ( (((*parms).du21 + (*parms).du12)/2.0)*
+      ((*parms).sin2-(*parms).cos2) +
+      2.0*(*parms).du11*(*parms).sincos )*
+    (1.0/(*the_blobguts).a2 + (*the_blobguts).a2)/
+    (1.0/(*the_blobguts).a2 - (*the_blobguts).a2);
+
+  if (isinf(retval) == 1)
+    return(((*parms).du21 - (*parms).du12)/2.0);
+  else
+    return(retval);
 }
