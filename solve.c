@@ -214,6 +214,85 @@ double        *ds2,*da2,*dth;
   *da2 = dta2(blobguts,parms);
 }
 
+void rk4()
+{
+   Blob_internal  tempguts[5];
+   Blob_parms     tempparms[5];
+   double         ds2[4],da2[4],dth[4];
+
+  /* Take a step of RK4 */
+
+  /* Half step of FCE predictor. */
+  for (j=0; j<N; ++j)
+    mblob[j].blob1 = mblob[j].blob0;
+
+  /* Note: blob1 stores the initial velocity field at t=0. */
+
+  for (j=0; j<N; ++j)
+    {
+      tempguts[0] = blobguts[j];
+      tempparms[0] = parms[j];
+
+      set_blob(tempguts,tempparms);
+      dy(tempguts,tempparms,ds2,da2,dth);
+	
+
+      mblob[j].blob0.x = mblob[j].blob1.x + 
+	0.5*TimeStep*mblob[j].blob1.dx;
+      mblob[j].blob0.y = mblob[j].blob1.y + 
+	0.5*TimeStep*mblob[j].blob1.dy;
+    }
+
+  for (j=0; j<N; ++j)
+    mblob[j].blob2 = mblob[j].blob0;
+
+  /* Half step of BCE predictor. */
+  for (j=0; j<N; ++j)
+    {
+      mblob[j].blob0.x = mblob[j].blob1.x + 
+	0.5*TimeStep*mblob[j].blob2.dx;
+      mblob[j].blob0.y = mblob[j].blob1.y + 
+	0.5*TimeStep*mblob[j].blob2.dy;
+    }
+
+  vel_field();
+
+  for (j=0; j<N; ++j)
+    mblob[j].blob3 = mblob[j].blob0;
+
+  /* Full step of midpoint rule predictor. */
+
+  for (j=0; j<N; ++j)
+    {
+      mblob[j].blob0.x = mblob[j].blob1.x + 
+	TimeStep*mblob[j].blob3.dx;
+      mblob[j].blob0.y = mblob[j].blob1.y + 
+	TimeStep*mblob[j].blob3.dy;
+    }
+
+  SimTime += TimeStep/4;
+
+  vel_field();
+
+  for (j=0; j<N; ++j)
+    mblob[j].blob4 = mblob[j].blob0;
+
+  /* Simpson's rule corrector. */
+
+  for (j=0; j<N; ++j)
+    {
+      mblob[j].blob0.x = mblob[j].blob1.x + 
+	TimeStep*(mblob[j].blob1.dx+2.0*mblob[j].blob2.dx+
+		  2.0*mblob[j].blob3.dx+mblob[j].blob4.dx)/6.0;
+      mblob[j].blob0.y = mblob[j].blob1.y + 
+	TimeStep*(mblob[j].blob1.dy+2.0*mblob[j].blob2.dy+
+		  2.0*mblob[j].blob3.dy+mblob[j].blob4.dy)/6.0;
+    }
+
+  vel_field();
+
+}
+
 void rk4step(blobguts,parms,prefstep)
 Blob_internal *blobguts;
 Blob_parms *parms;
