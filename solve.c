@@ -214,83 +214,114 @@ double        *ds2,*da2,*dth;
   *da2 = dta2(blobguts,parms);
 }
 
-void rk4()
+void rk4(double prefstep)
 {
-   Blob_internal  tempguts[5];
-   Blob_parms     tempparms[5];
-   double         ds2[4],da2[4],dth[4];
+   Blob_internal  tempguts[NMAX];
+   Blob_parms     tempparms[NMAX];
+   double         ds2[4][NMAX],da2[4][NMAX],dth[4][NMAX],
+                  dxdt[4][NMAX],dydt[4][NMAX];
+   int            j;
 
   /* Take a step of RK4 */
 
-  /* Half step of FCE predictor. */
-  for (j=0; j<N; ++j)
-    mblob[j].blob1 = mblob[j].blob0;
-
-  /* Note: blob1 stores the initial velocity field at t=0. */
+  /* Note: blob1, tempparms and tempguts stores the initial velocity field at t=0. */
 
   for (j=0; j<N; ++j)
     {
-      tempguts[0] = blobguts[j];
-      tempparms[0] = parms[j];
+      mblob[j].blob1 = mblob[j].blob0;
+      tempguts[j]    = blobguts[j];
+      tempparms[j]   = tmpparms[j];
+    }
 
-      set_blob(tempguts,tempparms);
-      dy(tempguts,tempparms,ds2,da2,dth);
-	
+  /* Half step of FCE predictor. */
 
-      mblob[j].blob0.x = mblob[j].blob1.x + 
-	0.5*TimeStep*mblob[j].blob1.dx;
-      mblob[j].blob0.y = mblob[j].blob1.y + 
-	0.5*TimeStep*mblob[j].blob1.dy;
+  for (j=0; j<N; ++j)
+    {
+      dxdt[0][j] = mblob[j].blob0.dx;
+      dydt[0][j] = mblob[j].blob0.dy;
+      set_blob(blobguts+j,tmpparms+j);
+      dy(blobguts+j,tmpparms+j,ds2[0]+j,da2[0]+j,dth[0]+j);
     }
 
   for (j=0; j<N; ++j)
-    mblob[j].blob2 = mblob[j].blob0;
+    {
+      mblob[j].blob0.x = mblob[j].blob1.x + 0.5*prefstep*dxdt[0][j];
+      mblob[j].blob0.y = mblob[j].blob1.y + 0.5*prefstep*dydt[0][j];
+      blobguts[j].th   = tempguts[j].th   + 0.5*prefstep*dth[0][j];
+      blobguts[j].s2   = tempguts[j].s2   + 0.5*prefstep*ds2[0][j];
+      blobguts[j].a2   = tempguts[j].a2   + 0.5*prefstep*da2[0][j];
+      set_blob(blobguts+j,tmpparms+j);
+    }
+
+  vel_field();
 
   /* Half step of BCE predictor. */
+
   for (j=0; j<N; ++j)
     {
-      mblob[j].blob0.x = mblob[j].blob1.x + 
-	0.5*TimeStep*mblob[j].blob2.dx;
-      mblob[j].blob0.y = mblob[j].blob1.y + 
-	0.5*TimeStep*mblob[j].blob2.dy;
+      dxdt[1][j] = mblob[j].blob0.dx;
+      dydt[1][j] = mblob[j].blob0.dy;
+      dy(blobguts+j,tmpparms+j,ds2[1]+j,da2[1]+j,dth[1]+j);
+    }
+
+  for (j=0; j<N; ++j)
+    {
+      mblob[j].blob0.x = mblob[j].blob1.x + 0.5*prefstep*dxdt[1][j];
+      mblob[j].blob0.y = mblob[j].blob1.y + 0.5*prefstep*dydt[1][j];
+      blobguts[j].th   = tempguts[j].th   + 0.5*prefstep*dth[1][j];
+      blobguts[j].s2   = tempguts[j].s2   + 0.5*prefstep*ds2[1][j];
+      blobguts[j].a2   = tempguts[j].a2   + 0.5*prefstep*da2[1][j];
+      set_blob(blobguts+j,tmpparms+j);
     }
 
   vel_field();
 
-  for (j=0; j<N; ++j)
-    mblob[j].blob3 = mblob[j].blob0;
-
-  /* Full step of midpoint rule predictor. */
+  /* Full step of midpoint predictor. */
 
   for (j=0; j<N; ++j)
     {
-      mblob[j].blob0.x = mblob[j].blob1.x + 
-	TimeStep*mblob[j].blob3.dx;
-      mblob[j].blob0.y = mblob[j].blob1.y + 
-	TimeStep*mblob[j].blob3.dy;
+      dxdt[2][j] = mblob[j].blob0.dx;
+      dydt[2][j] = mblob[j].blob0.dy;
+      dy(blobguts+j,tmpparms+j,ds2[2]+j,da2[2]+j,dth[2]+j);
     }
 
-  SimTime += TimeStep/4;
+  for (j=0; j<N; ++j)
+    {
+      mblob[j].blob0.x = mblob[j].blob1.x + prefstep*dxdt[2][j];
+      mblob[j].blob0.y = mblob[j].blob1.y + prefstep*dydt[2][j];
+      blobguts[j].th   = tempguts[j].th   + prefstep*dth[2][j];
+      blobguts[j].s2   = tempguts[j].s2   + prefstep*ds2[2][j];
+      blobguts[j].a2   = tempguts[j].a2   + prefstep*da2[2][j];
+      set_blob(blobguts+j,tmpparms+j);
+    }
 
   vel_field();
-
-  for (j=0; j<N; ++j)
-    mblob[j].blob4 = mblob[j].blob0;
 
   /* Simpson's rule corrector. */
 
   for (j=0; j<N; ++j)
     {
+      dxdt[3][j] = mblob[j].blob0.dx;
+      dydt[3][j] = mblob[j].blob0.dy;
+      dy(blobguts+j,tmpparms+j,ds2[3]+j,da2[3]+j,dth[3]+j);
+    }
+
+  for (j=0; j<N; ++j)
+    {
       mblob[j].blob0.x = mblob[j].blob1.x + 
-	TimeStep*(mblob[j].blob1.dx+2.0*mblob[j].blob2.dx+
-		  2.0*mblob[j].blob3.dx+mblob[j].blob4.dx)/6.0;
+	prefstep*(dxdt[0][j]+2.0*dxdt[1][j]+2.0*dxdt[2][j]+dxdt[3][j])/6.0;
       mblob[j].blob0.y = mblob[j].blob1.y + 
-	TimeStep*(mblob[j].blob1.dy+2.0*mblob[j].blob2.dy+
-		  2.0*mblob[j].blob3.dy+mblob[j].blob4.dy)/6.0;
+	prefstep*(dydt[0][j]+2.0*dydt[1][j]+2.0*dydt[2][j]+dydt[3][j])/6.0;
+      blobguts[j].th   = tempguts[j].th   + 
+	prefstep*(dth[0][j]+2.0*dth[1][j]+2.0*dth[2][j]+dth[3][j])/6.0;
+      blobguts[j].s2   = tempguts[j].s2   + 
+	prefstep*(ds2[0][j]+2.0*ds2[1][j]+2.0*ds2[2][j]+ds2[3][j])/6.0;
+      blobguts[j].a2   = tempguts[j].a2   + 
+	prefstep*(da2[0][j]+2.0*da2[1][j]+2.0*da2[2][j]+da2[3][j])/6.0;
+      set_blob(blobguts+j,tmpparms+j);
     }
 
   vel_field();
-
 }
 
 void rk4step(blobguts,parms,prefstep)

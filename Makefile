@@ -35,6 +35,9 @@ ifeq ($(ccsvm),on)
 CCSVM   = -DCCSVM
 endif
 
+# Default libs.
+CLIBS		= -lm -llapack -lblas
+
 ifeq ($(HOSTTYPE),i686)
 CLIBS 		= -lm -llapack -lblas
 endif
