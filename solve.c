@@ -156,43 +156,31 @@ void th_slave(blobguts,parms)
 Blob_internal *blobguts;
 Blob_parms     *parms;
 {
-  double temp,arg;
+  double eps,th1;
 
-  temp = (*parms).du11*((*blobguts).a2+1.0/(*blobguts).a2);
+  if ( ((*blobguts).a2-1/(*blobguts).a2)<0 )
+    (*blobguts).th = 
+      atan2(-(*parms).du11+
+	    sqrt(SQR((*parms).du11)+
+		 SQR((*parms).du12+(*parms).du21)/4),
+	    ((*parms).du12+(*parms).du21)/2);
+  else
+    (*blobguts).th = 
+      atan2(-(*parms).du11-
+	    sqrt(SQR((*parms).du11)+
+		 SQR((*parms).du12+(*parms).du21)/4),
+	    ((*parms).du12+(*parms).du21)/2);
 
-  /* The MAX here to work around the odd situation where the argument
-     could be slightly negative due to roundoff error and kick loose
-     nan's.  This never happened in linear Lamb monopole sims, but it
-     did happen in nonlinear Lamb monopole simulations where there was
-     an element at the origin.  Since the velocity field and it's
-     derivatives are computed approximately and the flow in the center
-     is purely rotational, there were times when the arg was a teeny
-     negative number. */
+  eps = (1/(*blobguts).a2-(*blobguts).a2)/(1/(*blobguts).a2+(*blobguts).a2);
 
-  arg  = MAX(SQR(temp)+
-	     ((*parms).du21/(*blobguts).a2+
-	      (*parms).du12*(*blobguts).a2)*
-	     ((*parms).du12/(*blobguts).a2+
-	      (*parms).du21*(*blobguts).a2),0.0);
-      
-  (*blobguts).th = 
-    atan2(((*blobguts).a2*(*parms).du12+(*parms).du21/(*blobguts).a2),
-	  -(temp + sqrt(arg)));
-  
+  th1 = -((*parms).du21-(*parms).du12)/2/
+    (4*sin((*blobguts).th)*cos((*blobguts).th)*
+     ((*parms).du12+(*parms).du21)/2*
+     (1+SQR((*parms).du11*2/(((*parms).du12+(*parms).du21)))));
+
+  (*blobguts).th = (*blobguts).th + eps*th1 + 2/3*eps*SQR(eps)*th1*SQR(th1);
+
   set_blob(blobguts,parms);
-      
-  /* Check to see if we chose the stable equilibrium point. */
-  /* If not, choose the other one. */
-  if ( ((*blobguts).a2-1.0/(*blobguts).a2)*
-       (((*parms).sin2-(*parms).cos2)*(*parms).du11-
-	(*parms).sincos*((*parms).du12+(*parms).du21)) > 0.0)
-    {
-      (*blobguts).th = 
-	atan2(((*blobguts).a2*(*parms).du12+(*parms).du21/(*blobguts).a2),
-	      -(temp - sqrt(arg)));
-
-      set_blob(blobguts,parms);
-    }
 }
 
 void dy_slave(blobguts,parms,ds2,da2)
@@ -241,6 +229,8 @@ void rk4(double prefstep)
       dydt[0][j] = mblob[j].blob0.dy;
       set_blob(blobguts+j,tmpparms+j);
       dy(blobguts+j,tmpparms+j,ds2[0]+j,da2[0]+j,dth[0]+j);
+      if (fabs(blobguts[j].a2-1/blobguts[j].a2)/prefstep < axisymmtol)
+	th_slave(blobguts+j,tmpparms+j);
     }
 
   for (j=0; j<N; ++j)
