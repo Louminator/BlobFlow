@@ -94,10 +94,6 @@ for j = 1:numpts
         else
             blob = rk4step(blob,step,visc);
         end
-        if (j == numpts)
-            th(k) = blob.th;
-            a2(k) = blob.a2;
-        end
     end
     
     disp(j);
@@ -137,6 +133,7 @@ err_ab4_th = [];
 err_ab4_a2 = [];
 err_ab4_s2 = [];
 err_ab4_pos = [];
+err_rk4_w = [];
 
 numpts = 8;
 
@@ -153,35 +150,30 @@ for j = 1:numpts
     N = 10*2^(j-1);
     step = 1.0/N;
     
-    
     blob4 = blob;
     [v4,dv4] = velset(blob4);
 
-    if (abs(blob4.a2-1/blob4.a2)<axisymmtol)
-        blob4 = th_slave(blob4,dv4);
-        blob3 = rk4step_slave(blob4,step,visc);
+    if (abs(blob4.a2-1/blob4.a2)/step<axisymmtol)
+        blob3 = rk4step_slave3(blob4,step,visc);
     else
         blob3 = rk4step(blob4,step,visc);
     end
-    
-    if (abs(blob3.a2-1/blob3.a2)<axisymmtol)
-        blob2 = rk4step_slave(blob3,step,visc);
+
+    if (abs(blob3.a2-1/blob3.a2)/step<axisymmtol)
+        blob2 = rk4step_slave3(blob3,step,visc);
     else
         blob2 = rk4step(blob3,step,visc);
     end
-    
-    if (abs(blob2.a2-1/blob2.a2)<axisymmtol)
-        blob1 = rk4step_slave(blob2,step,visc);
+
+    if (abs(blob2.a2-1/blob2.a2)/step<axisymmtol)
+        blob1 = rk4step_slave3(blob2,step,visc);
     else
         blob1 = rk4step(blob2,step,visc);
     end
-    
+
     for k=1:N-3
-        if (    (abs(blob1.a2-1/blob1.a2)<axisymmtol) | ...
-                (abs(blob2.a2-1/blob2.a2)<axisymmtol) | ...
-                (abs(blob3.a2-1/blob3.a2)<axisymmtol) | ...
-                (abs(blob4.a2-1/blob4.a2)<axisymmtol) )
-            blob = ab4step_slave(blob1,blob2,blob3,blob4,step,visc);
+        if ( (abs(blob1.a2-1/blob1.a2)<axisymmtol) )
+            blob = ab4step_slave3(blob1,blob2,blob3,blob4,step,visc);
         else
             blob = ab4step(blob1,blob2,blob3,blob4,step,visc);
         end
@@ -193,22 +185,28 @@ for j = 1:numpts
     end
     
     disp(j);
-    err_ab4(end+1) = 1-blob.x^2-blob.y^2;
-    
-    err_ab4_th(end+1) = sqrt((blob.th-refblob.th)^2);
-    err_ab4_s2(end+1) = sqrt((blob.s2-refblob.s2)^2);
-    if ( (refblob.a2-1)*(blob.a2-1) > 0)
-        err_ab4_a2(end+1) = ...
-            sqrt((sqrt(blob.cos2*blob.a2)-sqrt(refblob.cos2*refblob.a2))^2+...
-            (sqrt(blob.sin2*blob.a2)-sqrt(refblob.sin2*refblob.a2))^2);
-    else
-        err_ab4_a2(end+1) = ...
-            sqrt((sqrt(blob.sin2*1/blob.a2)-sqrt(refblob.cos2*refblob.a2))^2+...
-            (sqrt(blob.cos2*1/blob.a2)-sqrt(refblob.sin2*refblob.a2))^2);
-    end
+%     err_ab4(end+1) = 1-blob.x^2-blob.y^2;
+%     
+%     err_ab4_th(end+1) = sqrt((blob.th-refblob.th)^2);
+%     err_ab4_s2(end+1) = sqrt((blob.s2-refblob.s2)^2);
+%     if ( (refblob.a2-1)*(blob.a2-1) > 0)
+%         err_ab4_a2(end+1) = ...
+%             sqrt((sqrt(blob.cos2*blob.a2)-sqrt(refblob.cos2*refblob.a2))^2+...
+%             (sqrt(blob.sin2*blob.a2)-sqrt(refblob.sin2*refblob.a2))^2);
+%     else
+%         err_ab4_a2(end+1) = ...
+%             sqrt((sqrt(blob.sin2*1/blob.a2)-sqrt(refblob.cos2*refblob.a2))^2+...
+%             (sqrt(blob.cos2*1/blob.a2)-sqrt(refblob.sin2*refblob.a2))^2);
+%     end
     err_ab4_pos(end+1) = sqrt((blob.x-refblob.x)^2+(blob.y-refblob.y)^2);
+    tmpx = xa-blob.x;
+    tmpy = ya-blob.y;
+    tmp = -((tmpx*blob.costh+tmpy*blob.sinth).^2/blob.a2 + ...
+        (tmpy*blob.costh-tmpx*blob.sinth).^2*blob.a2);
+    w = 1./(4*pi*blob.s2).*exp(tmp./4./blob.s2);
+    err_ab4_w(end+1) = sqrt(sum(sum((w-refw).^2))*dA);
     
 end
 
-loglog(1./2.^(1:numpts),err_ab4,'o-');
+loglog(1./2.^(1:numpts),err_ab4_w,'o-');
 grid on;
