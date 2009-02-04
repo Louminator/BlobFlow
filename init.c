@@ -579,7 +579,7 @@ void init(int argc, char *argv[])
   fprintf(diag_log,"Initial mplevel: %d\n",mplevels);
 
   partition(mplevels);
-    
+
  Release_Links(mplevels);
 
   if (B != 0)
@@ -620,10 +620,6 @@ void init(int argc, char *argv[])
   fflush(comp_log);
   fflush(diag_log);
 
-#ifndef MERGECHECK
-  vel_field();
-#endif
-
   for (i=0; i<N; ++i) 
     { 
       mblob[i].blob1 = mblob[i].blob0;
@@ -643,11 +639,6 @@ void init(int argc, char *argv[])
   /* there is only one processor anyway */
   write_vorts(0);
   write_partition(0);
-#endif
-
-#ifdef MERGECHECK
-  printf("Merge events: %d\n",nmerge);
-  exit(1);
 #endif
 
   Frame = 1;
@@ -670,4 +661,10 @@ void init(int argc, char *argv[])
   nmerge   = 0;
   totsplit = 0;
   totmerge = 0;
+
+  fprintf(comp_log,"Initialization complete.\n");
+    
+  fflush(mpi_log);
+  fflush(comp_log);
+  fflush(diag_log);
 }

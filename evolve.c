@@ -238,11 +238,13 @@ void run()
 	  fflush(mpi_log);
 	}
 
+      /*
       vel_cputime_ref = clock();
       vel_field();
       vel_cputime += clock()-vel_cputime_ref;
 
       tot_cputime = clock()-tot_cputime_ref;
+      */
 
       fprintf(cpu_log,"%07d %12.4e %12.4e %12.4e %12.4e %12.4e\n",
 	      N,

@@ -25,7 +25,7 @@
 
 #include "global.h"
 
-#define axisymmtol 1.0e-6
+#define axisymmtol 1.0e-3
 #define stifftol 1.0e-6
 #define rk4itertol 14
 #define rk4l2errtol 1.0e-14
@@ -105,6 +105,10 @@ void rk4(double prefstep)
 
   /* Note: blob1, tempparms and tempguts stores the initial velocity field at t=0. */
 
+  vel_field();
+
+  printf("Stage 1\n");
+
   for (j=0; j<N; ++j)
     {
       mblob[j].blob1 = mblob[j].blob0;
@@ -124,6 +128,8 @@ void rk4(double prefstep)
 	th_slave(blobguts+j,tmpparms+j);
     }
 
+  printf("Stage 2a\n");
+
   for (j=0; j<N; ++j)
     {
       mblob[j].blob0.x = mblob[j].blob1.x + 0.5*prefstep*dxdt[0][j];
@@ -134,7 +140,13 @@ void rk4(double prefstep)
       set_blob(blobguts+j,tmpparms+j);
     }
 
+  printf("Stage 2b\n");
+
+  write_vorts(9999);
+
   vel_field();
+
+  printf("Stage 2c\n");
 
   /* Half step of BCE predictor. */
 
@@ -145,6 +157,8 @@ void rk4(double prefstep)
       dy(blobguts+j,tmpparms+j,ds2[1]+j,da2[1]+j,dth[1]+j);
     }
 
+  printf("Stage 2d\n");
+
   for (j=0; j<N; ++j)
     {
       mblob[j].blob0.x = mblob[j].blob1.x + 0.5*prefstep*dxdt[1][j];
@@ -154,6 +168,8 @@ void rk4(double prefstep)
       blobguts[j].a2   = tempguts[j].a2   + 0.5*prefstep*da2[1][j];
       set_blob(blobguts+j,tmpparms+j);
     }
+
+  printf("Stage 3\n");
 
   vel_field();
 
@@ -202,5 +218,6 @@ void rk4(double prefstep)
       set_blob(blobguts+j,tmpparms+j);
     }
 
-  vel_field();
+  printf("Stage 4\n");
+
 }
