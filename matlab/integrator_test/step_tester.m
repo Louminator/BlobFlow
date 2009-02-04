@@ -61,18 +61,18 @@ err_rk4_w = [];
 
 numpts = 8;
 
-    a2 = max(refblob.a2,1/refblob.a2);
-    x = linspace(refblob.x-4*sqrt(a2*refblob.s2),...
-        refblob.x+4*sqrt(a2*refblob.s2),20);
-    y = linspace(refblob.y-4*sqrt(a2*refblob.s2),...
-        refblob.y+4*sqrt(a2*refblob.s2),20);
-    dA = (x(2)-x(1))*(y(2)-y(1));
-    [xa,ya] = meshgrid(x,y);
-    tmpx = xa-refblob.x;
-    tmpy = ya-refblob.y;
-    tmp = -((tmpx*refblob.costh+tmpy*refblob.sinth).^2/refblob.a2 + ...
-        (tmpy*refblob.costh-tmpx*refblob.sinth).^2*refblob.a2);
-    refw = 1./(4*pi*refblob.s2).*exp(tmp./4./refblob.s2);
+a2 = max(refblob.a2,1/refblob.a2);
+x = linspace(refblob.x-4*sqrt(a2*refblob.s2),...
+    refblob.x+4*sqrt(a2*refblob.s2),20);
+y = linspace(refblob.y-4*sqrt(a2*refblob.s2),...
+    refblob.y+4*sqrt(a2*refblob.s2),20);
+dA = (x(2)-x(1))*(y(2)-y(1));
+[xa,ya] = meshgrid(x,y);
+tmpx = xa-refblob.x;
+tmpy = ya-refblob.y;
+tmp = -((tmpx*refblob.costh+tmpy*refblob.sinth).^2/refblob.a2 + ...
+    (tmpy*refblob.costh-tmpx*refblob.sinth).^2*refblob.a2);
+refw = 1./(4*pi*refblob.s2).*exp(tmp./4./refblob.s2);
 
 
 for j = 1:numpts
@@ -119,23 +119,36 @@ for j = 1:numpts
     err_rk4_w(end+1) = sqrt(sum(sum((w-refw).^2))*dA);
 end
 
-loglog(1./2.^(1:numpts),err_rk4_w,'o-');
+loglog(1./2.^(1:numpts),err_rk4_w,'bo-');
 grid on;
 
 %% AB 4
     
 visc = 1.0e-4;
 
-axisymmtol = 1.0e-6;
+axisymmtol = 2.5e-3;
 
 err_ab4 = [];
 err_ab4_th = [];
 err_ab4_a2 = [];
 err_ab4_s2 = [];
 err_ab4_pos = [];
-err_rk4_w = [];
+err_ab4_w = [];
 
 numpts = 8;
+
+a2 = max(refblob.a2,1/refblob.a2);
+x = linspace(refblob.x-4*sqrt(a2*refblob.s2),...
+    refblob.x+4*sqrt(a2*refblob.s2),20);
+y = linspace(refblob.y-4*sqrt(a2*refblob.s2),...
+    refblob.y+4*sqrt(a2*refblob.s2),20);
+dA = (x(2)-x(1))*(y(2)-y(1));
+[xa,ya] = meshgrid(x,y);
+tmpx = xa-refblob.x;
+tmpy = ya-refblob.y;
+tmp = -((tmpx*refblob.costh+tmpy*refblob.sinth).^2/refblob.a2 + ...
+    (tmpy*refblob.costh-tmpx*refblob.sinth).^2*refblob.a2);
+refw = 1./(4*pi*refblob.s2).*exp(tmp./4./refblob.s2);
 
 for j = 1:numpts
     
@@ -208,5 +221,5 @@ for j = 1:numpts
     
 end
 
-loglog(1./2.^(1:numpts),err_ab4_w,'o-');
+loglog(1./2.^(1:numpts),err_ab4_w,'ro-');
 grid on;
