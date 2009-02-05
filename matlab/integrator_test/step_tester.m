@@ -27,7 +27,7 @@ j = 10;
 blob.x = 1;
 blob.y = 0;
 blob.s2 = 0.01;
-blob.a2 = 1.01;
+blob.a2 = 1.0;
 blob.th = 0;
 
 blob=set_blob(blob);
@@ -38,9 +38,9 @@ step = 1.0/N;
 for k=1:N
     
     if (abs(blob.a2-1/blob.a2)/step<axisymmtol)
-        blob = rk4step_slave3(blob,step,visc);
+        blob = rk4step_slave3(blob,step,visc,axisymmtol);
     else
-        blob = rk4step(blob,step,visc);
+        blob = rk4step(blob,step,visc,axisymmtol);
     end
 end
 
@@ -80,7 +80,7 @@ for j = 1:numpts
     blob.x = 1;
     blob.y = 0;
     blob.s2 = 0.01;
-    blob.a2 = 1.01;
+    blob.a2 = 1.0;
     blob.th = 0;
     
     blob=set_blob(blob);
@@ -90,9 +90,9 @@ for j = 1:numpts
     
     for k=1:N
         if (abs(blob.a2-1/blob.a2)/step<axisymmtol)
-            blob = rk4step_slave3(blob,step,visc);
+            blob = rk4step_slave3(blob,step,visc,axisymmtol);
         else
-            blob = rk4step(blob,step,visc);
+            blob = rk4step(blob,step,visc,axisymmtol);
         end
     end
     
