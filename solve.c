@@ -83,12 +83,12 @@ double        *ds2,*da2;
   *da2 = dta2(blobguts,parms);
 }
 
-void dy(blobguts,parms,ds2,da2,dth)
+void dy(blobguts,parms,ds2,da2,dth,prefstep)
 Blob_internal *blobguts;
 Blob_parms     *parms;
-double        *ds2,*da2,*dth;
+double        *ds2,*da2,*dth,prefstep;
 {
-  *dth = dtth(blobguts,parms);
+  *dth = dtth(blobguts,parms,prefstep,axisymmtol);
   *ds2 = dts2(blobguts);
   *da2 = dta2(blobguts,parms);
 }
@@ -105,9 +105,17 @@ void rk4(double prefstep)
 
   /* Note: blob1, tempparms and tempguts stores the initial velocity field at t=0. */
 
+  printf("Stage 1a\n");
+
+  for (j=0; j<N; ++j)
+    if (fabs(blobguts[j].a2-1/blobguts[j].a2)/prefstep < axisymmtol)
+      th_slave(blobguts+j,tmpparms+j);
+
+  printf("Stage 1b\n");
+
   vel_field();
 
-  printf("Stage 1\n");
+  printf("Stage 1c\n");
 
   for (j=0; j<N; ++j)
     {
@@ -123,9 +131,7 @@ void rk4(double prefstep)
       dxdt[0][j] = mblob[j].blob0.dx;
       dydt[0][j] = mblob[j].blob0.dy;
       set_blob(blobguts+j,tmpparms+j);
-      dy(blobguts+j,tmpparms+j,ds2[0]+j,da2[0]+j,dth[0]+j);
-      if (fabs(blobguts[j].a2-1/blobguts[j].a2)/prefstep < axisymmtol)
-	th_slave(blobguts+j,tmpparms+j);
+      dy(blobguts+j,tmpparms+j,ds2[0]+j,da2[0]+j,dth[0]+j,prefstep);
     }
 
   printf("Stage 2a\n");
@@ -144,6 +150,10 @@ void rk4(double prefstep)
 
   write_vorts(9999);
 
+  for (j=0; j<N; ++j)
+    if (fabs(blobguts[j].a2-1/blobguts[j].a2)/prefstep < axisymmtol)
+      th_slave(blobguts+j,tmpparms+j);
+
   vel_field();
 
   printf("Stage 2c\n");
@@ -154,7 +164,7 @@ void rk4(double prefstep)
     {
       dxdt[1][j] = mblob[j].blob0.dx;
       dydt[1][j] = mblob[j].blob0.dy;
-      dy(blobguts+j,tmpparms+j,ds2[1]+j,da2[1]+j,dth[1]+j);
+      dy(blobguts+j,tmpparms+j,ds2[1]+j,da2[1]+j,dth[1]+j,prefstep);
     }
 
   printf("Stage 2d\n");
@@ -171,6 +181,10 @@ void rk4(double prefstep)
 
   printf("Stage 3\n");
 
+  for (j=0; j<N; ++j)
+    if (fabs(blobguts[j].a2-1/blobguts[j].a2)/prefstep < axisymmtol)
+      th_slave(blobguts+j,tmpparms+j);
+
   vel_field();
 
   /* Full step of midpoint predictor. */
@@ -179,7 +193,7 @@ void rk4(double prefstep)
     {
       dxdt[2][j] = mblob[j].blob0.dx;
       dydt[2][j] = mblob[j].blob0.dy;
-      dy(blobguts+j,tmpparms+j,ds2[2]+j,da2[2]+j,dth[2]+j);
+      dy(blobguts+j,tmpparms+j,ds2[2]+j,da2[2]+j,dth[2]+j,prefstep);
     }
 
   for (j=0; j<N; ++j)
@@ -192,6 +206,10 @@ void rk4(double prefstep)
       set_blob(blobguts+j,tmpparms+j);
     }
 
+  for (j=0; j<N; ++j)
+    if (fabs(blobguts[j].a2-1/blobguts[j].a2)/prefstep < axisymmtol)
+      th_slave(blobguts+j,tmpparms+j);
+
   vel_field();
 
   /* Simpson's rule corrector. */
@@ -200,7 +218,7 @@ void rk4(double prefstep)
     {
       dxdt[3][j] = mblob[j].blob0.dx;
       dydt[3][j] = mblob[j].blob0.dy;
-      dy(blobguts+j,tmpparms+j,ds2[3]+j,da2[3]+j,dth[3]+j);
+      dy(blobguts+j,tmpparms+j,ds2[3]+j,da2[3]+j,dth[3]+j,prefstep);
     }
 
   for (j=0; j<N; ++j)

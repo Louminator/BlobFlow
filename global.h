@@ -196,7 +196,7 @@ extern void set_blob();
 
 extern double dta2(Blob_internal*,Blob_parms*);
 extern double dts2(Blob_internal*);
-extern double dtth(Blob_internal*,Blob_parms*);
+extern double dtth(Blob_internal*,Blob_parms*,double,double);
 
 extern Vector induced_vel();
 extern Tensor induced_veldev();

@@ -304,9 +304,10 @@ double dta2(the_blobguts,parms)
   
 }
 
-double dtth(the_blobguts,parms)
+double dtth(the_blobguts,parms,prefstep,axisymmtol)
 Blob_internal *the_blobguts;
-Blob_parms *parms;
+Blob_parms    *parms;
+double        prefstep,axisymmtol;
 {
   double retval;
 
@@ -317,7 +318,7 @@ Blob_parms *parms;
     (1.0/(*the_blobguts).a2 + (*the_blobguts).a2)/
     (1.0/(*the_blobguts).a2 - (*the_blobguts).a2);
 
-  if (isinf(retval) == 1)
+  if (fabs((*the_blobguts).a2-1/(*the_blobguts).a2)/prefstep < axisymmtol)
     return(((*parms).du21 - (*parms).du12)/2.0);
   else
     return(retval);
