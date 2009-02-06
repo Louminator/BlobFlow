@@ -69,7 +69,10 @@ Blob_parms     *parms;
      ((*parms).du12+(*parms).du21)/2*
      (1+SQR((*parms).du11*2/(((*parms).du12+(*parms).du21)))));
 
-  (*blobguts).th = (*blobguts).th + eps*th1 + 2/3*eps*SQR(eps)*th1*SQR(th1);
+  /* Check for special case where correction is second order. */
+
+  if ( (isinf(th1) == 0) && (isnan(th1) == 0) )
+    (*blobguts).th = (*blobguts).th + eps*th1 + 2/3*eps*SQR(eps)*th1*SQR(th1);
 
   set_blob(blobguts,parms);
 }
@@ -107,13 +110,16 @@ void rk4(double prefstep)
 
   printf("Stage 1a\n");
 
-  for (j=0; j<N; ++j)
-    if (fabs(blobguts[j].a2-1/blobguts[j].a2)/prefstep < axisymmtol)
-      th_slave(blobguts+j,tmpparms+j);
 
   printf("Stage 1b\n");
 
+  write_vorts(9990);
+
   vel_field();
+
+  for (j=0; j<N; ++j)
+    if (fabs(blobguts[j].a2-1/blobguts[j].a2)/prefstep < axisymmtol)
+      th_slave(blobguts+j,tmpparms+j);
 
   printf("Stage 1c\n");
 
@@ -148,13 +154,13 @@ void rk4(double prefstep)
 
   printf("Stage 2b\n");
 
-  write_vorts(9999);
+  write_vorts(9991);
+
+  vel_field();
 
   for (j=0; j<N; ++j)
     if (fabs(blobguts[j].a2-1/blobguts[j].a2)/prefstep < axisymmtol)
       th_slave(blobguts+j,tmpparms+j);
-
-  vel_field();
 
   printf("Stage 2c\n");
 
@@ -181,11 +187,13 @@ void rk4(double prefstep)
 
   printf("Stage 3\n");
 
+  write_vorts(9992);
+
+  vel_field();
+
   for (j=0; j<N; ++j)
     if (fabs(blobguts[j].a2-1/blobguts[j].a2)/prefstep < axisymmtol)
       th_slave(blobguts+j,tmpparms+j);
-
-  vel_field();
 
   /* Full step of midpoint predictor. */
 
@@ -206,11 +214,13 @@ void rk4(double prefstep)
       set_blob(blobguts+j,tmpparms+j);
     }
 
+  write_vorts(9993);
+
+  vel_field();
+
   for (j=0; j<N; ++j)
     if (fabs(blobguts[j].a2-1/blobguts[j].a2)/prefstep < axisymmtol)
       th_slave(blobguts+j,tmpparms+j);
-
-  vel_field();
 
   /* Simpson's rule corrector. */
 
@@ -238,4 +248,5 @@ void rk4(double prefstep)
 
   printf("Stage 4\n");
 
+  write_vorts(9994);
 }
