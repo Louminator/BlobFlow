@@ -142,22 +142,23 @@ void run()
       oldN = N;
 
       rk4(TimeStep);
-	     
+
       SimTime += TimeStep;
 
-      if (blobguts[j].a2 < 0.0)
-	{
-	  fprintf(diag_log,
-		  "Time: %12.4e. WARNING: Negative a2 in element %d\n",
-		  SimTime,j);
-	  for (k=0; k<N; ++k)
+      for (j=0; j<N; ++j)
+	if (blobguts[j].a2 < 0.0)
+	  {
 	    fprintf(diag_log,
-		    "str=%10.3e x=%10.3e y=%10.3e s2=%10.3e a2=%10.3e\n",
-		    mblob[k].blob0.strength,
-		    mblob[k].blob0.x,mblob[k].blob0.y,
-		    blobguts[k].s2,blobguts[k].a2);
-	  exit(0); 
-	}	     
+		    "Time: %12.4e. WARNING: Negative a2 in element %d\n",
+		    SimTime,j);
+	    for (k=0; k<N; ++k)
+	      fprintf(diag_log,
+		      "str=%10.3e x=%10.3e y=%10.3e s2=%10.3e a2=%10.3e\n",
+		      mblob[k].blob0.strength,
+		      mblob[k].blob0.x,mblob[k].blob0.y,
+		      blobguts[k].s2,blobguts[k].a2);
+	    exit(0); 
+	  }
 
       /*      vel_cputime_ref = clock(); */
       /*      vel_field(); */
@@ -172,26 +173,6 @@ void run()
 	  BoundaryConstrain();
 	}
       */
-
-      if ((SimTime+0.499*TimeStep) >= MergeStep*MergeFrame)
-	{
-	  mplevels = Set_Level();
-	     
-	  partition(mplevels);
-	     
-#ifdef MULTIPROC
-	  /* Have only the 'root' node do the writes */
-	  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	  if (rank == 0) 
-	    write_pmvorts(Frame);
-#else
-	  write_pmvorts(Frame);
-#endif
-	  Release_Links(mplevels);
-	     
-	  ++MergeFrame;
-	}
-	
       if ((SimTime+0.499*TimeStep) >= FrameStep*Frame)
 	{
 #ifdef MULTIPROC

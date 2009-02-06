@@ -108,20 +108,11 @@ void rk4(double prefstep)
 
   /* Note: blob1, tempparms and tempguts stores the initial velocity field at t=0. */
 
-  printf("Stage 1a\n");
-
-
-  printf("Stage 1b\n");
-
-  write_vorts(9990);
-
   vel_field();
 
   for (j=0; j<N; ++j)
     if (fabs(blobguts[j].a2-1/blobguts[j].a2)/prefstep < axisymmtol)
       th_slave(blobguts+j,tmpparms+j);
-
-  printf("Stage 1c\n");
 
   for (j=0; j<N; ++j)
     {
@@ -140,8 +131,6 @@ void rk4(double prefstep)
       dy(blobguts+j,tmpparms+j,ds2[0]+j,da2[0]+j,dth[0]+j,prefstep);
     }
 
-  printf("Stage 2a\n");
-
   for (j=0; j<N; ++j)
     {
       mblob[j].blob0.x = mblob[j].blob1.x + 0.5*prefstep*dxdt[0][j];
@@ -152,17 +141,11 @@ void rk4(double prefstep)
       set_blob(blobguts+j,tmpparms+j);
     }
 
-  printf("Stage 2b\n");
-
-  write_vorts(9991);
-
   vel_field();
 
   for (j=0; j<N; ++j)
     if (fabs(blobguts[j].a2-1/blobguts[j].a2)/prefstep < axisymmtol)
       th_slave(blobguts+j,tmpparms+j);
-
-  printf("Stage 2c\n");
 
   /* Half step of BCE predictor. */
 
@@ -173,8 +156,6 @@ void rk4(double prefstep)
       dy(blobguts+j,tmpparms+j,ds2[1]+j,da2[1]+j,dth[1]+j,prefstep);
     }
 
-  printf("Stage 2d\n");
-
   for (j=0; j<N; ++j)
     {
       mblob[j].blob0.x = mblob[j].blob1.x + 0.5*prefstep*dxdt[1][j];
@@ -184,10 +165,6 @@ void rk4(double prefstep)
       blobguts[j].a2   = tempguts[j].a2   + 0.5*prefstep*da2[1][j];
       set_blob(blobguts+j,tmpparms+j);
     }
-
-  printf("Stage 3\n");
-
-  write_vorts(9992);
 
   vel_field();
 
@@ -213,8 +190,6 @@ void rk4(double prefstep)
       blobguts[j].a2   = tempguts[j].a2   + prefstep*da2[2][j];
       set_blob(blobguts+j,tmpparms+j);
     }
-
-  write_vorts(9993);
 
   vel_field();
 
@@ -245,8 +220,4 @@ void rk4(double prefstep)
 	prefstep*(da2[0][j]+2.0*da2[1][j]+2.0*da2[2][j]+da2[3][j])/6.0;
       set_blob(blobguts+j,tmpparms+j);
     }
-
-  printf("Stage 4\n");
-
-  write_vorts(9994);
 }
