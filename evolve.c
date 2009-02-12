@@ -120,28 +120,11 @@ void run()
     {
 
       tot_cputime_ref = clock();
-      vel_cputime = 0;
-      velsum_cputime = 0;
-      veldirect_cputime = 0;
-      mp_cputime = 0;
 
       numk2 = 0;
 	
-      nsplit = 0;
-      nmerge = 0;
-	
-      /* Track second moments for Travis' forcing */
-      /*
-      old_mxx = mxx;
-      old_mxy = mxy;
-      old_myy = myy;
-      calc_moments(&mxx,&myy,&mxy);
-      */
-      /* */
-
-      oldN = N;
-
       rk4(TimeStep);
+      exit(0);
 
       SimTime += TimeStep;
 
@@ -223,9 +206,8 @@ void run()
       vel_cputime_ref = clock();
       vel_field();
       vel_cputime += clock()-vel_cputime_ref;
-
       tot_cputime = clock()-tot_cputime_ref;
-      */
+
 
       fprintf(cpu_log,"%07d %12.4e %12.4e %12.4e %12.4e %12.4e\n",
 	      N,
@@ -236,9 +218,8 @@ void run()
 	      ((double)(mp_cputime))/((double)CLOCKS_PER_SEC)
 	      );
       fflush(cpu_log);
+      */
 
-      totsplit += nsplit;
-      totmerge += nmerge;
     }  /*   end while loop  */
 
   fprintf(comp_log,"Simulation complete.\n");

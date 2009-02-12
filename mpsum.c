@@ -44,7 +44,7 @@ void vort_vort_interaction(i,j)
 		 &(blobguts[j]),
 		 &(tmpparms[j]),dx,dy,
 		 result);
-
+       
        mblob[i].blob0.dx += result[0];
        mblob[i].blob0.dy += result[1];
 

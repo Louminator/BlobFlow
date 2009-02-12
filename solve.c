@@ -141,6 +141,8 @@ void rk4(double prefstep)
       set_blob(blobguts+j,tmpparms+j);
     }
 
+  write_vorts(9990);
+
   vel_field();
 
   for (j=0; j<N; ++j)
@@ -166,6 +168,8 @@ void rk4(double prefstep)
       set_blob(blobguts+j,tmpparms+j);
     }
 
+  write_vorts(9991);
+
   vel_field();
 
   for (j=0; j<N; ++j)
@@ -190,6 +194,8 @@ void rk4(double prefstep)
       blobguts[j].a2   = tempguts[j].a2   + prefstep*da2[2][j];
       set_blob(blobguts+j,tmpparms+j);
     }
+
+  write_vorts(9992);
 
   vel_field();
 

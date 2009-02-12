@@ -34,6 +34,7 @@ Blob_parms     *parms;
 double        tmpdx,tmpdy;
 double        result[9];
 {
+  /* induced_v_asympt(the_blob,the_blobguts,parms,tmpdx,tmpdy,result); */
   induced_v_platte(the_blob,the_blobguts,parms,tmpdx,tmpdy,result);
 }
 

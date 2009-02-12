@@ -59,6 +59,13 @@ void vel_field()
 {
    int j;
 
+   vel_cputime_ref = clock();
+   vel_cputime = 0;
+   velsum_cputime = 0;
+   veldirect_cputime = 0;
+   mp_cputime = 0;
+
+
    for (j=0; j<N; ++j)
      set_blob(&(blobguts[j]),&(tmpparms[j]));
    
@@ -123,6 +130,16 @@ void vel_field()
 	 bdy_vel(mblob[j].blob0.x,mblob[j].blob0.y,
 		 &(mblob[j].blob0.dx),&(mblob[j].blob0.dy));
      }
+
+   vel_cputime += clock()-vel_cputime_ref;
+   fprintf(cpu_log,"%07d %12.4e %12.4e %12.4e %12.4e\n",
+	   N,
+	   ((double)(vel_cputime))/((double)CLOCKS_PER_SEC),
+	   ((double)(velsum_cputime))/((double)CLOCKS_PER_SEC),
+	   ((double)(veldirect_cputime))/((double)CLOCKS_PER_SEC),
+	   ((double)(mp_cputime))/((double)CLOCKS_PER_SEC)
+	   );
+   fflush(cpu_log);
 }
 
 void dpos_vel(vort)
@@ -165,6 +182,7 @@ void dpos_vel_fast(vort)
    tmpparms[vort].v_xx = 0.0;
    
    velsum_cputime_ref = clock();
+
    MP_Sum(vort,mplevels);
 
    velsum_cputime += clock()-velsum_cputime_ref;

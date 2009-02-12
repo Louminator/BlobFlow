@@ -596,7 +596,6 @@ void init(int argc, char *argv[])
   fprintf(comp_log,"Using fourth order curvature corrections.\n");
 #endif 
 
-   
 #ifdef LINEAR
   fprintf(comp_log,"Operating as a particle tracking code with a known velocity field\n");
 #endif 
