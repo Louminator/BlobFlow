@@ -124,7 +124,6 @@ void run()
       numk2 = 0;
 	
       rk4(TimeStep);
-      exit(0);
 
       SimTime += TimeStep;
 
