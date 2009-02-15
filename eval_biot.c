@@ -34,7 +34,7 @@ void eval_biot(double a, double x, double y, double phi[9])
  
   double temp;
 
-  if (a<1-1e-13)   /* a=1/a and interchange x and y */
+  if (a<1.0)   /* a=1/a and interchange x and y */
   {
 	 eval_biot(1/a, y, x, phi);
 	 /* Reorganize derivatives */
