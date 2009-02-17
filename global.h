@@ -112,7 +112,7 @@ Tensor;
 
 typedef struct
 {
-    Blob_external blob0,blob1,blob2,blob3,blob4;
+    Blob_external blob0,blob1;
 }
 Metablob;
 

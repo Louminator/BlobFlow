@@ -38,8 +38,6 @@
    Efforts to use dynamic memory allocation also fail though it is not
    at all clear why.  */
 
-Blob_external startup_blobs[3][NMAX];
-
 /* Script constants. */
 static char *inputs[] =
 {
@@ -618,14 +616,6 @@ void init(int argc, char *argv[])
   fflush(mpi_log);
   fflush(comp_log);
   fflush(diag_log);
-
-  for (i=0; i<N; ++i) 
-    { 
-      mblob[i].blob1 = mblob[i].blob0;
-      mblob[i].blob2 = mblob[i].blob0;
-      mblob[i].blob3 = mblob[i].blob0;
-      mblob[i].blob4 = mblob[i].blob0;
-    }
 
 #ifdef MULTIPROC
   /* Have only the 'root' node do the writes */
