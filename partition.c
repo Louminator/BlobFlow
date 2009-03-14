@@ -125,12 +125,29 @@ int Set_Level()
 	    maxs2 = blobguts[i].s2;
      }
    
-   /* 5 elements per cell on average. */
+   /* Minimum 5 elements per cell on average. */
+
    level1 = (int) ceil(log(N/5.0)/log(4.0));
    
    /* Using a finer mesh for merging */
 
+   /*
    level2 = (int) ceil(log(distX/2.0/sqrt(maxs2*maxa2))/log(2.0));
+
+   if (level1>level2)
+     level = level2;
+   else
+     level = level1;
+   
+   if (level > LMAX) level = LMAX;
+   if (level < 1) level = 1;
+   */
+
+   /* Choose two levels deeper than the minimum fine mesh size because 
+      the mp-sum algorithm will piece together the sub-sized regions.
+      This yields some significant savings.*/
+   level2 = (int) (2+MAX(ceil(log(distX/8.0/sqrt(maxs2*maxa2))/log(2)),
+			 ceil(log(distY/8.0/sqrt(maxs2*maxa2))/log(2))));
 
    if (level1>level2)
      level = level2;
@@ -141,7 +158,12 @@ int Set_Level()
    if (level < 1) level = 1;
 
    /* Calculate the smallest prudent grid cell. */
-   mingrid = 2.0*sqrt(maxs2*maxa2);
+   mingrid = 8.0*sqrt(maxs2*maxa2);
+
+   /* Since we are going two levels deeper, we need to reduce the size of 
+      mingrid.*/
+   mingrid /= 4.0;
+
    MGminX = cX - ldexp(1.0,level-1)*mingrid;
    MGmaxX = cX + ldexp(1.0,level-1)*mingrid;
    MGminY = cY - ldexp(1.0,level-1)*mingrid;

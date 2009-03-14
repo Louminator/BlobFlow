@@ -167,8 +167,6 @@ int vort;
 
 void dpos_vel_fast(vort)
 {
-   /* MP_Sum(vort,mplevels-2); */
-
    mblob[vort].blob0.dx = 0.0;
    mblob[vort].blob0.dy = 0.0;
 

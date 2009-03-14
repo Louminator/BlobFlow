@@ -395,11 +395,22 @@ void read_ctl()
 		    case MAX_ORDER:
 		      if (fscanf(control_file,"%d",&MaxOrder) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecation: This version does not use MAX_ORDER.\n");
+		      fprintf(diag_log,
+			      "Deprecation: If you are using a set of parameter files for the older BlobFlow\n");
+		      fprintf(diag_log,
+			      "Adams family integrators, you should consider increasing the timestep by a\n");
+		      fprintf(diag_log,
+			      "factor of 4 or more.  A factor of 8 should achieve similar precision.\n");
 		      i=inputs_size+1;
 		      break;
 		    case DTTH_DELTA:
 		      if (fscanf(control_file,"%lf",&dtth_delta) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case L2_TOL:
@@ -410,6 +421,9 @@ void read_ctl()
 		    case ALPHA:
 		      if (fscanf(control_file,"%lf",&alpha) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case SPLIT_METHOD:
@@ -420,51 +434,81 @@ void read_ctl()
 		    case MERGE_ERROR_ESTIMATOR:
 		      if (fscanf(control_file,"%d",&merge_estimator) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_BUDGET:
 		      if (fscanf(control_file,"%lf",&merge_budget) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case CLUSTER_RADIUS:
 		      if (fscanf(control_file,"%lf",&clusterR) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_STEP:
 		      if (fscanf(control_file,"%lf",&MergeStep) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_A2_TOL:
 		      if (fscanf(control_file,"%lf",&merge_a2tol) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_TH_TOL:
 		      if (fscanf(control_file,"%lf",&merge_thtol) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_MOM3_WT:
 		      if (fscanf(control_file,"%lf",&merge_mom3wt) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_MOM4_WT:
 		      if (fscanf(control_file,"%lf",&merge_mom4wt) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_C:
 		      if (fscanf(control_file,"%lf",&merge_c) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_GROWTH_RATE:
 		      if (fscanf(control_file,"%lf",&merge_growth_rate) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case BOUNDARY_STEP:
@@ -492,14 +536,7 @@ void read_ctl()
 
   fprintf(comp_log,"Approximation control parameters.\n");
   fprintf(comp_log,"%s %12.4e\n",inputs[TIME_STEP],PrefStep);
-  fprintf(comp_log,"%s %d\n",inputs[MAX_ORDER],MaxOrder);
-  fprintf(comp_log,"%s %12.4e\n",inputs[MERGE_STEP],MergeStep);
   fprintf(comp_log,"%s %12.4e\n",inputs[L2_TOL],l2tol);
-  fprintf(comp_log,"%s %12.4e\n",inputs[ALPHA],alpha);
-  fprintf(comp_log,"%s %12.4e\n",inputs[MERGE_BUDGET],merge_budget);
-  fprintf(comp_log,"%s %12.4e\n",inputs[CLUSTER_RADIUS],clusterR);
-  /*  fprintf(comp_log,"%s %12.4e\n",inputs[MERGE_A2_TOL],merge_a2tol);
-      fprintf(comp_log,"%s %12.4e\n",inputs[MERGE_TH_TOL],merge_thtol); */
   fflush(comp_log);
 }
 
