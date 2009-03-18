@@ -31,16 +31,12 @@
 #include "multiproc.h"
 #endif
 
-#undef MERGEDIAG
-
 /* This is a band-aid for the PGI compiler which seems to hit a stack
    limitation at least on our opteron system.  Using -Mbounds
    illustrates the problem.
 
    Efforts to use dynamic memory allocation also fail though it is not
    at all clear why.  */
-
-Blob_external startup_blobs[3][NMAX];
 
 /* Script constants. */
 static char *inputs[] =
@@ -72,10 +68,6 @@ static char *inputs[] =
 
   "BoundaryStep:"
 };
-
-#include "split15asym.h"
-
-/* Use a lookup table for 15 asymmetric splitting parameters.*/
 
 enum ScriptItems 
   {FRAME_STEP,END_TIME,VISCOSITY,VTX_INIT,TIME_STEP,BDY_INIT,
@@ -220,9 +212,6 @@ void read_sim()
       exit(-1);
     }
    
-  mblob[0].blob0.order = 1;
-  tmpparms[0].refinecnt = -1;
-  tmpparms[0].nint = 1;
   set_blob(&(blobguts[0]),&(tmpparms[0]));
 
   N = 1;
@@ -240,9 +229,6 @@ void read_sim()
 	  printf("Read %d numbers.\n",scan_test);
 	  exit(-1);
 	} 
-      mblob[N].blob0.order = 1;
-      tmpparms[N].refinecnt = -1;
-      tmpparms[N].nint = 1;
       set_blob(&(blobguts[N]),&(tmpparms[N]));
       ++N;
     }
@@ -349,18 +335,6 @@ void check_ctl()
 
       exit(-1);
     }
-
-  if (split_method == 3)
-    {
-      fprintf(diag_log,
-	      "Using lookup table for asymmetric 1 -> 5 splitting.\n");
-      i = (int) (100*(alpha - 0.6));
-      alpha = 0.6 + i/100.0;
-      fprintf(comp_log,
-	      "Resetting alpha to the nearest hundreth: %3.1e\n",
-	      alpha);
-      split_parm_ptr = *split15asym_parms+i*6+1;
-    }
 }
 
 void bailout_ctlfile(int i)
@@ -421,11 +395,22 @@ void read_ctl()
 		    case MAX_ORDER:
 		      if (fscanf(control_file,"%d",&MaxOrder) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecation: This version does not use MAX_ORDER.\n");
+		      fprintf(diag_log,
+			      "Deprecation: If you are using a set of parameter files for the older BlobFlow\n");
+		      fprintf(diag_log,
+			      "Adams family integrators, you should consider increasing the timestep by a\n");
+		      fprintf(diag_log,
+			      "factor of 4 or more.  A factor of 8 should achieve similar precision.\n");
 		      i=inputs_size+1;
 		      break;
 		    case DTTH_DELTA:
 		      if (fscanf(control_file,"%lf",&dtth_delta) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case L2_TOL:
@@ -436,6 +421,9 @@ void read_ctl()
 		    case ALPHA:
 		      if (fscanf(control_file,"%lf",&alpha) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case SPLIT_METHOD:
@@ -446,51 +434,81 @@ void read_ctl()
 		    case MERGE_ERROR_ESTIMATOR:
 		      if (fscanf(control_file,"%d",&merge_estimator) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_BUDGET:
 		      if (fscanf(control_file,"%lf",&merge_budget) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case CLUSTER_RADIUS:
 		      if (fscanf(control_file,"%lf",&clusterR) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_STEP:
 		      if (fscanf(control_file,"%lf",&MergeStep) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_A2_TOL:
 		      if (fscanf(control_file,"%lf",&merge_a2tol) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_TH_TOL:
 		      if (fscanf(control_file,"%lf",&merge_thtol) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_MOM3_WT:
 		      if (fscanf(control_file,"%lf",&merge_mom3wt) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_MOM4_WT:
 		      if (fscanf(control_file,"%lf",&merge_mom4wt) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_C:
 		      if (fscanf(control_file,"%lf",&merge_c) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case MERGE_GROWTH_RATE:
 		      if (fscanf(control_file,"%lf",&merge_growth_rate) != 1)
 			bailout_ctlfile(i);
+		      fprintf(diag_log,
+			      "Deprecated: %s not used in this version.\n",
+			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
 		    case BOUNDARY_STEP:
@@ -518,452 +536,8 @@ void read_ctl()
 
   fprintf(comp_log,"Approximation control parameters.\n");
   fprintf(comp_log,"%s %12.4e\n",inputs[TIME_STEP],PrefStep);
-  fprintf(comp_log,"%s %d\n",inputs[MAX_ORDER],MaxOrder);
-  fprintf(comp_log,"%s %12.4e\n",inputs[MERGE_STEP],MergeStep);
   fprintf(comp_log,"%s %12.4e\n",inputs[L2_TOL],l2tol);
-  fprintf(comp_log,"%s %12.4e\n",inputs[ALPHA],alpha);
-  fprintf(comp_log,"%s %12.4e\n",inputs[MERGE_BUDGET],merge_budget);
-  fprintf(comp_log,"%s %12.4e\n",inputs[CLUSTER_RADIUS],clusterR);
-  /*  fprintf(comp_log,"%s %12.4e\n",inputs[MERGE_A2_TOL],merge_a2tol);
-      fprintf(comp_log,"%s %12.4e\n",inputs[MERGE_TH_TOL],merge_thtol); */
   fflush(comp_log);
-}
-
-void startup_new()
-{
-  int i,j;
-  /* Blob_external *startup_blobs[3]; */
-
-  /* Storage for RK4 */
-  /* blob1 - temporary use */
-  /* blob2 - FCE */
-  /* blob3 - BCE */
-  /* blob4 - midpoint */
-
-  for (j=0; j<N; ++j)
-    startup_blobs[0][j] = mblob[j].blob0;
-  /*
-  startup_blobs[0] = malloc(NMAX*sizeof(Blob_external));
-  startup_blobs[1] = malloc(NMAX*sizeof(Blob_external));
-  startup_blobs[2] = malloc(NMAX*sizeof(Blob_external));
-  */
-
-  if (startup_blobs[0] == NULL)
-    {
-      fprintf(diag_log,"malloc failed\n");
-      fflush(diag_log);
-    }
-
-  if (startup_blobs[1] == NULL)
-    {
-      fprintf(diag_log,"malloc failed\n");
-      fflush(diag_log);
-    }
-
-  if (startup_blobs[2] == NULL)
-    {
-      fprintf(diag_log,"malloc failed\n");
-      fflush(diag_log);
-    }
-
-  /*
-  for (j=0; j<N; ++j)
-    {
-      fprintf(diag_log,"Pushing %d %d\n",j,j*sizeof(Blob_external));
-      fflush(diag_log);
-      
-      *(startup_blobs[0]+j*sizeof(Blob_external)) = mblob[j].blob0;
-    }
-  */
-
-  for (i=1; i<3; ++i)
-    {
-      /* Take a half step of RK4 */
-
-      /* Half step of FCE predictor. */
-      for (j=0; j<N; ++j)
-	mblob[j].blob1 = mblob[j].blob0;
-
-      /* Note: blob1 stores the initial velocity field at t=0. */
-
-      for (j=0; j<N; ++j)
-	{
-	  mblob[j].blob0.x = mblob[j].blob1.x + 
-	    0.25*TimeStep*mblob[j].blob1.dx;
-	  mblob[j].blob0.y = mblob[j].blob1.y + 
-	    0.25*TimeStep*mblob[j].blob1.dy;
-	}
-
-      SimTime += TimeStep/4;
-
-      vel_field();
-
-      for (j=0; j<N; ++j)
-	mblob[j].blob2 = mblob[j].blob0;
-
-      /* Half step of BCE predictor. */
-      for (j=0; j<N; ++j)
-	{
-	  mblob[j].blob0.x = mblob[j].blob1.x + 
-	    0.25*TimeStep*mblob[j].blob2.dx;
-	  mblob[j].blob0.y = mblob[j].blob1.y + 
-	    0.25*TimeStep*mblob[j].blob2.dy;
-	}
-
-      vel_field();
-
-      for (j=0; j<N; ++j)
-	mblob[j].blob3 = mblob[j].blob0;
-
-      /* Full step of midpoint rule predictor. */
-
-      for (j=0; j<N; ++j)
-	{
-	  mblob[j].blob0.x = mblob[j].blob1.x + 
-	    0.5*TimeStep*mblob[j].blob3.dx;
-	  mblob[j].blob0.y = mblob[j].blob1.y + 
-	    0.5*TimeStep*mblob[j].blob3.dy;
-	}
-
-      SimTime += TimeStep/4;
-
-      vel_field();
-
-      for (j=0; j<N; ++j)
-	mblob[j].blob4 = mblob[j].blob0;
-
-      /* Simpson's rule corrector. */
-
-      for (j=0; j<N; ++j)
-	{
-	  mblob[j].blob0.x = mblob[j].blob1.x + 
-	    0.5*TimeStep*(mblob[j].blob1.dx+2.0*mblob[j].blob2.dx+
-			  2.0*mblob[j].blob3.dx+mblob[j].blob4.dx)/6.0;
-	  mblob[j].blob0.y = mblob[j].blob1.y + 
-	    0.5*TimeStep*(mblob[j].blob1.dy+2.0*mblob[j].blob2.dy+
-			  2.0*mblob[j].blob3.dy+mblob[j].blob4.dy)/6.0;
-	}
-
-      vel_field();
-
-      /* Take a full step internally */
-      for (j=0; j<N; ++j)
-	{
-#ifdef cashkarp
-	  rkckmarch(&(blobguts[j]),&(tmpparms[j]),TimeStep,1.0e-6);
-#else
-	  internal_march(&(blobguts[j]),&(tmpparms[j]),TimeStep);
-#endif
-	}
-
-      /* Take a half step of RK4 */
-
-      /* Half step of FCE predictor. */
-      for (j=0; j<N; ++j)
-	mblob[j].blob1 = mblob[j].blob0;
-
-      /* Note: blob1 stores the initial velocity field at t=0. */
-
-      for (j=0; j<N; ++j)
-	{
-	  mblob[j].blob0.x = mblob[j].blob1.x + 
-	    0.25*TimeStep*mblob[j].blob1.dx;
-	  mblob[j].blob0.y = mblob[j].blob1.y + 
-	    0.25*TimeStep*mblob[j].blob1.dy;
-	}
-
-      SimTime += TimeStep/4;
-      vel_field();
-
-      for (j=0; j<N; ++j)
-	mblob[j].blob2 = mblob[j].blob0;
-
-      /* Half step of BCE predictor. */
-      for (j=0; j<N; ++j)
-	{
-	  mblob[j].blob0.x = mblob[j].blob1.x + 
-	    0.25*TimeStep*mblob[j].blob2.dx;
-	  mblob[j].blob0.y = mblob[j].blob1.y + 
-	    0.25*TimeStep*mblob[j].blob2.dy;
-	}
-
-      vel_field();
-
-      for (j=0; j<N; ++j)
-	mblob[j].blob3 = mblob[j].blob0;
-
-      /* Full step of midpoint rule predictor. */
-
-      for (j=0; j<N; ++j)
-	{
-	  mblob[j].blob0.x = mblob[j].blob1.x + 
-	    0.5*TimeStep*mblob[j].blob3.dx;
-	  mblob[j].blob0.y = mblob[j].blob1.y + 
-	    0.5*TimeStep*mblob[j].blob3.dy;
-	}
-
-      SimTime += TimeStep/4;
-      vel_field();
-
-      for (j=0; j<N; ++j)
-	mblob[j].blob4 = mblob[j].blob0;
-
-      /* Simpson's rule corrector. */
-
-      for (j=0; j<N; ++j)
-	{
-	  mblob[j].blob0.x = mblob[j].blob1.x + 
-	    0.5*TimeStep*(mblob[j].blob1.dx+2.0*mblob[j].blob2.dx+
-			  2.0*mblob[j].blob3.dx+mblob[j].blob4.dx)/6.0;
-	  mblob[j].blob0.y = mblob[j].blob1.y + 
-	    0.5*TimeStep*(mblob[j].blob1.dy+2.0*mblob[j].blob2.dy+
-			  2.0*mblob[j].blob3.dy+mblob[j].blob4.dy)/6.0;
-	}
-
-      vel_field();
-
-      for (j=0; j<N; ++j)
-	startup_blobs[i][j] = mblob[j].blob0;
-      /*
-      for (j=0; j<N; ++j)
-	*(startup_blobs[i]+j*sizeof(Blob_external)) = mblob[j].blob0;
-      */
-
-      /* Dump the startup positions. */
-
-      if (FrameStep == TimeStep)
-	{
-	  write_vorts(i);
-	  if (i == 3)
-	    Frame = 4;
-	}
-      else
-	write_vorts(9996+i);
-    }
-
-  /* Store startup elements back into the global variables. */
-
-  for (j=0; j<N; ++j)
-    {
-      mblob[j].blob0 = startup_blobs[2][j];
-      /*
-      mblob[j].blob0 =*(startup_blobs[2]+j*sizeof(Blob_external));
-      */
-      mblob[j].blob0.order = MaxOrder;
-      mblob[j].blob1 = startup_blobs[2][j];
-      /*
-      mblob[j].blob1 =*(startup_blobs[2]+j*sizeof(Blob_external));
-      */
-      mblob[j].blob1.order = MaxOrder;
-    }
-
-  /*
-  for (j=0; j<N; ++j)
-      mblob[j].blob2 =*(startup_blobs[1]+j*sizeof(Blob_external));
-  for (j=0; j<N; ++j)
-    mblob[j].blob3 =*(startup_blobs[0]+j*sizeof(Blob_external));
-  */
-  for (j=0; j<N; ++j)
-    {
-      mblob[j].blob2 = startup_blobs[1][j];
-      mblob[j].blob3 = startup_blobs[0][j];
-    }
-
-  /* Take a half step externally. */
-  for (j=0; j<N; ++j)
-    ab3half(&mblob[j],&tmpparms[j],TimeStep); 
-  
-  SimTime += TimeStep/2;
-  vel_field();
-
-  /* Take a full step internally */
-  
-  for (j=0; j<N; ++j)
-    {
-#ifdef cashkarp
-	  rkckmarch(&(blobguts[j]),&(tmpparms[j]),TimeStep,1.0e-6);
-#else
-	  internal_march(&(blobguts[j]),&(tmpparms[j]),TimeStep);
-#endif
-    }
-  
-  /* Take a full step externally. */
-  for (j=0; j<N; ++j)
-    ab3(&mblob[j],&tmpparms[j],TimeStep);
-  
-  SimTime += TimeStep/2;
-  vel_field();
-  
-  if (FrameStep == TimeStep)
-    {
-      write_vorts(3);
-      Frame = 4;
-    }
-  else
-    write_vorts(9999);
-
-  /*
-  free(startup_blobs[0]);
-  free(startup_blobs[1]);
-  free(startup_blobs[2]);
-  */
-}
-
-void startup()
-{
-  int i,j;
-  double saveab4dx[NMAX],saveab4dy[NMAX];
-
-  /* Take eight steps at first order. */
-  for (i=0; i<8; ++i)
-    {
-      /* All computational elements march forward with split step. */
-	
-      /* Take a half step externally. */
-      for (j=0; j<N; ++j)
-	{
-	  push(&mblob[j]);
-	     
-	  push(&mblob[j]);
-	  ab2half(&mblob[j],&tmpparms[j],TimeStep/8.0);
-	  /* ab2(&mblob[j],&tmpparms[j],TimeStep/8.0); */
-	}
-	
-      vel_field();
-	
-      /* Take a full step internally */
-	
-      for (j=0; j<N; ++j)
-	internal_march(&(blobguts[j]),&(tmpparms[j]),TimeStep/8.0);
-
-      /* Take a full step externally. */
-      for (j=0; j<N; ++j)
-	ab2(&mblob[j],&tmpparms[j],TimeStep/8.0);
-
-      SimTime += TimeStep/8.0;
-
-      vel_field();
-    }
-
-  if (FrameStep == TimeStep)
-    write_vorts(1);
-  else
-    write_vorts(9997);
-
-  /* Take four steps at second order. */
-
-  /* Advance the old velocity data because we have just doubled the
-     step size. */
-  for (j=0; j<N; ++j)
-    {
-      mblob[j].blob1.dx = mblob[j].blob2.dx;
-      mblob[j].blob1.dy = mblob[j].blob2.dy;
-    }
-
-  for (i=0; i<4; ++i)
-    {
-      /* All computational elements march forward with split step. */
-	
-      /* Take a half step externally. */
-      for (j=0; j<N; ++j)
-	{
-	  push(&mblob[j]);
-	  ab2half(&mblob[j],&tmpparms[j],TimeStep/4.0);
-	  /* ab2(&mblob[j],&tmpparms[j],TimeStep/4.0); */
-	}
-	
-      vel_field();
-	
-      /* Take a full step internally */
-	
-      for (j=0; j<N; ++j)
-	{
-	  internal_march(&(blobguts[j]),&(tmpparms[j]),TimeStep/4.0);
-	}
-
-      /* Take a full step externally. */
-      for (j=0; j<N; ++j)
-	ab2(&mblob[j],&tmpparms[j],TimeStep/4.0);
-
-      SimTime += TimeStep/4.0;
-
-      vel_field();
-    }
-
-  if (FrameStep == TimeStep)
-    write_vorts(2);
-  else
-    write_vorts(9998);
-
-  /* Take two steps at third order. */
-
-  /* Advance the old velocity data because we have just doubled the
-     step size. */
-  for (j=0; j<N; ++j)
-    {
-      mblob[j].blob1.dx = mblob[j].blob2.dx;
-      mblob[j].blob1.dy = mblob[j].blob2.dy;
-      mblob[j].blob2.dx = mblob[j].blob4.dx;
-      mblob[j].blob2.dy = mblob[j].blob4.dy;
-
-      saveab4dx[j] = mblob[j].blob4.dx;
-      saveab4dy[j] = mblob[j].blob4.dy;
-    }
-
-  for (i=0; i<2; ++i)
-    {
-      /* All computational elements march forward with split step. */
-	
-      /* Take a half step externally. */
-      for (j=0; j<N; ++j)
-	{
-	  push(&mblob[j]);
-	  ab3half(&mblob[j],&tmpparms[j],TimeStep/2.0); 
-	  /* ab3(&mblob[j],&tmpparms[j],TimeStep/2.0); */
-	}
-	
-      vel_field();
-	
-      /* Take a full step internally */
-	
-      for (j=0; j<N; ++j)
-	{
-	  internal_march(&(blobguts[j]),&(tmpparms[j]),TimeStep/2.0);
-	}
-	
-      /* Take a full step externally. */
-      for (j=0; j<N; ++j)
-	ab3(&mblob[j],&tmpparms[j],TimeStep/2.0);
-
-      SimTime += TimeStep/2.0;
-
-      numk2 = 0;
-      vel_field();
-    }
-
-  if (FrameStep == TimeStep)
-    {
-      write_vorts(3);
-      Frame = 4;
-    }
-  else
-    write_vorts(9999);
-
-  /* Advance the old velocity data because we have just doubled the
-     step size. */
-  for (j=0; j<N; ++j)
-    {
-      mblob[j].blob1.dx = mblob[j].blob2.dx;
-      mblob[j].blob1.dy = mblob[j].blob2.dy;
-      mblob[j].blob2.dx = mblob[j].blob4.dx;
-      mblob[j].blob2.dy = mblob[j].blob4.dy;
-      mblob[j].blob3.dx = saveab4dx[j];
-      mblob[j].blob3.dy = saveab4dy[j];
-
-      mblob[j].blob0.order = MaxOrder;
-    }
-
-  /* Now we can hit the trail at fourth order. */
 }
 
 void init(int argc, char *argv[]) 
@@ -1040,15 +614,8 @@ void init(int argc, char *argv[])
   fprintf(diag_log,"Initial mplevel: %d\n",mplevels);
 
   partition(mplevels);
-   
-#ifdef MERGEDIAG
-  write_pmvorts(0);
-#endif
 
-  merge();
-  resort();
-   
-  Release_Links(mplevels);
+ Release_Links(mplevels);
 
   if (B != 0)
     {
@@ -1064,7 +631,6 @@ void init(int argc, char *argv[])
   fprintf(comp_log,"Using fourth order curvature corrections.\n");
 #endif 
 
-   
 #ifdef LINEAR
   fprintf(comp_log,"Operating as a particle tracking code with a known velocity field\n");
 #endif 
@@ -1088,18 +654,6 @@ void init(int argc, char *argv[])
   fflush(comp_log);
   fflush(diag_log);
 
-#ifndef MERGECHECK
-  vel_field();
-#endif
-
-  for (i=0; i<N; ++i) 
-    { 
-      mblob[i].blob1 = mblob[i].blob0;
-      mblob[i].blob2 = mblob[i].blob0;
-      mblob[i].blob3 = mblob[i].blob0;
-      mblob[i].blob4 = mblob[i].blob0;
-    }
-
 #ifdef MULTIPROC
   /* Have only the 'root' node do the writes */
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -1111,11 +665,6 @@ void init(int argc, char *argv[])
   /* there is only one processor anyway */
   write_vorts(0);
   write_partition(0);
-#endif
-
-#ifdef MERGECHECK
-  printf("Merge events: %d\n",nmerge);
-  exit(1);
 #endif
 
   Frame = 1;
@@ -1133,11 +682,15 @@ void init(int argc, char *argv[])
     fprintf(comp_log,"No boundary conditions.\n");
   */
 
-  startup_new();
-
   nsplit   = 0;
   refinestack = 0;
   nmerge   = 0;
   totsplit = 0;
   totmerge = 0;
+
+  fprintf(comp_log,"Initialization complete.\n");
+    
+  fflush(mpi_log);
+  fflush(comp_log);
+  fflush(diag_log);
 }

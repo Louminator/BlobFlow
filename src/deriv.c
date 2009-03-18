@@ -59,6 +59,13 @@ void vel_field()
 {
    int j;
 
+   vel_cputime_ref = clock();
+   vel_cputime = 0;
+   velsum_cputime = 0;
+   veldirect_cputime = 0;
+   mp_cputime = 0;
+
+
    for (j=0; j<N; ++j)
      set_blob(&(blobguts[j]),&(tmpparms[j]));
    
@@ -123,6 +130,16 @@ void vel_field()
 	 bdy_vel(mblob[j].blob0.x,mblob[j].blob0.y,
 		 &(mblob[j].blob0.dx),&(mblob[j].blob0.dy));
      }
+
+   vel_cputime += clock()-vel_cputime_ref;
+   fprintf(cpu_log,"%07d %12.4e %12.4e %12.4e %12.4e\n",
+	   N,
+	   ((double)(vel_cputime))/((double)CLOCKS_PER_SEC),
+	   ((double)(velsum_cputime))/((double)CLOCKS_PER_SEC),
+	   ((double)(veldirect_cputime))/((double)CLOCKS_PER_SEC),
+	   ((double)(mp_cputime))/((double)CLOCKS_PER_SEC)
+	   );
+   fflush(cpu_log);
 }
 
 void dpos_vel(vort)
@@ -150,8 +167,6 @@ int vort;
 
 void dpos_vel_fast(vort)
 {
-   /* MP_Sum(vort,mplevels-2); */
-
    mblob[vort].blob0.dx = 0.0;
    mblob[vort].blob0.dy = 0.0;
 
@@ -165,6 +180,7 @@ void dpos_vel_fast(vort)
    tmpparms[vort].v_xx = 0.0;
    
    velsum_cputime_ref = clock();
+
    MP_Sum(vort,mplevels);
 
    velsum_cputime += clock()-velsum_cputime_ref;
@@ -304,14 +320,22 @@ double dta2(the_blobguts,parms)
   
 }
 
-double dtth(the_blobguts,parms)
+double dtth(the_blobguts,parms,prefstep,axisymmtol)
 Blob_internal *the_blobguts;
-Blob_parms *parms;
+Blob_parms    *parms;
+double        prefstep,axisymmtol;
 {
-  return( ((*parms).du21 - (*parms).du12)/2.0 +
-	  ( (((*parms).du21 + (*parms).du12)/2.0)*
-	    ((*parms).sin2-(*parms).cos2) +
-	    2.0*(*parms).du11*(*parms).sincos )*
-	  (1.0/(*the_blobguts).a2 + (*the_blobguts).a2)/
-	  (1.0/(*the_blobguts).a2 - (*the_blobguts).a2) );
+  double retval;
+
+  retval = ((*parms).du21 - (*parms).du12)/2.0 +
+    ( (((*parms).du21 + (*parms).du12)/2.0)*
+      ((*parms).sin2-(*parms).cos2) +
+      2.0*(*parms).du11*(*parms).sincos )*
+    (1.0/(*the_blobguts).a2 + (*the_blobguts).a2)/
+    (1.0/(*the_blobguts).a2 - (*the_blobguts).a2);
+
+  if (fabs((*the_blobguts).a2-1/(*the_blobguts).a2)/prefstep < axisymmtol)
+    return(((*parms).du21 - (*parms).du12)/2.0);
+  else
+    return(retval);
 }

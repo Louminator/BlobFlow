@@ -45,7 +45,7 @@
 #undef  LINEAR
 #undef  cashkarp
 
-#define NMAX 50000       /* Maximum number of computational elements. */
+#define NMAX 10000       /* Maximum number of computational elements. */
 #define PMAX 30          /* Maximum number of multipole coefficients. */
 #define LMAX 7           /* Maximum number of levels of refinement in 
                             multipole summation */
@@ -88,7 +88,6 @@ typedef struct
     double x,y;
     double strength;
     double dx,dy;
-    int    order;
 }
 Blob_external;
 
@@ -102,7 +101,6 @@ typedef struct
 {
   double sin2,cos2,sincos,costh,sinth,du11,du12,du21;
   double u_xx,u_xy,u_yy,v_xx;
-  int    refinecnt,nint;
 }
 Blob_parms;
 
@@ -114,7 +112,7 @@ Tensor;
 
 typedef struct
 {
-    Blob_external blob0,blob1,blob2,blob3,blob4;
+    Blob_external blob0,blob1;
 }
 Metablob;
 
@@ -198,20 +196,12 @@ extern void set_blob();
 
 extern double dta2(Blob_internal*,Blob_parms*);
 extern double dts2(Blob_internal*);
-extern double dtth(Blob_internal*,Blob_parms*);
+extern double dtth(Blob_internal*,Blob_parms*,double,double);
 
 extern Vector induced_vel();
 extern Tensor induced_veldev();
 
-extern void push();
-extern void ab2();
-extern void ab3();
-extern void ab4();
-extern void am4();
-extern void ab2half();
-extern void ab3half();
-extern void ab4half();
-extern void am4half();
+extern void rk4(double);
 extern void split14(Blob_external *, Blob_internal *, Blob_parms *,
 		    Blob_external *, Blob_internal *, Blob_parms *,
 		    Blob_external *, Blob_internal *, Blob_parms *,
@@ -299,28 +289,6 @@ extern void MP_Sum(int, int);
 extern void MP_Direct(int, int);
 extern void MP_Direct2(int, int);
 extern void MP_Direct3(int, int);
-extern void rk4internal(Blob_internal*, Blob_parms*, double);
-extern void internal_march(Blob_internal*, Blob_parms*, double);
-extern void rkckmarch(Blob_internal*, Blob_parms*, double,double);
-extern void chksplit();
-extern void split14vels(Vector*, Blob_external, Blob_internal, Blob_parms);
-extern void split14(Blob_external*, Blob_internal*, Blob_parms*,
-		    Blob_external*, Blob_internal*, Blob_parms*,
-		    Blob_external*, Blob_internal*, Blob_parms*,
-		    Blob_external*, Blob_internal*, Blob_parms*);
-extern void split15vels(Vector*, Blob_external, Blob_internal, Blob_parms);
-extern void split15(Blob_external*, Blob_internal*, Blob_parms*,
-		    Blob_external*, Blob_internal*, Blob_parms*,
-		    Blob_external*, Blob_internal*, Blob_parms*,
-		    Blob_external*, Blob_internal*, Blob_parms*,
-		    Blob_external*, Blob_internal*, Blob_parms*);
-extern void split15asymvels(Vector*, Blob_external, Blob_internal, Blob_parms, double*);
-extern void split15asym(Blob_external*, Blob_internal*, Blob_parms*,
-			Blob_external*, Blob_internal*, Blob_parms*,
-			Blob_external*, Blob_internal*, Blob_parms*,
-			Blob_external*, Blob_internal*, Blob_parms*,
-			Blob_external*, Blob_internal*, Blob_parms*, double*);
-extern void merge();
 extern void resort();
 extern void Release_Links(int);
 extern void write_vorts(int);

@@ -29,8 +29,6 @@
 #include "multiproc.h"
 #endif
 
-#undef MERGEDIAG
-
 /* Global variables */
 
 FILE *comp_log,*diag_log,*mpi_log,*cpu_log;
@@ -121,128 +119,32 @@ void run()
   while (SimTime < EndTime)
     {
 
-      /* clip(2.5); */
       tot_cputime_ref = clock();
-      vel_cputime = 0;
-      velsum_cputime = 0;
-      veldirect_cputime = 0;
-      mp_cputime = 0;
 
       numk2 = 0;
 	
-      nsplit = 0;
-      nmerge = 0;
-	
-      /* Track second moments for Travis' forcing */
-      /*
-      old_mxx = mxx;
-      old_mxy = mxy;
-      old_myy = myy;
-      calc_moments(&mxx,&myy,&mxy);
-      */
-      /* */
+      rk4(TimeStep);
 
-      oldN = N;
+      SimTime += TimeStep;
 
-      /* All computational elements march forward with split step. */
-
-      /* Take a half step externally. */
       for (j=0; j<N; ++j)
-	{
-	  push(&mblob[j]);
-	     
-	  if (mblob[j].blob0.order == 1)
-	    {
-	      push(&mblob[j]);
-	      ab2half(&mblob[j],&tmpparms[j],TimeStep);
-	    }
-	     
-	  if (mblob[j].blob0.order == 2)
-	    ab2half(&mblob[j],&tmpparms[j],TimeStep);
-	     
-	  if (mblob[j].blob0.order == 3)
-	    ab3half(&mblob[j],&tmpparms[j],TimeStep);
-	     
-	  if (mblob[j].blob0.order == 4)
-	    ab4half(&mblob[j],&tmpparms[j],TimeStep);
-	     
-	  if (blobguts[j].a2 < 0.0)
-	    {
+	if (blobguts[j].a2 < 0.0)
+	  {
+	    fprintf(diag_log,
+		    "Time: %12.4e. WARNING: Negative a2 in element %d\n",
+		    SimTime,j);
+	    for (k=0; k<N; ++k)
 	      fprintf(diag_log,
-		      "Time: %12.4e. WARNING: Negative a2 in element %d\n",
-		      SimTime,j);
-	      for (k=0; k<N; ++k)
-		fprintf(diag_log,
-			"str=%10.3e x=%10.3e y=%10.3e s2=%10.3e a2=%10.3e\n",
-			mblob[k].blob0.strength,
-			mblob[k].blob0.x,mblob[k].blob0.y,
-			blobguts[k].s2,blobguts[k].a2);
-	      exit(0); 
-	    }	     
-	}
+		      "str=%10.3e x=%10.3e y=%10.3e s2=%10.3e a2=%10.3e\n",
+		      mblob[k].blob0.strength,
+		      mblob[k].blob0.x,mblob[k].blob0.y,
+		      blobguts[k].s2,blobguts[k].a2);
+	    exit(0); 
+	  }
 
-      SimTime += TimeStep/2;
-
-      vel_cputime_ref = clock();
-      vel_field();
-      vel_cputime += clock()-vel_cputime_ref;
-
-      /* Take a full step internally */
-	
-      for (j=0; j<N; ++j)
-	{
-#ifdef cashkarp
-	  rkckmarch(&(blobguts[j]),&(tmpparms[j]),TimeStep,1.0e-5);
-#else
-	  internal_march(&(blobguts[j]),&(tmpparms[j]),TimeStep);
-#endif
-	}
-
-      /* Take a full step externally. */
-      for (j=0; j<N; ++j)
-	{
-	  if (mblob[j].blob0.order == 1)
-	    {
-	      ab2(&mblob[j],&tmpparms[j],TimeStep);
-	    }
-	     
-	  if (mblob[j].blob0.order == 2)
-	    ab2(&mblob[j],&tmpparms[j],TimeStep);
-	     
-	  if (mblob[j].blob0.order == 3)
-	    ab3(&mblob[j],&tmpparms[j],TimeStep);
-	     
-	  if (mblob[j].blob0.order == 4)
-	    ab4(&mblob[j],&tmpparms[j],TimeStep);
-	     
-	  if (mblob[j].blob0.order < MaxOrder)
-	    ++mblob[j].blob0.order;
-	     
-	  if (blobguts[j].a2 < 0.0)
-	    {
-	      fprintf(diag_log,
-		      "WARNING: Negative a2 in element %d\n",j);
-	      for (k=0; k<N; ++k)
-		fprintf(diag_log,
-			"str=%10.3e x=%10.3e y=%10.3e s2=%10.3e a2=%10.3e\n",
-			mblob[k].blob0.strength,
-			mblob[k].blob0.x,mblob[k].blob0.y,
-			blobguts[k].s2,blobguts[k].a2);
-	      exit(0); 
-	    }	     
-	}
-
-      /* Set commonly used parameters here. Beyond this point, if any  *
-       * subroutine messes with computational elements, it should also *
-       * reset the parameters.                                         */
-      for (j=0; j<N; ++j)
-	set_blob(&(blobguts[j]),&(tmpparms[j]));
-	
-      /*SimTime += TimeStep;*/
-      SimTime += TimeStep/2;
-	
-      /* Split horizontally challenged elements. */
-      chksplit();
+      /*      vel_cputime_ref = clock(); */
+      /*      vel_field(); */
+      /*      vel_cputime += clock()-vel_cputime_ref; */
 
       /* Constrain the bdy conditions */
       /*
@@ -253,31 +155,6 @@ void run()
 	  BoundaryConstrain();
 	}
       */
-
-      if ((SimTime+0.499*TimeStep) >= MergeStep*MergeFrame)
-	{
-	  mplevels = Set_Level();
-	     
-	  partition(mplevels);
-	     
-#ifdef MERGEDIAG
-#ifdef MULTIPROC
-	  /* Have only the 'root' node do the writes */
-	  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	  if (rank == 0) 
-	    write_pmvorts(Frame);
-#else
-	  write_pmvorts(Frame);
-#endif
-#endif
-	  merge();
-	  resort();
-	     
-	  Release_Links(mplevels);
-	     
-	  ++MergeFrame;
-	}
-	
       if ((SimTime+0.499*TimeStep) >= FrameStep*Frame)
 	{
 #ifdef MULTIPROC
@@ -324,11 +201,12 @@ void run()
 	  fflush(mpi_log);
 	}
 
+      /*
       vel_cputime_ref = clock();
       vel_field();
       vel_cputime += clock()-vel_cputime_ref;
-
       tot_cputime = clock()-tot_cputime_ref;
+
 
       fprintf(cpu_log,"%07d %12.4e %12.4e %12.4e %12.4e %12.4e\n",
 	      N,
@@ -339,9 +217,8 @@ void run()
 	      ((double)(mp_cputime))/((double)CLOCKS_PER_SEC)
 	      );
       fflush(cpu_log);
+      */
 
-      totsplit += nsplit;
-      totmerge += nmerge;
     }  /*   end while loop  */
 
   fprintf(comp_log,"Simulation complete.\n");

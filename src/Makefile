@@ -13,8 +13,8 @@ CC	= mpicc
 LN	= mpicc
 MPICFLAGS  = -DMULTIPROC
 else
-CC		= pgcc
-LN		= pgcc
+CC		= gcc
+LN		= gcc
 endif
 
 # Set your optional C flags here.  It depends upon your compiler and 
@@ -29,9 +29,17 @@ endif
 # This one is an example of how to change the location of Rodrigo's
 # data files at compile time.
 #COPTFLAGS	= -fast  -D'DATA_ROOT="/home/rossi/ugh/"'
+COPTFLAGS	= -O3
 
 ifeq ($(ccsvm),on)
 CCSVM   = -DCCSVM
+endif
+
+# Default libs.
+CLIBS		= -lm -llapack -lblas
+
+ifeq ($(HOSTTYPE),i686)
+CLIBS 		= -lm -llapack -lblas
 endif
 
 ifeq ($(HOSTTYPE),i386-linux)
@@ -61,8 +69,7 @@ endif
 CFLAGS = $(CCSVM) $(COPTFLAGS) $(MPICFLAGS) $(XANTISYMMCFLAGS)  
 
 OBJECTS = deriv.o evolve.o files.o flip.o init.o \
-	merge.o removal.o solve.o split.o veldev.o \
-	split14.o split15.o split15asym.o \
+	removal.o solve.o veldev.o \
 	velocity.o partition.o mpsum.o mpcoeffs.o \
 	reflect.o master-slave.o peer.o cache_resort.o \
 	stream_fn.o potential.o boundary.o\
