@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "global_matrices.h"
 
+char   datarootname[100];
 double Md1[289][700], Md2[289][700], Md3[289][700], Md4[289][700], Md5[289][700];
 double Md6[289][700], Md7[289][700], Md8[289][700], Md9[289][700], Md10[289][700];
 double Md11[289][700],Md12[289][700],Md13[289][700];
@@ -17,7 +18,7 @@ void read_data_file(char file_name[30], double data_matrix[289][700])
 
 #endif
 
-     sprintf(full_file_name,"%s%s",DATA_ROOT,file_name);
+     sprintf(full_file_name,"%s%s",datarootname,file_name);
      xfile=fopen(full_file_name,"r");
   
      for (row=0; row<289; ++row)

@@ -26,6 +26,7 @@
 /* Initialization subroutines for eflow. */
 
 #include "global.h"
+#include "global_matrices.h"
 
 #ifdef MULTIPROC
 #include "multiproc.h"
@@ -542,8 +543,53 @@ void read_ctl()
 
 void init(int argc, char *argv[]) 
 {
-  char      sim_name[FILENAME_LEN],control_name[FILENAME_LEN],temp[FILENAME_LEN],*p1;
-  int       i;
+  char      sim_name[FILENAME_LEN],control_name[FILENAME_LEN],
+    temp[FILENAME_LEN],*p1,inputdir[FILENAME_LEN],config[FILENAME_LEN];
+  int       i,inputdirread=0,configread=0,domdirread=0;
+
+   if (argc > 1)
+     {
+        for (i=1; i<argc; ++i)
+          {
+             if (strcmp(argv[i],"-inputdir") == 0)
+	       {
+		 if (i < argc-1)
+		   {
+		     strcpy(inputdir,argv[i+1]);
+		     inputdirread = 1;
+		   }
+	       }
+
+             if (strcmp(argv[i],"-config") == 0)
+	       {
+		 if (i < argc-1)
+		   {
+		     strcpy(config,argv[i+1]);
+		     configread = 1;
+		   }
+	       }
+
+             if (strcmp(argv[i],"-domdir") == 0)
+	       {
+		 if (i < argc-1)
+		   {
+		     strcpy(datarootname,argv[i+1]);
+		     domdirread = 1;
+		   }
+	       }
+          }
+
+	if (inputdirread*configread*domdirread == 0)
+	  {
+	    if (inputdirread == 0)
+	      printf("No input directory provided.\n");
+	    if (configread == 0)
+	      printf("No configuration name provided.\n");
+	    if (inputdirread == 0)
+	      printf("No dom data directory provided.\n");
+	    exit(-1);
+	  }
+     }
 
   /* Defaults */
   dtth_delta = 1.0e-3;
@@ -554,17 +600,8 @@ void init(int argc, char *argv[])
     Level_Ptr[i] = 
       malloc(sizeof(Complex)*PMAX*((int) ldexp(1.0,2*(i+1))));
  
-  p1 = getenv("ECCSVM_HOME");
-  if (p1 == NULL)
-    p1 = getenv("PWD");
-
-  else strcpy(temp,p1);
-   
-  p1 = getenv("ECCSVM_BASENAME");
-  if (p1 == NULL) 
-    sprintf(filename,"%s/%s",temp,"dipoles");
-  else 
-    sprintf(filename,"%s/%s",temp,p1);
+  sprintf(filename,"%s/%s",inputdir,config);
+	printf("%s\n",filename);
 
 #ifdef MULTIPROC
   /* set up log files with process number embedded in names */
@@ -589,6 +626,7 @@ void init(int argc, char *argv[])
   fprintf(diag_log,"Initializing.\n");
 
   fprintf(diag_log,"Reading spectral coefficients\n");
+
   read_data();
    
   fprintf(comp_log,"ECCSVM base: %s\n",filename);
@@ -615,7 +653,7 @@ void init(int argc, char *argv[])
 
   partition(mplevels);
 
- Release_Links(mplevels);
+  Release_Links(mplevels);
 
   if (B != 0)
     {
