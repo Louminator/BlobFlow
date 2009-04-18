@@ -555,7 +555,8 @@ void init(int argc, char *argv[])
 	       {
 		 if (i < argc-1)
 		   {
-		     strcpy(inputdir,argv[i+1]);
+		     ++i;
+		     strcpy(inputdir,argv[i]);
 		     inputdirread = 1;
 		   }
 	       }
@@ -564,7 +565,8 @@ void init(int argc, char *argv[])
 	       {
 		 if (i < argc-1)
 		   {
-		     strcpy(config,argv[i+1]);
+		     ++i;
+		     strcpy(config,argv[i]);
 		     configread = 1;
 		   }
 	       }
@@ -573,7 +575,8 @@ void init(int argc, char *argv[])
 	       {
 		 if (i < argc-1)
 		   {
-		     strcpy(datarootname,argv[i+1]);
+		     ++i;
+		     strcpy(datarootname,argv[i]);
 		     domdirread = 1;
 		   }
 	       }
@@ -585,10 +588,15 @@ void init(int argc, char *argv[])
 	      printf("No input directory provided.\n");
 	    if (configread == 0)
 	      printf("No configuration name provided.\n");
-	    if (inputdirread == 0)
+	    if (domdirread == 0)
 	      printf("No dom data directory provided.\n");
 	    exit(-1);
 	  }
+     }
+   else
+     {
+       printf("Usage: eflow -inputdir <dir> -config <config name> -domdir <dir>\n");
+       exit(0);
      }
 
   /* Defaults */
@@ -601,7 +609,6 @@ void init(int argc, char *argv[])
       malloc(sizeof(Complex)*PMAX*((int) ldexp(1.0,2*(i+1))));
  
   sprintf(filename,"%s/%s",inputdir,config);
-	printf("%s\n",filename);
 
 #ifdef MULTIPROC
   /* set up log files with process number embedded in names */
@@ -638,7 +645,7 @@ void init(int argc, char *argv[])
 
   fprintf(diag_log,"Reading simfile...\n");
   read_sim();
-   
+
   fprintf(diag_log,"Reading ctlfile...\n");
   read_ctl();
 
