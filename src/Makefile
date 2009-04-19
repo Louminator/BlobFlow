@@ -69,7 +69,7 @@ endif
 CFLAGS = $(CCSVM) $(COPTFLAGS) $(MPICFLAGS) $(XANTISYMMCFLAGS)  
 
 OBJECTS = deriv.o evolve.o files.o flip.o init.o \
-	removal.o solve.o veldev.o \
+	removal.o solve.o veldev.o deform.o \
 	velocity.o partition.o mpsum.o mpcoeffs.o \
 	reflect.o master-slave.o peer.o cache_resort.o \
 	stream_fn.o potential.o boundary.o\

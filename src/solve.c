@@ -23,14 +23,10 @@
  * University of Delaware                                               *
  * Newark, DE 19716                                                     */
 
-#include "global.h"
+#include "global_min.h"
+#include "particle.h"
 
 #define axisymmtol 1.0e-3
-#define stifftol 1.0e-6
-#define rk4itertol 14
-#define rk4l2errtol 1.0e-14
-#define rkckreltol 1.0e-7
-#define rkck_err_dereg 1.0e-12
 
 void set_blob(the_blobguts,parms)
 Blob_internal *the_blobguts;
@@ -221,3 +217,47 @@ void rk4(double prefstep)
       set_blob(blobguts+j,tmpparms+j);
     }
 }
+
+void euler(double prefstep)
+{
+   Blob_internal  tempguts[NMAX];
+   Blob_parms     tempparms[NMAX];
+   double         ds2[4][NMAX],da2[4][NMAX],dth[4][NMAX],
+                  dxdt[4][NMAX],dydt[4][NMAX];
+   int            j;
+
+
+  /* Note: blob1, tempparms and tempguts stores the initial velocity field at t=0. */
+
+  vel_field();
+
+  for (j=0; j<N; ++j)
+    if (fabs(blobguts[j].a2-1/blobguts[j].a2)/prefstep < axisymmtol)
+      th_slave(blobguts+j,tmpparms+j);
+
+  for (j=0; j<N; ++j)
+    {
+      mblob[j].blob1 = mblob[j].blob0;
+      tempguts[j]    = blobguts[j];
+      tempparms[j]   = tmpparms[j];
+    }
+
+  for (j=0; j<N; ++j)
+    {
+      dxdt[0][j] = mblob[j].blob0.dx;
+      dydt[0][j] = mblob[j].blob0.dy;
+      set_blob(blobguts+j,tmpparms+j);
+      dy(blobguts+j,tmpparms+j,ds2[0]+j,da2[0]+j,dth[0]+j,prefstep);
+    }
+
+  for (j=0; j<N; ++j)
+    {
+      mblob[j].blob0.x = mblob[j].blob1.x + prefstep*dxdt[0][j];
+      mblob[j].blob0.y = mblob[j].blob1.y + prefstep*dydt[0][j];
+      blobguts[j].th   = tempguts[j].th   + prefstep*dth[0][j];
+      blobguts[j].s2   = tempguts[j].s2   + prefstep*ds2[0][j];
+      blobguts[j].a2   = tempguts[j].a2   + prefstep*da2[0][j];
+      set_blob(blobguts+j,tmpparms+j);
+    }
+}
+
