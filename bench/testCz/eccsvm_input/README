@@ -2,3 +2,9 @@ make
 
 export ECCSVM_HOME=. ECCSVM_BASENAME=test
 eflow
+
+--or using the new procedure with options passed to eflow--
+eflow -inputdir . -config test -domdir $HOME/Dom_dat/
+
+mpiexec -np 2 ../../../eflow.mpi -inputdir . -config test -domdir $HOME/Dom_dat/
+

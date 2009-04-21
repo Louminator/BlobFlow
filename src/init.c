@@ -547,57 +547,68 @@ void init(int argc, char *argv[])
     temp[FILENAME_LEN],*p1,inputdir[FILENAME_LEN],config[FILENAME_LEN];
   int       i,inputdirread=0,configread=0,domdirread=0;
 
-   if (argc > 1)
-     {
-        for (i=1; i<argc; ++i)
-          {
-             if (strcmp(argv[i],"-inputdir") == 0)
-	       {
-		 if (i < argc-1)
-		   {
-		     ++i;
-		     strcpy(inputdir,argv[i]);
-		     inputdirread = 1;
-		   }
-	       }
+#ifdef MULTIPROC
+  if (rank == 0)
+    {
+#endif
+      if (argc > 1)
+	{
+	  for (i=1; i<argc; ++i)
+	    {
+	      if (strcmp(argv[i],"-inputdir") == 0)
+		{
+		  if (i < argc-1)
+		    {
+		      ++i;
+		      strcpy(inputdir,argv[i]);
+		      inputdirread = 1;
+		    }
+		}
 
-             if (strcmp(argv[i],"-config") == 0)
-	       {
-		 if (i < argc-1)
-		   {
-		     ++i;
-		     strcpy(config,argv[i]);
-		     configread = 1;
-		   }
-	       }
+	      if (strcmp(argv[i],"-config") == 0)
+		{
+		  if (i < argc-1)
+		    {
+		      ++i;
+		      strcpy(config,argv[i]);
+		      configread = 1;
+		    }
+		}
 
-             if (strcmp(argv[i],"-domdir") == 0)
-	       {
-		 if (i < argc-1)
-		   {
-		     ++i;
-		     strcpy(datarootname,argv[i]);
-		     domdirread = 1;
-		   }
-	       }
-          }
+	      if (strcmp(argv[i],"-domdir") == 0)
+		{
+		  if (i < argc-1)
+		    {
+		      ++i;
+		      strcpy(datarootname,argv[i]);
+		      domdirread = 1;
+		    }
+		}
+	    }
 
-	if (inputdirread*configread*domdirread == 0)
-	  {
-	    if (inputdirread == 0)
-	      printf("No input directory provided.\n");
-	    if (configread == 0)
-	      printf("No configuration name provided.\n");
-	    if (domdirread == 0)
-	      printf("No dom data directory provided.\n");
-	    exit(-1);
-	  }
-     }
-   else
-     {
-       printf("Usage: eflow -inputdir <dir> -config <config name> -domdir <dir>\n");
-       exit(0);
-     }
+	  if (inputdirread*configread*domdirread == 0)
+	    {
+	      if (inputdirread == 0)
+		printf("No input directory provided.\n");
+	      if (configread == 0)
+		printf("No configuration name provided.\n");
+	      if (domdirread == 0)
+		printf("No dom data directory provided.\n");
+	      exit(-1);
+	    }
+	}
+      else
+	{
+	  printf("Usage: eflow -inputdir <dir> -config <config name> -domdir <dir>\n");
+	  exit(0);
+	}
+#ifdef MULTIPROC
+    }
+
+  MPI_Bcast(inputdir,FILENAME_LEN,MPI_CHAR,0,MPI_COMM_WORLD);
+  MPI_Bcast(config,FILENAME_LEN,MPI_CHAR,0,MPI_COMM_WORLD);
+  MPI_Bcast(datarootname,FILENAME_LEN,MPI_CHAR,0,MPI_COMM_WORLD);
+#endif
 
   /* Defaults */
   dtth_delta = 1.0e-3;
