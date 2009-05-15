@@ -342,8 +342,27 @@ void Advance_Coeffs(int levels)
    int i,j,p,p1,l,size;
    Complex *Coeff_Array,*Coeff_Array_Finer,tmpz,dz[PMAX+1];
    
+#ifdef MULTIPROC
+   int start,end,rank,total_processes,buffsize;
+   Complex *Coeff_buff;
+#endif
+   
+   /* These need to be explicitly determined here for some reason.*/
+   /* Check into this later.  Without explicitly finding rank and
+      total_processes, they get wolloped for some reason */
+
+#ifdef MULTIPROC
+   MPI_Comm_size(MPI_COMM_WORLD, &total_processes);
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+#endif
+
    for (l=levels-2; l>=0; --l)
      {
+#ifdef MULTIPROC
+       buffsize = PMAX*((int) ldexp(1.0,2*(l+1)));
+       Coeff_buff = malloc(sizeof(Complex)*buffsize);
+#endif
+
 	Coeff_Array = Level_Ptr[l];
 	Coeff_Array_Finer = Level_Ptr[l+1];
 	size = ldexp(1.0,l+1);
@@ -374,6 +393,11 @@ void Advance_Coeffs(int levels)
 
 	for (i=0; i<size; ++i)
 	  for (j=0; j<size; ++j)
+#ifdef MULTIPROC
+	    /* Split up the work. */
+	    if ( ( (i*size+j) % total_processes) == rank)
+	      {
+#endif
 	    for (p=0; p<PMAX; ++p)
 	      for (p1=0; p1<=p; ++p1)
 	  {
@@ -385,6 +409,9 @@ void Advance_Coeffs(int levels)
 	       tmpz.im*C(p,p1);
 	  }
 
+#ifdef MULTIPROC
+	      }
+#endif
      	/* Lower right children */
 	
 	dz[1].re =  distX/size/4.0;
@@ -400,6 +427,11 @@ void Advance_Coeffs(int levels)
 
 	for (i=0; i<size; ++i)
 	  for (j=0; j<size; ++j)
+#ifdef MULTIPROC
+	    /* Split up the work. */
+	    if ( ( (i*size+j) % total_processes) == rank)
+	      {
+#endif
 	    for (p=0; p<PMAX; ++p)
 	      for (p1=0; p1<=p; ++p1)
 	  {
@@ -410,6 +442,9 @@ void Advance_Coeffs(int levels)
 	     (*(Coeff_Array+(i+j*size)*PMAX+p)).im +=
 	       tmpz.im*C(p,p1);
 	  }
+#ifdef MULTIPROC
+	      }
+#endif
 
      	/* Upper left children */
 	
@@ -426,6 +461,11 @@ void Advance_Coeffs(int levels)
 
 	for (i=0; i<size; ++i)
 	  for (j=0; j<size; ++j)
+#ifdef MULTIPROC
+	    /* Split up the work. */
+	    if ( ( (i*size+j) % total_processes) == rank)
+	      {
+#endif
 	    for (p=0; p<PMAX; ++p)
 	      for (p1=0; p1<=p; ++p1)
 	  {
@@ -436,6 +476,9 @@ void Advance_Coeffs(int levels)
 	     (*(Coeff_Array+(i+j*size)*PMAX+p)).im +=
 	       tmpz.im*C(p,p1);
 	  }
+#ifdef MULTIPROC
+	      }
+#endif
 
      	/* Upper right children */
 	
@@ -452,6 +495,11 @@ void Advance_Coeffs(int levels)
 
 	for (i=0; i<size; ++i)
 	  for (j=0; j<size; ++j)
+#ifdef MULTIPROC
+	    /* Split up the work. */
+	    if ( ( (i*size+j) % total_processes) == rank)
+	      {
+#endif
 	    for (p=0; p<PMAX; ++p)
 	      for (p1=0; p1<=p; ++p1)
 	  {
@@ -462,6 +510,19 @@ void Advance_Coeffs(int levels)
 	     (*(Coeff_Array+(i+j*size)*PMAX+p)).im +=
 	       tmpz.im*C(p,p1);
 	  }
+#ifdef MULTIPROC
+	      }
+#endif
+
+#ifdef MULTIPROC
+	MPI_Allreduce(Coeff_Array,Coeff_buff,2*buffsize,MPI_DOUBLE,
+		      MPI_SUM,MPI_COMM_WORLD);
+	
+	for (j=0; j<PMAX*size*size; ++j)
+	  *(Coeff_Array+j) = *(Coeff_buff+j);
+
+	free(Coeff_buff);
+#endif
      }
 }
 
