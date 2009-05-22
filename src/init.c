@@ -109,7 +109,7 @@ void bailout_simfile(int i)
   exit(-1);
 };
 
-void read_sim()
+void read_sim(char inputdir[])
 {
   char      sim_name[FILENAME_LEN],vtxfilename[FILENAME_LEN],
     bdyfilename[FILENAME_LEN]="",temp[FILENAME_LEN];
@@ -193,14 +193,9 @@ void read_sim()
   fclose(sim_file);
 
   check_sim(vtxfilename);
-   
-  p1 = getenv("ECCSVM_HOME");
-   
-  if (p1 == NULL) 
-    p1 = getenv("PWD");
 
-  sprintf(temp,"%s/%s",p1,vtxfilename);
-   
+  sprintf(temp,"%s/%s",inputdir,vtxfilename);
+
   sim_file = fopen(temp,"r");
 
   if (fscanf(sim_file,"%lf%lf%lf%lf%lf%lf",
@@ -655,7 +650,7 @@ void init(int argc, char *argv[])
   /* Read in the simulation parameters. */
 
   fprintf(diag_log,"Reading simfile...\n");
-  read_sim();
+  read_sim(inputdir);
 
   fprintf(diag_log,"Reading ctlfile...\n");
   read_ctl();
