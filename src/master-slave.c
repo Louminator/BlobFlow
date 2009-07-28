@@ -237,26 +237,26 @@ void master ( void )
 
 void slave ( void ) 
 {
-   int vort,workbuf1[WorkSize],i;  
-   double sbuf[PARTICLE_DATA_PACKET_SIZE*WorkSize];
-   MPI_Request master_req,slave_resp;
-   int position,membersize,packsize;
-   char *buffer;
+  int         vort,workbuf1[WorkSize],i,first=1;  
+  double      sbuf[PARTICLE_DATA_PACKET_SIZE*WorkSize];
+  MPI_Request master_req,slave_resp;
+  int         position,membersize,packsize;
+  char        *buffer;
    
-   /* Calculate packed buffer size */
+  /* Calculate packed buffer size */
    
-   MPI_Pack_size(WorkSize,MPI_INT,MPI_COMM_WORLD,&membersize);
-   packsize=membersize;
-   MPI_Pack_size(PARTICLE_DATA_PACKET_SIZE*WorkSize,
-		 MPI_DOUBLE,MPI_COMM_WORLD,&membersize);
-   packsize += membersize;
+  MPI_Pack_size(WorkSize,MPI_INT,MPI_COMM_WORLD,&membersize);
+  packsize=membersize;
+  MPI_Pack_size(PARTICLE_DATA_PACKET_SIZE*WorkSize,
+		MPI_DOUBLE,MPI_COMM_WORLD,&membersize);
+  packsize += membersize;
    
-   buffer = malloc(packsize);
+  buffer = malloc(packsize);
    
-   MPI_Recv_init (workbuf1, WorkSize, MPI_INT, 0, MPI_ANY_TAG, 
-		  MPI_COMM_WORLD, &master_req );
-   MPI_Send_init (buffer, packsize, MPI_PACKED, 0, 
-		  rank+RESERVED_TAGS, MPI_COMM_WORLD,&slave_resp);
+  MPI_Recv_init (workbuf1, WorkSize, MPI_INT, 0, MPI_ANY_TAG, 
+		 MPI_COMM_WORLD, &master_req );
+  MPI_Send_init (buffer, packsize, MPI_PACKED, 0, 
+		 rank+RESERVED_TAGS, MPI_COMM_WORLD,&slave_resp);
    
   while (1)
     {
@@ -270,48 +270,51 @@ void slave ( void )
 	}
 
 
-       for (i=0; i<WorkSize; ++i)
-	 {
-	    vort = workbuf1[i];
+      for (i=0; i<WorkSize; ++i)
+	{
+	  vort = workbuf1[i];
 	    
-	    /* If vort == -1, 
-	       then you do not really need to do anything. 
-	       The master will ignore any data sent.  Just send
-	       whatever is in sbuf.*/
-	    if (vort != -1)
-	      {
+	  /* If vort == -1, 
+	     then you do not really need to do anything. 
+	     The master will ignore any data sent.  Just send
+	     whatever is in sbuf.*/
+	  if (vort != -1)
+	    {
 #ifdef NOFASTMP
-		dpos_vel(vort);
+	      dpos_vel(vort);
 #else
-		dpos_vel_fast(vort);
+	      dpos_vel_fast(vort);
 #endif
-	      }
+	    }
 
-	    if (vort != -1)
-	      blob_to_buffer(&(mblob[vort].blob0),&(tmpparms[vort]),
-			     &(sbuf[i*PARTICLE_DATA_PACKET_SIZE]));
-	 }
+	  if (vort != -1)
+	    blob_to_buffer(&(mblob[vort].blob0),&(tmpparms[vort]),
+			   &(sbuf[i*PARTICLE_DATA_PACKET_SIZE]));
+	}
 
 	    
-       /* Better wait here just in case I compute faster than I thought. */
-       /* buffer must be protected. */
+      /* Better wait here just in case I compute faster than I thought. */
+      /* buffer must be protected. */
 
+      if (!first)
+	{
+	  MPI_Wait(&slave_resp,&mpistatus);
+	  first = 0;
+	}
 
-       MPI_Wait(&slave_resp,&mpistatus);
-
-       position=0;
-       MPI_Pack(workbuf1,WorkSize,MPI_INT,buffer,packsize,&position,
-		MPI_COMM_WORLD);
-       MPI_Pack(sbuf,PARTICLE_DATA_PACKET_SIZE*WorkSize,
-		MPI_DOUBLE,buffer,packsize,&position,
-		MPI_COMM_WORLD);
+      position=0;
+      MPI_Pack(workbuf1,WorkSize,MPI_INT,buffer,packsize,&position,
+	       MPI_COMM_WORLD);
+      MPI_Pack(sbuf,PARTICLE_DATA_PACKET_SIZE*WorkSize,
+	       MPI_DOUBLE,buffer,packsize,&position,
+	       MPI_COMM_WORLD);
        
-       MPI_Start(&slave_resp);
+      MPI_Start(&slave_resp);
     }
    
-   MPI_Request_free(&master_req);
-   MPI_Request_free(&slave_resp);
-   free(buffer);
+  MPI_Request_free(&master_req);
+  MPI_Request_free(&slave_resp);
+  free(buffer);
 }
 
 void finish ( void ) {
@@ -330,16 +333,16 @@ void finish ( void ) {
 
   /* If you do not trust Bcast, try this. */
   /*
-  if (rank == 0)
+    if (rank == 0)
     {
-      for (j=1; j<total_processes; ++j)
-	MPI_Send(wicked_big_vectah,N*PARTICLE_DATA_PACKET_SIZE,MPI_DOUBLE,j,
-		 RESERVED_TAGS+j,MPI_COMM_WORLD);
+    for (j=1; j<total_processes; ++j)
+    MPI_Send(wicked_big_vectah,N*PARTICLE_DATA_PACKET_SIZE,MPI_DOUBLE,j,
+    RESERVED_TAGS+j,MPI_COMM_WORLD);
     }
-  else
+    else
     MPI_Recv(wicked_big_vectah, N*PARTICLE_DATA_PACKET_SIZE, MPI_DOUBLE, 0, RESERVED_TAGS+rank,
-	     MPI_COMM_WORLD,&mpistatus);
-	     */
+    MPI_COMM_WORLD,&mpistatus);
+  */
   
   if (rank != 0)  
     {
@@ -357,13 +360,13 @@ void finish ( void ) {
 void Setup_mpi (int argc, char *argv[]) {
 
   /* initialize mpi */
-   MPI_Init(&argc,&argv);
-   MPI_Comm_size(MPI_COMM_WORLD, &total_processes);   
-   if (total_processes < 2) 
-     {       
-	fprintf(comp_log,"Expecting at least 2 processes for execution.\n");
-	stop(-100);
-     }
+  MPI_Init(&argc,&argv);
+  MPI_Comm_size(MPI_COMM_WORLD, &total_processes);   
+  if (total_processes < 2) 
+    {       
+      fprintf(comp_log,"Expecting at least 2 processes for execution.\n");
+      stop(-100);
+    }
   
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 }
