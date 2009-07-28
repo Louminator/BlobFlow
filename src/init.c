@@ -666,6 +666,12 @@ void init(int argc, char *argv[])
 
   partition(mplevels);
 
+  /* RHE_interp(3.125e-4,1.0e-6);
+
+  write_vorts(9990);
+
+  exit(-1); */
+
   Release_Links(mplevels);
 
   if (B != 0)

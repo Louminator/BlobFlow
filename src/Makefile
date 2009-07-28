@@ -73,7 +73,7 @@ OBJECTS = deriv.o evolve.o files.o flip.o init.o \
 	velocity.o partition.o mpsum.o mpcoeffs.o \
 	reflect.o master-slave.o peer.o cache_resort.o \
 	stream_fn.o potential.o boundary.o\
-	polynB.o \
+	polynB.o RHE_interp.o\
 	eval_biot.o eval_doms.o find_coeffs.o read_data.o 
 
 .PHONY: dummy
