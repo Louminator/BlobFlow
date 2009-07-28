@@ -1,0 +1,4 @@
+This is a new benchmarking test identical to testCz for testing the
+new algorithmic design.  Since the time-stepper is different, the
+TimeStep variable should be set differently.  Merging and splitting is
+no longer used, but interpolation is.
