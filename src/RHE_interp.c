@@ -630,6 +630,9 @@ void RHE_interp(double s2, double pop_control)
   int size,levels,gridn;
   int i,j,k,l,count;
 
+  mplevels = Set_Level();
+  partition(mplevels);
+
   /* CAUTION: right now the code only works at the finest level. */
   levels = mplevels;  
 
@@ -677,6 +680,8 @@ void RHE_interp(double s2, double pop_control)
   for (i=0; i<SQR(size); ++i)
     if (circs[i])
       free(circs[i]);
+
+  Release_Links(mplevels);
 
   N = count;
 }

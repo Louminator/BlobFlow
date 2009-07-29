@@ -65,7 +65,6 @@ void vel_field()
    veldirect_cputime = 0;
    mp_cputime = 0;
 
-
    for (j=0; j<N; ++j)
      set_blob(&(blobguts[j]),&(tmpparms[j]));
    

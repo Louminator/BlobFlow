@@ -67,6 +67,10 @@ static char *inputs[] =
   "MergeC:",
   "MergeGrowthRate:",
 
+  "InterpStep:",
+  "InterpPopulationControl:",
+  "InterpVar:",
+
   "BoundaryStep:"
 };
 
@@ -75,6 +79,7 @@ enum ScriptItems
  MAX_ORDER,DTTH_DELTA,L2_TOL,ALPHA,SPLIT_METHOD,MERGE_ERROR_ESTIMATOR,
  MERGE_BUDGET,MERGE_STEP,CLUSTER_RADIUS,MERGE_A2_TOL,MERGE_TH_TOL,
  MERGE_MOM3_WT,MERGE_MOM4_WT,MERGE_C,MERGE_GROWTH_RATE,
+ INTERP_STEP,INTERP_POPULATION_CONTROL,INTERP_VAR,
  BOUNDARY_STEP
 };
 
@@ -287,6 +292,8 @@ void check_ctl()
   int i;
 
   if ( (PrefStep <= 0.0) ||
+       /* These are no longer relevant. */
+       /*
        (MergeStep<FrameStep) ||
        (MaxOrder <= 0) ||
        (dtth_delta <= 0.0) ||
@@ -300,7 +307,9 @@ void check_ctl()
        ( (merge_estimator == 1) &&
 	 ( (merge_mom3wt < 0.0) || (merge_mom4wt < 0.0) ) ) ||
        ( (merge_estimator == 2) &&
-	 ( (merge_a2tol < 0.0) || (merge_thtol < 0.0) ) ) )
+	 ( (merge_a2tol < 0.0) || (merge_thtol < 0.0) ) ) ||
+       */
+       ( (InterpStep > 0.0) && (InterpVar <= 0.0 ) ) )
     {
       printf("Control file error.\n");
 
@@ -316,6 +325,8 @@ void check_ctl()
 	printf("Alpha not set properly.\n");
       if (split_method == 0)
 	printf("Split method not set properly.\n");
+      if ( (InterpStep > 0.0) && (InterpVar <= 0.0) )
+	printf("InterpVar not set properly.\n");
       if (merge_estimator == 0)
 	printf("MergeErrorEstimator not properly set.\n");
       if ( (merge_estimator == 1) &&
@@ -346,6 +357,8 @@ void read_ctl()
   int  i,inputs_size;
 
   BoundaryStep = -1.0;
+  InterpStep   = -1.0;
+  Interps      = 0;
 
   sprintf(control_name,"%s%s",filename,".ctl");
    
@@ -507,6 +520,22 @@ void read_ctl()
 			      inputs[i]);
 		      i=inputs_size+1;
 		      break;
+		    case INTERP_STEP:
+		      if (fscanf(control_file,"%lf",&InterpStep) != 1)
+			bailout_ctlfile(i);
+		      i=inputs_size+1;
+		      break;
+		    case INTERP_POPULATION_CONTROL:
+		      if (fscanf(control_file,"%lf",
+				 &InterpPopulationControl) != 1)
+			bailout_ctlfile(i);
+		      i=inputs_size+1;
+		      break;
+		    case INTERP_VAR:
+		      if (fscanf(control_file,"%lf",&InterpVar) != 1)
+			bailout_ctlfile(i);
+		      i=inputs_size+1;
+		      break;
 		    case BOUNDARY_STEP:
 		      if (fscanf(control_file,"%lf",&BoundaryStep) != 1)
 			bailout_ctlfile(i);
@@ -532,7 +561,6 @@ void read_ctl()
 
   fprintf(comp_log,"Approximation control parameters.\n");
   fprintf(comp_log,"%s %12.4e\n",inputs[TIME_STEP],PrefStep);
-  fprintf(comp_log,"%s %12.4e\n",inputs[L2_TOL],l2tol);
   fflush(comp_log);
 }
 
@@ -664,15 +692,17 @@ void init(int argc, char *argv[])
 
   fprintf(diag_log,"Initial mplevel: %d\n",mplevels);
 
+  /*
   partition(mplevels);
 
-  /* RHE_interp(3.125e-4,1.0e-6);
+  RHE_interp(3.125e-4,1.0e-6);
 
   write_vorts(9990);
 
-  exit(-1); */
+  exit(-1);
 
   Release_Links(mplevels);
+  */
 
   if (B != 0)
     {
@@ -744,6 +774,7 @@ void init(int argc, char *argv[])
   nmerge   = 0;
   totsplit = 0;
   totmerge = 0;
+  Interps  = 1;
 
   fprintf(comp_log,"Initialization complete.\n");
     

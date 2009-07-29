@@ -48,9 +48,9 @@ endif
 
 ifeq ($(HOSTTYPE),x86_64)
 # This is good with pgcc
-CLIBS 		=  -lm  -llapack -lblas -lpgftnrtl
+#CLIBS 		=  -lm  -llapack -lblas -lpgftnrtl
 # This works with gcc.
-#CLIBS 		=  -lm  -llapack -lblas
+CLIBS 		=  -lm  -llapack -lblas
 endif
 
 ifeq ($(HOSTTYPE),macintosh)
@@ -82,7 +82,7 @@ dummy:
 	$(error You must specify a target)
 
 $(TARGET): $(OBJECTS)
-	$(LN)  $(CPROF_FLAGS) -o $(TARGET) $(OBJECTS) $(CLIBS) $(LAMLIB)
+	$(LN)  $(CPROF_FLAGS) -o $(TARGET) $(OBJECTS) $(CLIBS)
 
 $(OBJECTS): global.h multiproc.h global_matrices.h
 

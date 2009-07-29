@@ -54,28 +54,6 @@ void write_vorts(frameno)
   fclose(vortex_file);
 }
 
-void write_pmvorts(frameno)
-     int frameno;
-{
-  int         i;
-  char        vortex_name[FILENAME_LEN];
-  FILE        *vortex_file,*fopen();
-   
-  sprintf(vortex_name,"%s_pm%04d%s",filename,frameno,".vtx");
-
-  vortex_file = fopen(vortex_name,"w");
-
-  for (i=0; i<N; ++i)
-      fprintf(vortex_file,"%12.4e %12.4e %12.4e %12.4e %12.4e %12.4e\n",
-	      mblob[i].blob0.x,
-	      mblob[i].blob0.y,
-	      mblob[i].blob0.strength,blobguts[i].s2,
-	      blobguts[i].a2,
-	      blobguts[i].th);
-
-  fclose(vortex_file);
-}
-
 void write_partition(frameno)
 int frameno;
 {

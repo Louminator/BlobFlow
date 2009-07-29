@@ -163,6 +163,9 @@ extern double merge_mom3wt,merge_mom4wt,clusterR,aM2;
 extern double MergeStep,merge_c,merge_growth_rate;
 extern int    merge_estimator,nsplit,nmerge,totsplit,totmerge,MergeFrame;
 
+extern double InterpStep,InterpPopulationControl,InterpVar;
+extern int    Interps;
+
 extern double BoundaryStep;
 extern int    BoundaryFrame;
 
@@ -305,6 +308,8 @@ extern Vector potential_vel(double,double);
 extern void reflect_X();
 extern void cache_resort();
 extern void vel_field();
+
+extern void RHE_interp(double,double);
 
 extern void BoundaryConstrain();
 

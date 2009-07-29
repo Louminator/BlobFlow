@@ -1,0 +1,12 @@
+This is a simulation of a Melander-Zabuski-McWilliams elliptical
+vortex (smooth top hat profile) as described in my paper with Platte
+and Mitchell.
+
+The nice thing about it is that it emits filaments.
+
+This is not exactly the same calculation as in the paper because this
+is designed for the new single step algorithm, and it uses the
+integrated RHE interpolation subroutines.  For the paper, I had to
+stop the code and do the remeshing with routines written in matlab.
+However, the solutions should be the same within the error tolerance
+of the new time-stepper.

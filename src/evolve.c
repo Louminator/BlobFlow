@@ -43,6 +43,10 @@ int       Frame,MaxOrder;
 double    merge_budget,merge_p,merge_a2tol,merge_thtol,MergeStep;
 double    merge_mom3wt,merge_mom4wt,clusterR,aM2;
 double    merge_c,merge_growth_rate;
+
+double    InterpStep,InterpPopulationControl,InterpVar;
+int       Interps;
+
 int       split_method;
 double    *split_parm_ptr;
 
@@ -122,7 +126,7 @@ void run()
       tot_cputime_ref = clock();
 
       numk2 = 0;
-	
+
       rk4(TimeStep);
 
       SimTime += TimeStep;
@@ -142,10 +146,6 @@ void run()
 	    exit(0); 
 	  }
 
-      /*      vel_cputime_ref = clock(); */
-      /*      vel_field(); */
-      /*      vel_cputime += clock()-vel_cputime_ref; */
-
       /* Constrain the bdy conditions */
       /*
       if ( (BoundaryStep > 0.0) &&
@@ -155,6 +155,13 @@ void run()
 	  BoundaryConstrain();
 	}
       */
+      if ( (InterpStep > 0.0) &&
+	   ((SimTime+0.499*TimeStep) >= InterpStep*Interps) )
+	{
+	  RHE_interp(InterpVar,InterpPopulationControl);
+	  ++Interps;
+	}
+
       if ((SimTime+0.499*TimeStep) >= FrameStep*Frame)
 	{
 #ifdef MULTIPROC
@@ -200,24 +207,6 @@ void run()
 	  fflush(diag_log);
 	  fflush(mpi_log);
 	}
-
-      /*
-      vel_cputime_ref = clock();
-      vel_field();
-      vel_cputime += clock()-vel_cputime_ref;
-      tot_cputime = clock()-tot_cputime_ref;
-
-
-      fprintf(cpu_log,"%07d %12.4e %12.4e %12.4e %12.4e %12.4e\n",
-	      N,
-	      ((double)(tot_cputime))/((double)CLOCKS_PER_SEC),
-	      ((double)(vel_cputime))/((double)CLOCKS_PER_SEC),
-	      ((double)(velsum_cputime))/((double)CLOCKS_PER_SEC),
-	      ((double)(veldirect_cputime))/((double)CLOCKS_PER_SEC),
-	      ((double)(mp_cputime))/((double)CLOCKS_PER_SEC)
-	      );
-      fflush(cpu_log);
-      */
 
     }  /*   end while loop  */
 
