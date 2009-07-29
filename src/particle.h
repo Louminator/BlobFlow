@@ -28,7 +28,7 @@
 
 #define CORRECTVEL4
 
-#define NMAX 20000       /* Maximum number of computational elements. */
+#define NMAX 25000       /* Maximum number of computational elements. */
 
 typedef struct
 {

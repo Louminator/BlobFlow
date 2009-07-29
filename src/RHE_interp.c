@@ -673,6 +673,12 @@ void RHE_interp(double s2, double pop_control)
 		  set_blob(&(blobguts[count]),&(tmpparms[count]));
 
 		  ++count;
+
+		  if (count==NMAX)
+		    {
+		      fprintf(diag_log,"Out of memory in RHE remesh.\n");
+		      fprintf(diag_log,"Time to sleep.\n");
+		    }
 		}
 	    }
       }
