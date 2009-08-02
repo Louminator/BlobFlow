@@ -31,21 +31,20 @@
 
 double normtol = 1.0e-10;
 
-double f23(a,b,c,x)
-     double a,b,c,x;
+double f23(double a, double b, double c, double x)
 {
   return((x+b/2/a)*log(a*x*x+b*x+c) + 
          sqrt(4*a*c-b*b)/a*atan((2*a*x+b)/sqrt(4*a*c-b*b)) - 2*x);
 }
 
-double f26(A,B,C,x)
-     double A,B,C,x;
+double f26(double A,double B,double C,double x)
 {
   return((x+A/B)*atan((A+B*x)/C)-C/2/B*log(1+SQR((B*x+A)/C)));
 }
 
-double f31(a,b,c,A,B,C,D,x,edgetol)
-     double a,b,c,A,B,C,D,x,edgetol;
+double f31(double a,double b,double c,
+	   double A,double B,double C,double D,
+	   double x,double edgetol)
 {
   double q,y;
 
@@ -62,8 +61,8 @@ double f31(a,b,c,A,B,C,D,x,edgetol)
   return(y);
 }
 
-double intu(a,ba,ca,bb,cb,l1,edgetol)
-     double a,ba,ca,bb,cb,l1,edgetol;
+double intu(double a,double ba,double ca,double bb,double cb,
+	    double l1,double edgetol)
 {
   double y;
   /* First half of u integral. */
@@ -85,8 +84,9 @@ double intu(a,ba,ca,bb,cb,l1,edgetol)
 
 
 
-double intv(a,ba,ca,bb,cb,Aa,Ab,B,C,D,l1,edgetol)
-     double a,ba,ca,bb,cb,Aa,Ab,B,C,D,l1,edgetol;
+double intv(double a,double ba,double ca,double bb,
+	    double cb,double Aa,double Ab,
+	    double B,double C,double D,double l1,double edgetol)
 {
   double y;
 
@@ -119,8 +119,9 @@ double intv(a,ba,ca,bb,cb,Aa,Ab,B,C,D,l1,edgetol)
 
 
 /* Calculate the effect of wall 0 on wall 1. */
-double wallflux(x1,y1,n1x,n1y,l1,x0,y0,n0x,n0y,l0)
-     double x1,y1,n1x,n1y,l1,x0,y0,n0x,n0y,l0;
+double wallflux(double x1,double y1,
+		double n1x,double n1y,double l1,
+		double x0,double y0,double n0x,double n0y,double l0)
 {
   double edgetol,uflux,vflux,flux;
   double dx,dy,A,B,C,D,Aa,Ab,a,ba,ca,bb,cb;
@@ -155,10 +156,7 @@ double wallflux(x1,y1,n1x,n1y,l1,x0,y0,n0x,n0y,l0)
 
 /* Build matrix expressing the flux into the walls induced by other
    wall elements. */
-void buildflux(walls,A,n)
-     Panel  walls[BMAX];
-     double A[BMAX][BMAX];
-     int n;
+void buildflux(Panel walls[BMAX],double A[BMAX][BMAX],int n)
 {
   int k,j;
 
@@ -173,9 +171,7 @@ void buildflux(walls,A,n)
 }
 
 /* Compute the influence of element j on position (x,y). */
-void vort_pos_interaction(j,x,y,u,v)
-     int    j;
-     double x,y,*u,*v;
+void vort_pos_interaction(int j,double x,double y,double *u,double *v)
 {
    double dx,dy;
    double result[9];
@@ -205,39 +201,8 @@ void vort_bdy_vel(double x, double y, double* u, double* v)
     vort_pos_interaction(i,x,y,u,v);
 }
 
-/* A little subroutine to calculate the phase of the vortex. */
-
-/*
-void calc_phase(mxx,myy,mzz)
-{
-  int j;
-  double *mxx,*mxy,*myy;
-
-  *mxx = *myy = *mxy = 0.0;
-
-  for (j=0; j<N; ++j)
-    {
-      *mxx += mblob0[j].strength*
-	(2.0*blobguts[j].s2*(tmpparms[j].cos2*blobguts[j].a2+
-			     tmpparms[j].sin2/blobguts[j].a2) +
-	 SQR(mblob0[j].x));
-      *myy += mblob0[j].strength*
-	(2.0*blobguts[j].s2*(tmpparms[j].sin2*blobguts[j].a2+
-			     tmpparms[j].cos2/blobguts[j].a2) +
-	 SQR(mblob0[j].y));
-      *mxy += mblob0[j].strength*
-	(2.0*blobguts[j].s2*tmpparms[j].sincos*
-	 (blobguts[j].a2-1.0/blobguts[j].a2) +
-	 mblob0[j].x*mblob0[j].y);
-    }
-}
-*/
-
 /* Calculate the flux out of the walls from the fluid flow. */
-void vort_panel_flux(wall,b,n,k)
-     Panel  wall[BMAX];
-     double b[BMAX];
-     int    n,k;
+void vort_panel_flux(Panel wall[BMAX],double b[NMAX],int n,int k)
 {
   double u,v,tmpu,tmpv,x,y;
   int    j;
@@ -276,21 +241,10 @@ void vort_panel_flux(wall,b,n,k)
 
   b[k] = tmpu*wall[k].nx+tmpv*wall[k].ny;
       
-  /* Code to include forcing for Travis' experiments. */
-  /*
-  int m=3;
-  double phase;
-  
-  b[k] = += 
-  */
-
 }
 
 #ifdef MULTIPROC  
-void buildrhs_master(wall,b,n)
-     Panel  wall[BMAX];
-     double b[BMAX];
-     int    n;
+void buildrhs_master(Panel wall[BMAX],double b[BMAX],int n)
 {
   int flag,k,proc=1,recvd;
   
@@ -318,10 +272,7 @@ void buildrhs_master(wall,b,n)
   MPI_Bcast (b, B, MPI_DOUBLE, 0, MPI_COMM_WORLD );
 }
 
-void buildrhs_slave(wall,b,n)
-     Panel  wall[BMAX];
-     double b[BMAX];
-     int    n;
+void buildrhs_slave(Panel wall[BMAX],double b[BMAX],int n)
 {
   int iters,leftover,worksize,k,index;
 
@@ -347,10 +298,7 @@ void buildrhs_slave(wall,b,n)
 #endif
 
 /* Calculate the flux out of the walls from the fluid flow. */
-void buildrhs(wall,b,n)
-     Panel  wall[BMAX];
-     double b[BMAX];
-     int    n;
+void buildrhs(Panel wall[BMAX],double b[BMAX],int n)
 {
   int    k;
 
@@ -367,10 +315,7 @@ void buildrhs(wall,b,n)
 #endif
 }
 
-void factor_bdy_matrix(walls,ipiv,A)
-     Panel  walls[BMAX];
-     double A[BMAX][BMAX];
-     int    ipiv[BMAX];
+void factor_bdy_matrix(Panel walls[BMAX],int ipiv[BMAX],double A[BMAX][BMAX])
 {
 #ifndef NOBOUNDARY
   int info,lda=BMAX,n=B;
@@ -383,10 +328,7 @@ void factor_bdy_matrix(walls,ipiv,A)
 #endif
 }
 
-void solve_bdy_matrix(walls,ipiv,A)
-     Panel  walls[BMAX];
-     double A[BMAX][BMAX];
-     int    ipiv[BMAX];
+void solve_bdy_matrix(Panel walls[BMAX],int ipiv[BMAX],double A[BMAX][BMAX])
 {
   double b[BMAX];
   int k;
@@ -406,8 +348,7 @@ void solve_bdy_matrix(walls,ipiv,A)
     walls[k].m = b[k];
 }     
 
-void bdy_vel(x,y,u,v)
-     double x, y, *u, *v;
+void bdy_vel(double x,double y,double *u,double *v)
 {
   int k;
   double dx,dy,xt,yt,ut,vt;

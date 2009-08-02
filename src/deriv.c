@@ -141,8 +141,7 @@ void vel_field()
    fflush(cpu_log);
 }
 
-void dpos_vel(vort)
-int vort;
+void dpos_vel(int vort)
 {
    int i;
     
@@ -164,7 +163,7 @@ int vort;
    potential_flow(vort);
 }
 
-void dpos_vel_fast(vort)
+void dpos_vel_fast(int vort)
 {
    mblob[vort].blob0.dx = 0.0;
    mblob[vort].blob0.dy = 0.0;

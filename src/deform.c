@@ -26,15 +26,12 @@
 #include "global_min.h"
 #include "particle.h"
 
-double dts2(the_blobguts)
-     Blob_internal *the_blobguts;
+double dts2(Blob_internal *the_blobguts)
 {
   return((visc/2.0)*( (*the_blobguts).a2 + 1.0/(*the_blobguts).a2 ) );
 }
 
-double dta2(the_blobguts,parms)
-     Blob_internal *the_blobguts;
-     Blob_parms *parms;
+double dta2(Blob_internal *the_blobguts,Blob_parms *parms)
 {
   double base,tmpa2,thresh,out;
 
@@ -59,10 +56,8 @@ double dta2(the_blobguts,parms)
   
 }
 
-double dtth(the_blobguts,parms,prefstep,axisymmtol)
-Blob_internal *the_blobguts;
-Blob_parms    *parms;
-double        prefstep,axisymmtol;
+double dtth(Blob_internal *the_blobguts,Blob_parms *parms,
+	    double prefstep,double axisymmtol)
 {
   double retval;
 
