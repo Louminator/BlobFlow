@@ -27,12 +27,9 @@
 #include <math.h>
 #include "global.h"
 
-Tensor induced_veldev(the_blob,the_blobguts,parms,tmpdx,tmpdy,r,t)
-Blob_external *the_blob;
-Blob_internal *the_blobguts;
-Blob_parms *parms;
-double tmpdx,tmpdy;
-double r[5],t[5];
+Tensor induced_veldev(Blob_external *the_blob,Blob_internal *the_blobguts,
+		      Blob_parms *parms,double tmpdx,double tmpdy,
+		      r[5],t[5])
 {
    double eps,dx,dy;
    double evena[5],odda[5],evenb[5],oddb[5],evenc[5],oddc[5],

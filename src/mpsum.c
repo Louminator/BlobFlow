@@ -27,8 +27,7 @@
 
 #include "global.h"
 
-void vort_vort_interaction(i,j)
-     int i,j;
+void vort_vort_interaction(int i,int j)
 {
    double dx,dy;
    Tensor a;

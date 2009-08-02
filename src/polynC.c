@@ -44,8 +44,7 @@
 /* This is an exact velocity field for a perturbed linear vortex with a 
    turnover time of 4. */
 
-void dpos_vel_linear(vort)
-int vort;
+void dpos_vel_linear(int vort)
 {
   double x,y,r2;
   double U,V,Ux,Uy,Vx,Vy;
@@ -147,10 +146,8 @@ int vort;
 
 }
 
-Vector dpos_vel_gen_linear(pos,the_blobguts,parms)
-     Vector    pos;
-     Blob_internal the_blobguts;
-     Blob_parms parms;
+Vector dpos_vel_gen_linear(Vector pos,Blob_internal the_blobguts,
+			   Blob_parms parms)
 {
   Vector v;
 

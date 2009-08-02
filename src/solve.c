@@ -28,9 +28,7 @@
 
 #define axisymmtol 1.0e-3
 
-void set_blob(the_blobguts,parms)
-Blob_internal *the_blobguts;
-Blob_parms *parms;
+void set_blob(Blob_internal *the_blobguts,Blob_parms *parms)
 {
     (*parms).costh = cos((*the_blobguts).th);
     (*parms).sinth = sin((*the_blobguts).th);
@@ -39,9 +37,7 @@ Blob_parms *parms;
     (*parms).sincos = (*parms).sinth*(*parms).costh;
 }
 
-void th_slave(blobguts,parms)
-Blob_internal *blobguts;
-Blob_parms     *parms;
+void th_slave(Blob_internal *blobguts,Blob_parms *parms)
 {
   double eps,th1;
 
@@ -73,19 +69,14 @@ Blob_parms     *parms;
   set_blob(blobguts,parms);
 }
 
-void dy_slave(blobguts,parms,ds2,da2)
-Blob_internal *blobguts;
-Blob_parms     *parms;
-double        *ds2,*da2;
+void dy_slave(Blob_internal *blobguts,Blob_parms *parms,double *ds2,double *da2)
 {
   *ds2 = dts2(blobguts);
   *da2 = dta2(blobguts,parms);
 }
 
-void dy(blobguts,parms,ds2,da2,dth,prefstep)
-Blob_internal *blobguts;
-Blob_parms     *parms;
-double        *ds2,*da2,*dth,prefstep;
+void dy(Blob_internal *blobguts,Blob_parms *parms,
+	double *ds2,double *da2,double *dth,double prefstep)
 {
   *dth = dtth(blobguts,parms,prefstep,axisymmtol);
   *ds2 = dts2(blobguts);

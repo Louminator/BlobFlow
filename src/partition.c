@@ -47,9 +47,7 @@ int C(int n, int k)
    return(sum);
 }
 
-Complex cpowi(c,n)
-Complex c;
-int     n;
+Complex cpowi(Complex c,int n)
 {
    int     i;
    Complex result;
@@ -62,8 +60,7 @@ int     n;
    return(result);
 }
 
-Complex cmult(c1,c2)
-Complex c1,c2;
+Complex cmult(Complex c1,Complex c2)
 {
    Complex result;
    

@@ -33,8 +33,7 @@
 
 #include "global.h"
 
-void write_vorts(frameno)
-     int frameno;
+void write_vorts(int frameno)
 {
   int         i;
   char        vortex_name[FILENAME_LEN];
@@ -54,8 +53,7 @@ void write_vorts(frameno)
   fclose(vortex_file);
 }
 
-void write_partition(frameno)
-int frameno;
+void write_partition(int frameno)
 {
    int i,l;
    char grid_name[FILENAME_LEN];

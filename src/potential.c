@@ -28,8 +28,7 @@
 #include "global.h"
 
 /* Enter potential flow field information here. */
-Vector potential_vel(x,y)
-     double x,y;
+Vector potential_vel(double x,double y)
 {
   Vector v;
 
@@ -39,9 +38,7 @@ Vector potential_vel(x,y)
   return(v);
 }
 
-void potential_flow(vort)
-     int vort;
-
+void potential_flow(int vort)
 {
   Vector v;
 

@@ -39,46 +39,46 @@
 #define correction2 1.0
 #define correction3 0.0
 
-double fxx(x,y,r2,s2,oneminusdecay,decay)
-     double x,y,r2,s2,oneminusdecay,decay;
+double fxx(double x,double y,double r2,double s2,
+	   double oneminusdecay,double decay)
 {
   return((2*x*x*y/r2/r2/s2-0.5*y/r2/s2+0.25*x*x*y/r2/s2/s2)*decay+
 	 (-8*x*x*y/r2/r2/r2 + 2*y/r2/r2)*oneminusdecay);
 }
 
-double fyy(x,y,r2,s2,oneminusdecay,decay)
-     double x,y,r2,s2,oneminusdecay,decay;
+double fyy(double x,double y,double r2,double s2,
+	   double oneminusdecay,double decay)
 {
   return((-1.5*y/r2/s2+2*y*y*y/r2/r2/s2+0.25*y*y*y/r2/s2/s2)*decay +
 	 (6*y/r2/r2-8*y*y*y/r2/r2/r2)*oneminusdecay);
 }
 
-double fxxx(x,y,r2,s2,oneminusdecay,decay)
-     double x,y,r2,s2,oneminusdecay,decay;
+double fxxx(double x,double y,double r2,double s2,
+	    double oneminusdecay,double decay)
 {
   return((-12*y*x*x*x/r2/r2/r2/s2+6*x*y/r2/r2/s2-1.5*x*x*x*y/r2/r2/s2/s2+
 	  0.75*x*y/r2/s2/s2-0.125*x*x*x*y/r2/s2/s2/s2)*decay+
 	 24*(2*x*x*x*y/r2/r2/r2/r2-x*y/r2/r2/r2)*oneminusdecay);
 }
 
-double fxxy(x,y,r2,s2,oneminusdecay,decay)
-     double x,y,r2,s2,oneminusdecay,decay;
+double fxxy(double x,double y,double r2,double s2,
+	    double oneminusdecay,double decay)
 {
   return((-12*x*x*y*y/r2/r2/r2/s2-1.5*x*x*y*y/r2/r2/s2/s2+
 	  2/r2/s2-0.5/r2/s2+0.25/s2/s2-0.125*x*x*y*y/r2/s2/s2/s2)*decay+
 	 2*(-4/r2/r2+24*x*x*y*y/r2/r2/r2/r2+1/r2/r2)*oneminusdecay);
 }
 
-double fyyy(x,y,r2,s2,oneminusdecay,decay)
-     double x,y,r2,s2,oneminusdecay,decay;
+double fyyy(double x,double y,double r2,double s2,
+	    double oneminusdecay,double decay)
 {
   return((12*y*y/r2/r2/s2-1.5/r2/s2+1.5*y*y/r2/s2/s2-12*y*y*y*y/r2/r2/r2/s2-
 	  1.5*y*y*y*y/r2/r2/s2/s2-0.125*y*y*y*y/r2/s2/s2/s2)*decay+
 	 6*(1/r2/r2-8*y*y/r2/r2/r2+8*y*y*y*y/r2/r2/r2/r2)*oneminusdecay);
 }
 
-double fxxxx(x,y,r2,s2,oneminusdecay,decay)
-     double x,y,r2,s2,oneminusdecay,decay;
+double fxxxx(double x,double y,double r2,double s2,
+	     double oneminusdecay,double decay)
 {
   return((96*x*x*x*x*y/r2/r2/r2/r2/s2-
 	  72*y*x*x/r2/r2/r2/s2+
@@ -94,8 +94,8 @@ double fxxxx(x,y,r2,s2,oneminusdecay,decay)
 	     y/r2/r2/r2)*oneminusdecay);
 }
 
-double fxxxy(x,y,r2,s2,oneminusdecay,decay)
-     double x,y,r2,s2,oneminusdecay,decay;
+double fxxxy(double x,double y,double r2,double s2,
+	     double oneminusdecay,double decay)
 {
   return((96*x*x*x*y*y/r2/r2/r2/r2/s2+
 	  12*x*x*x*y*y/r2/r2/r2/s2/s2-
@@ -115,8 +115,8 @@ double fxxxy(x,y,r2,s2,oneminusdecay,decay)
 	     x/r2/r2/r2)*oneminusdecay);
 }
 
-double fxxyy(x,y,r2,s2,oneminusdecay,decay)
-     double x,y,r2,s2,oneminusdecay,decay;
+double fxxyy(double x,double y,double r2,double s2,
+	     double oneminusdecay,double decay)
 {
   return((-12*y*y*y/r2/r2/r2/s2-
 	  3*y*y*y/2/r2/r2/s2/s2-
@@ -136,8 +136,8 @@ double fxxyy(x,y,r2,s2,oneminusdecay,decay)
 	     16*x*x*y*y*y/r2/r2/r2/r2/r2)*oneminusdecay);
 }
 
-double fxyyy(x,y,r2,s2,oneminusdecay,decay)
-     double x,y,r2,s2,oneminusdecay,decay;
+double fxyyy(double x,double y,double r2,double s2,
+	     double oneminusdecay,double decay)
 {
   return((-72*x*y*y/r2/r2/r2/s2+
 	  6*x/r2/r2/s2-
@@ -153,8 +153,8 @@ double fxyyy(x,y,r2,s2,oneminusdecay,decay)
 	     16*x*y*y*y*y/r2/r2/r2/r2/r2)*oneminusdecay);
 }
 
-double fyyyy(x,y,r2,s2,oneminusdecay,decay)
-     double x,y,r2,s2,oneminusdecay,decay;
+double fyyyy(double x,double y,double r2,double s2,
+	     double oneminusdecay,double decay)
 {
   return((-120*y*y*y/r2/r2/r2/s2-
 	  15*y*y*y/r2/r2/s2/s2+
@@ -174,8 +174,7 @@ double fyyyy(x,y,r2,s2,oneminusdecay,decay)
    is used for diagnostic purposes only. */
 /* This one has a circulation of Pi. */
 
-void dpos_vel_linear(vort)
-int vort;
+void dpos_vel_linear(int vort)
 {
   double x,y,s2,r2,decay,oneminusdecay;
   double Uxx,Uyy,Uxy,Vxx,Vyy,Vxy;
@@ -291,10 +290,8 @@ int vort;
     }
 }
 
-Vector dpos_vel_gen_linear(pos,the_blobguts,parms)
-     Vector    pos;
-     Blob_internal the_blobguts;
-     Blob_parms parms;
+Vector dpos_vel_gen_linear(Vector pos,Blob_internal the_blobguts,
+			   Blob_parms parms)
 {
   Vector v;
 

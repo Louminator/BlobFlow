@@ -28,8 +28,7 @@
  #include "global.h"
 
 /* This is (3.47) of UDel Math Tech Report 2001-4 */
-double expint(c,s2,r2)
-     double c[MAXPOLYN],s2,r2;
+double expint(double c[MAXPOLYN],double s2,double r2)
 {
   double integral;
 
@@ -65,8 +64,8 @@ double expint(c,s2,r2)
   return(integral);
 }
 
-void build_rt(dx,dy,eps,r,t)
-     double dx,dy,eps,r[MAXEXP],t[MAXEXP];
+void build_rt(double dx,double dy,double eps,
+	      double r[MAXEXP],double t[MAXEXP])
 {
   int i;
 
@@ -83,8 +82,8 @@ void build_rt(dx,dy,eps,r,t)
     }
 }     
 
-void build_psiRT(dx,dy,eps,r,t,RT)
-  double dx,dy,eps,r[MAXEXP],t[MAXEXP],RT[MAXPOLYN][MAXEXP];
+void build_psiRT(double dx,double dy,double eps,
+		 double r[MAXEXP],double t[MAXEXP],double RT[MAXPOLYN][MAXEXP])
 {
   int p,m;
 

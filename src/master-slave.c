@@ -44,10 +44,7 @@
 /*  the master-slave approach yields dynamic load balancing, so if certain 
     nodes on the multicomputer are busier, they are given less work  */
 
-void blob_to_buffer(blob,parm,buffer)
-     Blob_external *blob;
-     Blob_parms     *parm;
-     double        *buffer;
+void blob_to_buffer(Blob_external *blob,Blob_parms *parm,double *buffer)
 {
   *buffer     = (*blob).dx;
   *(buffer+1) = (*blob).dy;
@@ -60,10 +57,7 @@ void blob_to_buffer(blob,parm,buffer)
   *(buffer+8) = (*parm).v_xx;
 }
 
-void buffer_to_blob(buffer,blob,parm)
-     Blob_external *blob;
-     Blob_parms     *parm;
-     double        *buffer;
+void buffer_to_blob(double *buffer,Blob_external *blob,Blob_parms *parm)
 {
   (*blob).dx   = *buffer;
   (*blob).dy   = *(buffer+1);
