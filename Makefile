@@ -24,7 +24,7 @@ $(TARGET):
 	cd src && $(MAKE) TARGET=../$(TARGET) ../$(TARGET)
 
 clean:
-	rm -f eflow.*
+#	rm -f eflow.*
 	cd src && $(MAKE) clean
 
 #==============================================================================#

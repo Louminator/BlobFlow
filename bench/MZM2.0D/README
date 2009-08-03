@@ -4,9 +4,12 @@ and Mitchell.
 
 The nice thing about it is that it emits filaments.
 
-This is not exactly the same calculation as in the paper because this
-is designed for the new single step algorithm, and it uses the
-integrated RHE interpolation subroutines.  For the paper, I had to
-stop the code and do the remeshing with routines written in matlab.
-However, the solutions should be the same within the error tolerance
-of the new time-stepper.
+This is not exactly the same calculation as in the paper for two
+reasons.  First, the newest release of BlobFlow uses a single-step
+time integrator and the calculation in the paper uses a multistep time
+integrator.  Second, the newest release uses a reverse heat equation
+algorithm that is incorporated into BlobFlow whereas I was working
+with prototype for the simulation in the paper.  For the paper, I had
+to stop the code and do the remeshing with routines written in matlab.
+However, the solutions should be very close as both are resolved to a
+fine tolerance.
