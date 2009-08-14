@@ -143,6 +143,7 @@ extern Blob_internal blobguts[NMAX];
 extern Blob_parms    tmpparms[NMAX];
 extern double        visc;                       /* Physical constants */
 extern double        alpha,l2tol,dtth_delta;     /* Numerical parameters */
+extern int           xantisymm;
 
 /* Boundaries */
 extern int    B,Bpiv[BMAX];

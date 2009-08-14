@@ -29,18 +29,6 @@
 #include "multiproc.h"
 #define WorkSize 25
 
-#ifdef XANTISYMM
-#define CARDINALITY  N/2
-#else
-#define CARDINALITY  N
-#endif
-
-#ifdef CYLINDERSYMM
-#define CARDINALITY  N/2
-#else
-#define CARDINALITY  N
-#endif
-
 /*  the master-slave approach yields dynamic load balancing, so if certain 
     nodes on the multicomputer are busier, they are given less work  */
 
@@ -83,6 +71,7 @@ void master ( void )
    
    int position,msgsize,membersize,packsize;
    char *buffer[MAX_CPUS];
+   int joblimit;
    
    /* Calculate packed buffer size */
    
@@ -127,7 +116,13 @@ void master ( void )
   /* RECEIVE AND DISPATCH */
 
    proc = 0;
-   while (job < CARDINALITY) 
+
+   if (xantisymm)
+     joblimit = N/2;
+   else
+     joblimit = N;
+
+   while (job < joblimit) 
      {
 	/* MPI_Waitany(total_processes-1,mpireqs[0],&proc,&mpistatus); */
 	
@@ -156,7 +151,7 @@ void master ( void )
 	     if (vort != -1)
 	       buffer_to_blob(&(rbuf[proc][PARTICLE_DATA_PACKET_SIZE*i]),
 			      &(mblob[vort].blob0),&(tmpparms[vort]));
-	     if (job < CARDINALITY)
+	     if (job < joblimit)
 	       workbuf[i] = job;
 	     else
 	       workbuf[i] = -1;
@@ -314,11 +309,17 @@ void slave ( void )
 void finish ( void ) {
 
   int j;
+  int joblimit;
+
+  if (xantisymm)
+    joblimit = N/2;
+  else
+    joblimit = N;
 
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   
   if (rank == 0) {
-    for (j=0; j<CARDINALITY; j++) 
+    for (j=0; j<joblimit; j++) 
       blob_to_buffer(&(mblob[j].blob0),&(tmpparms[j]),
 		     &(wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j]));
   }
@@ -340,7 +341,7 @@ void finish ( void ) {
   
   if (rank != 0)  
     {
-      for (j=0; j<CARDINALITY; j++)
+      for (j=0; j<joblimit; j++)
 	buffer_to_blob(&(wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j]),
 		       &(mblob[j].blob0),&(tmpparms[j]));
     }

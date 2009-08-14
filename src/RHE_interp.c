@@ -658,7 +658,7 @@ void RHE_interp(double s2, double pop_control)
 	for (k=0; k<gridn; ++k)
 	  for (l=0; l<gridn; ++l)
 	    {
-	      if (fabs(circ[l*gridn+k])>pop_control)
+	      if (fabs(circ[l*gridn+k])/h/h>pop_control)
 		{
 		  x = minX+i*gridsize+(k+0.5)*h;
 		  y = minY+j*gridsize+(l+0.5)*h;

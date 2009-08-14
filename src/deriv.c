@@ -25,12 +25,6 @@
 
 #include "global.h"
 
-#ifdef XANTISYMM
-#define CARDINALITY  N/2
-#else
-#define CARDINALITY  N
-#endif
-
 #ifdef MULTIPROC
 #include "multiproc.h"
 #endif
@@ -68,11 +62,10 @@ void vel_field()
    for (j=0; j<N; ++j)
      set_blob(&(blobguts[j]),&(tmpparms[j]));
    
-#ifdef XANTISYMM
-   /* Double the number of computational elements by reflecting them
-    * about the x-axis. */
-   reflect_X();
-#endif 
+   if (xantisymm)
+     /* Double the number of computational elements by reflecting them
+      * about the x-axis. */
+     reflect_X();
 
    wipe_vort_vel_field();
 
@@ -98,25 +91,38 @@ void vel_field()
 #else
    /* single processor code */
 
-   for (j=0; j<CARDINALITY; ++j) 
-     { 
+   if (xantisymm)
+     for (j=0; j<N/2; ++j) 
+       { 
 #ifdef LINEAR
-       dpos_vel_linear(j);
+	 dpos_vel_linear(j);
 #else
 #ifdef NOFASTMP
-	dpos_vel(j);
+	 dpos_vel(j);
 #else
-	dpos_vel_fast(j);
+	 dpos_vel_fast(j);
 #endif
 #endif
-     }
+       }
+   else
+     for (j=0; j<N; ++j) 
+       { 
+#ifdef LINEAR
+	 dpos_vel_linear(j);
+#else
+#ifdef NOFASTMP
+	 dpos_vel(j);
+#else
+	 dpos_vel_fast(j);
+#endif
+#endif
+       }
 #endif  
    
-#ifdef XANTISYMM 
+   if (xantisymm)
    /* re-adjust */
-   N /= 2;
-#endif   
-
+     N /= 2;
+   
 #ifdef CORRECTVEL4
    correct_vel_4();
 #endif

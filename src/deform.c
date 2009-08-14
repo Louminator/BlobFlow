@@ -33,27 +33,10 @@ double dts2(Blob_internal *the_blobguts)
 
 double dta2(Blob_internal *the_blobguts,Blob_parms *parms)
 {
-  double base,tmpa2,thresh,out;
-
-  base = 2.0*( (*parms).du11*( (*parms).cos2 - (*parms).sin2 ) +
+  return(2.0*( (*parms).du11*( (*parms).cos2 - (*parms).sin2 ) +
 	       ( (*parms).du12+(*parms).du21 )*
 	       (*parms).sincos )*(*the_blobguts).a2 +
-    (visc/(2.0*(*the_blobguts).s2))*(1.0 - SQR((*the_blobguts).a2));
-
-  tmpa2 = (*the_blobguts).a2;
-  if (tmpa2<1.0) tmpa2 = 1.0/tmpa2;
-
-  thresh = 0.5*(tanh(-2.0*(tmpa2-3.0))+1.0);
-
-#ifdef A2THRESH
-  /* Put in a threshold to prevent the aspect ratio from going berzerk. */
-  out = base*thresh;
-#else
-  out = base;
-#endif
-
-  return(out);
-  
+	 (visc/(2.0*(*the_blobguts).s2))*(1.0 - SQR((*the_blobguts).a2)));
 }
 
 double dtth(Blob_internal *the_blobguts,Blob_parms *parms,

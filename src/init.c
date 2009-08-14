@@ -48,6 +48,7 @@ static char *inputs[] =
   "VtxInit:",
   "TimeStep:",
   "BdyInit:",
+  "XAntiSymmetry",
 
   "MaxOrder:",
   "DtThDelta",
@@ -70,12 +71,11 @@ static char *inputs[] =
   "InterpStep:",
   "InterpPopulationControl:",
   "InterpVar:",
-
   "BoundaryStep:"
 };
 
 enum ScriptItems 
-  {FRAME_STEP,END_TIME,VISCOSITY,VTX_INIT,TIME_STEP,BDY_INIT,
+  {FRAME_STEP,END_TIME,VISCOSITY,VTX_INIT,TIME_STEP,BDY_INIT,XANTISYMM,
  MAX_ORDER,DTTH_DELTA,L2_TOL,ALPHA,SPLIT_METHOD,MERGE_ERROR_ESTIMATOR,
  MERGE_BUDGET,MERGE_STEP,CLUSTER_RADIUS,MERGE_A2_TOL,MERGE_TH_TOL,
  MERGE_MOM3_WT,MERGE_MOM4_WT,MERGE_C,MERGE_GROWTH_RATE,
@@ -117,7 +117,8 @@ void bailout_simfile(int i)
 void read_sim(char inputdir[])
 {
   char      sim_name[FILENAME_LEN],vtxfilename[FILENAME_LEN],
-    bdyfilename[FILENAME_LEN]="",temp[FILENAME_LEN];
+    bdyfilename[FILENAME_LEN]="",temp[FILENAME_LEN],
+    xantisymmyn[5];
   FILE      *sim_file,*bdy_file;
   char      *word,*p1;
   int       i,scan_test,inputs_size;
@@ -180,6 +181,16 @@ void read_sim(char inputdir[])
 		    case BDY_INIT:
 		      if (fscanf(sim_file,"%s",bdyfilename) != 1)
 			bailout_simfile(i);
+		      i=inputs_size+1;
+		      break;
+		    case XANTISYMM:
+		      if (fscanf(sim_file,"%s",xantisymmyn) != 1)
+			bailout_simfile(i);
+		      if (strcmp(xantisymmyn,"y") ||
+			  strcmp(xantisymmyn,"yes") ||
+			  strcmp(xantisymmyn,"Y") ||
+			  strcmp(xantisymmyn,"Yes"))
+			xantisymm = 1;
 		      i=inputs_size+1;
 		      break;
 		    default:
@@ -710,9 +721,8 @@ void init(int argc, char *argv[])
       factor_bdy_matrix(walls,Bpiv,BdyMat);
     }
 
-#ifdef XANTISYMM
-  fprintf(comp_log,"X anti-symmetry imposed.\n");
-#endif 
+  if (xantisymm)
+    fprintf(comp_log,"X anti-symmetry imposed.\n");
 
 #ifdef CORRECTVEL4
   fprintf(comp_log,"Using fourth order curvature corrections.\n");
@@ -759,6 +769,7 @@ void init(int argc, char *argv[])
   BoundaryFrame=1;
   TimeStep = PrefStep;
   SimTime = 0.0;
+  xantisymm = 0;
 
   /*
   if (BoundaryStep>0.0)

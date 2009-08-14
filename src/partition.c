@@ -26,8 +26,6 @@
 #include "global.h"
 #ifdef MULTIPROC
 #include "multiproc.h"
-
-#define CARDINALITY  N
 #endif
 
 int C(int n, int k)
@@ -230,7 +228,7 @@ void partition(int levels)
 /* This subroutine is parallelized crudely assuming a symmetric system.  
    The particles are divided evenly among available CPUs. Since the
    multipole coefficients are needed for all particles even with
-   XANTISYMMETRY, CARDINALITY should always be N.  */
+   xantisymm. */
 
 void Init_Fine_Grid(int levels)
 {
@@ -270,8 +268,8 @@ void Init_Fine_Grid(int levels)
 
    Coeff_buff = malloc(sizeof(Complex)*buffsize);
 
-   start = rank*((int) CARDINALITY/total_processes);
-   end   = (rank+1)*((int) CARDINALITY/total_processes);
+   start = rank*((int) N/total_processes);
+   end   = (rank+1)*((int) N/total_processes);
    
    if (rank==total_processes-1)
      end = N;

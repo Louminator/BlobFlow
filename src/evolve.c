@@ -37,6 +37,7 @@ int N,oldN;
 Metablob mblob[NMAX];
 Blob_internal blobguts[NMAX];
 double    visc;
+int       xantisymm;
 double    alpha,l2tol,dtth_delta;
 double    TimeStep,PrefStep,FrameStep,EndTime,SimTime;
 int       Frame,MaxOrder;

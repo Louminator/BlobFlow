@@ -6,35 +6,35 @@
 #include "multiproc.h"
 #define SmallWork 5
 
-#ifdef XANTISYMM
-#define CARDINALITY  N/2
-#else
-#define CARDINALITY  N
-#endif
-
 void peer(void)
 {
    int workqueue[NMAX],worksize,donelist[NMAX];
    int i,peer_proc,dummy,more_flag,msg,count,outcount,done_flag;
+   int joblimit;
    
    MPI_Request mpireq;
+
+   if (xantisymm)
+     joblimit = N/2;
+   else
+     joblimit = N;
    
-   for (i=0; i<CARDINALITY; ++i)
+   for (i=0; i<joblimit; ++i)
      donelist[i] = 0;
    
    if (rank == 0)
      {
-	for (i=0; i<CARDINALITY/2; ++i)
+	for (i=0; i<joblimit/2; ++i)
 	  workqueue[i] = i;
-	worksize = CARDINALITY/2;
+	worksize = joblimit/2;
 	peer_proc=1;
      }
    
    if (rank == 1)
      {
-	for (i=CARDINALITY/2; i<CARDINALITY; ++i)
-	  workqueue[i-CARDINALITY/2] = i;
-	worksize = CARDINALITY-CARDINALITY/2;
+	for (i=joblimit/2; i<joblimit; ++i)
+	  workqueue[i-joblimit/2] = i;
+	worksize = joblimit-joblimit/2;
 	peer_proc=0;
      }
    
@@ -83,7 +83,7 @@ void peer(void)
    
    count = 0;
    
-   for (i=0; i<CARDINALITY; ++i)
+   for (i=0; i<joblimit; ++i)
      {
 	if (donelist[i])
 	  {
