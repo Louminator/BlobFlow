@@ -164,9 +164,6 @@ extern double merge_mom3wt,merge_mom4wt,clusterR,aM2;
 extern double MergeStep,merge_c,merge_growth_rate;
 extern int    merge_estimator,nsplit,nmerge,totsplit,totmerge,MergeFrame;
 
-extern double InterpStep,InterpPopulationControl,InterpVar;
-extern int    Interps;
-
 extern double BoundaryStep;
 extern int    BoundaryFrame;
 

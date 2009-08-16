@@ -24,6 +24,7 @@
  * Newark, DE 19715-2553                                                */
 
 #include "global.h"
+#include "field_interp.h"
 
 #ifdef MULTIPROC
 #include "multiproc.h"

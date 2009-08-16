@@ -26,6 +26,7 @@
 /* Initialization subroutines for eflow. */
 
 #include "global.h"
+#include "field_interp.h"
 #include "global_matrices.h"
 
 #ifdef MULTIPROC
@@ -46,6 +47,12 @@ static char *inputs[] =
   "EndTime:",
   "Viscosity:",
   "VtxInit:",
+  "GrdInit:",
+  "GrdX0:",
+  "GrdX1:",
+  "GrdY0:",
+  "GrdY1:",
+  "GrdNumPts:",
   "TimeStep:",
   "BdyInit:",
   "XAntiSymmetry",
@@ -75,15 +82,17 @@ static char *inputs[] =
 };
 
 enum ScriptItems 
-  {FRAME_STEP,END_TIME,VISCOSITY,VTX_INIT,TIME_STEP,BDY_INIT,XANTISYMM,
- MAX_ORDER,DTTH_DELTA,L2_TOL,ALPHA,SPLIT_METHOD,MERGE_ERROR_ESTIMATOR,
- MERGE_BUDGET,MERGE_STEP,CLUSTER_RADIUS,MERGE_A2_TOL,MERGE_TH_TOL,
- MERGE_MOM3_WT,MERGE_MOM4_WT,MERGE_C,MERGE_GROWTH_RATE,
- INTERP_STEP,INTERP_POPULATION_CONTROL,INTERP_VAR,
- BOUNDARY_STEP
-};
+  {FRAME_STEP,END_TIME,VISCOSITY,VTX_INIT,
+   GRD_INIT,GRD_X0,GRD_X1,GRD_Y0,GRD_Y1,GRD_NUM_PTS,
+   TIME_STEP,BDY_INIT,XANTISYMM,
+   MAX_ORDER,DTTH_DELTA,L2_TOL,ALPHA,SPLIT_METHOD,MERGE_ERROR_ESTIMATOR,
+   MERGE_BUDGET,MERGE_STEP,CLUSTER_RADIUS,MERGE_A2_TOL,MERGE_TH_TOL,
+   MERGE_MOM3_WT,MERGE_MOM4_WT,MERGE_C,MERGE_GROWTH_RATE,
+   INTERP_STEP,INTERP_POPULATION_CONTROL,INTERP_VAR,
+   BOUNDARY_STEP
+  };
 
-void check_sim(char *vtxfilename)
+void check_sim(char *vtxfilename,char *grdfilename)
 {
   if ( (FrameStep <= 0.0) ||
        (EndTime <= 0.0) ||
@@ -101,8 +110,9 @@ void check_sim(char *vtxfilename)
       if (visc < 0.0)
 	printf("Viscosity not set properly.\n");
       
-      if (strcmp(vtxfilename,"") == 0)
-	printf("VtxInit not set properly.\n");
+      if ( (strcmp(vtxfilename,"") == 0) &&
+	   (strcmp(grdfilename,"") == 0) )
+	printf("No initialization file set.\n");
 
       exit(-1);
     }
@@ -116,12 +126,15 @@ void bailout_simfile(int i)
 
 void read_sim(char inputdir[])
 {
-  char      sim_name[FILENAME_LEN],vtxfilename[FILENAME_LEN],
+  char      sim_name[FILENAME_LEN],vtxfilename[FILENAME_LEN]="",
+    grdfilename[FILENAME_LEN]="",
     bdyfilename[FILENAME_LEN]="",temp[FILENAME_LEN],
     xantisymmyn[5];
   FILE      *sim_file,*bdy_file;
   char      *word,*p1;
   int       i,scan_test,inputs_size;
+  double    grdX0=0.0,grdX1=0.0,grdY0=0.0,grdY1=0.0,h,*circs;
+  int       gridn=0;
    
   sprintf(sim_name,"%s%s",filename,".sim");
   fprintf(diag_log,"Reading simfile...\n");
@@ -178,6 +191,36 @@ void read_sim(char inputdir[])
 			bailout_simfile(i);
 		      i=inputs_size+1;
 		      break;
+		    case GRD_INIT:
+		      if (fscanf(sim_file,"%s",grdfilename) != 1)
+			bailout_simfile(i);
+		      i=inputs_size+1;
+		      break;
+		    case GRD_X0:
+		      if (fscanf(sim_file,"%lf",&grdX0) != 1)
+			bailout_simfile(i);
+		      i=inputs_size+1;
+		      break;
+		    case GRD_X1:
+		      if (fscanf(sim_file,"%lf",&grdX1) != 1)
+			bailout_simfile(i);
+		      i=inputs_size+1;
+		      break;
+		    case GRD_Y0:
+		      if (fscanf(sim_file,"%lf",&grdY0) != 1)
+			bailout_simfile(i);
+		      i=inputs_size+1;
+		      break;
+		    case GRD_Y1:
+		      if (fscanf(sim_file,"%lf",&grdY1) != 1)
+			bailout_simfile(i);
+		      i=inputs_size+1;
+		      break;
+		    case GRD_NUM_PTS:
+		      if (fscanf(sim_file,"%d",&gridn) != 1)
+			bailout_simfile(i);
+		      i=inputs_size+1;
+		      break;
 		    case BDY_INIT:
 		      if (fscanf(sim_file,"%s",bdyfilename) != 1)
 			bailout_simfile(i);
@@ -208,46 +251,79 @@ void read_sim(char inputdir[])
     }
   fclose(sim_file);
 
-  check_sim(vtxfilename);
+  check_sim(vtxfilename,grdfilename);
 
-  sprintf(temp,"%s/%s",inputdir,vtxfilename);
-
-  sim_file = fopen(temp,"r");
-
-  if (fscanf(sim_file,"%lf%lf%lf%lf%lf%lf",
-	     &mblob[0].blob0.x,
-	     &mblob[0].blob0.y,
-	     &mblob[0].blob0.strength,&blobguts[0].s2,
-	     &blobguts[0].a2,&blobguts[0].th) != 6)
+  if (strcmp(vtxfilename,"") != 0)
     {
-      printf("Fatal error reading initial data.\n");
-      exit(-1);
-    }
-   
-  set_blob(&(blobguts[0]),&(tmpparms[0]));
+      sprintf(temp,"%s/%s",inputdir,vtxfilename);
 
-  N = 1;
-   
-  while (!feof(sim_file))
-    {
-      scan_test = fscanf(sim_file,"%lf%lf%lf%lf%lf%lf",
-			 &mblob[N].blob0.x,
-			 &mblob[N].blob0.y,
-			 &mblob[N].blob0.strength,&blobguts[N].s2,
-			 &blobguts[N].a2,&blobguts[N].th);
-      if ( (scan_test != 6) && (scan_test > 0) )
+      sim_file = fopen(temp,"r");
+      
+      if (fscanf(sim_file,"%lf%lf%lf%lf%lf%lf",
+		 &mblob[0].blob0.x,
+		 &mblob[0].blob0.y,
+		 &mblob[0].blob0.strength,&blobguts[0].s2,
+		 &blobguts[0].a2,&blobguts[0].th) != 6)
 	{
-	  printf("Fatal error reading initial data. ");
-	  printf("Read %d numbers.\n",scan_test);
+	  printf("Fatal error reading initial data.\n");
 	  exit(-1);
-	} 
-      set_blob(&(blobguts[N]),&(tmpparms[N]));
-      ++N;
+	}
+      
+      set_blob(&(blobguts[0]),&(tmpparms[0]));
+      
+      N = 1;
+      
+      while (!feof(sim_file))
+	{
+	  scan_test = fscanf(sim_file,"%lf%lf%lf%lf%lf%lf",
+			     &mblob[N].blob0.x,
+			     &mblob[N].blob0.y,
+			     &mblob[N].blob0.strength,&blobguts[N].s2,
+			     &blobguts[N].a2,&blobguts[N].th);
+	  if ( (scan_test != 6) && (scan_test > 0) )
+	    {
+	      printf("Fatal error reading initial data. ");
+	      printf("Read %d numbers.\n",scan_test);
+	      exit(-1);
+	    } 
+	  set_blob(&(blobguts[N]),&(tmpparms[N]));
+	  ++N;
+	}
+      --N;
+   
+      fclose(sim_file);
     }
-  --N;
    
-  fclose(sim_file);
+  if (strcmp(grdfilename,"") != 0)
+    {
+      h = (grdX1-grdX0)/gridn;
+
+      if (fabs((h-(grdY1-grdY0)/gridn)/h) < 1.0e-6)
+	{
+	  fprintf(diag_log,"The initialization grid must be square.\n");
+	  exit(-1);
+	}
+
+      circs = malloc(sizeof(double)*SQR(gridn));
+
+      sprintf(temp,"%s/%s",inputdir,grdfilename);
+      sim_file = fopen(temp,"r");
+      
+      for (i=0; i<gridn*gridn; ++i)
+	if (fscanf(sim_file,"%lf",(circs+i)) != 1)
+	  {
+	    printf("Error: Expected %d values in %s, but only read %d.",
+		    SQR(gridn),grdfilename,i);
+	    exit(-1);
+	  }
    
+      fclose(sim_file);
+
+      RHE_RK4_grd_init(grdX0,grdX1,grdY0,grdY1,gridn,circs);
+
+      free(circs);
+    }
+
   if (!(strcmp(bdyfilename,"") == 0))
     {
       sprintf(temp,"%s/%s",p1,bdyfilename);
@@ -291,7 +367,10 @@ void read_sim(char inputdir[])
   fprintf(comp_log,"%s %12.4e\n",inputs[FRAME_STEP],FrameStep);
   fprintf(comp_log,"%s %12.4e\n",inputs[END_TIME],EndTime);
   fprintf(comp_log,"%s %12.4e\n",inputs[VISCOSITY],visc);
-  fprintf(comp_log,"%s %s\n",inputs[VTX_INIT],vtxfilename);
+  if (strcmp(vtxfilename,"") == 0)  
+    fprintf(comp_log,"%s %s\n",inputs[VTX_INIT],vtxfilename);
+  if (strcmp(grdfilename,"") == 0)  
+    fprintf(comp_log,"%s %s\n",inputs[GRD_INIT],grdfilename);
   fprintf(comp_log,"%d vortices read from %s.\n",N,temp);
   if (B != 0)
     fprintf(comp_log,"%d wall elements read from %s.\n",B,temp);

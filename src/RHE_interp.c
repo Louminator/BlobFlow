@@ -24,6 +24,9 @@
 
 #include "global.h"
 
+/* Interpolate blobs onto the finest multipole grid with a gridn X
+   gridn regular grid. */
+
 void interp_fine_grid (int FineGridi, int FineGridj, int levels,
 		       int gridn, double *field)
 {
@@ -175,22 +178,22 @@ double RHE_RK4(double **circs, int gridn, double s2)
 
   g1    = malloc(sizeof(field1)*SQR(size));
   if (!g1)
-    printf("g2 malloc failed.\n");
+    fprintf(diag_log,"g2 malloc failed.\n");
   g2    = malloc(sizeof(field1)*SQR(size));
   if (!g2)
-    printf("g2 malloc failed.\n");
+    fprintf(diag_log,"g2 malloc failed.\n");
   g3    = malloc(sizeof(field1)*SQR(size));
   if (!g3)
-    printf("g3 malloc failed.\n");
+    fprintf(diag_log,"g3 malloc failed.\n");
   k1    = malloc(sizeof(field1)*SQR(size));
   if (!k1)
-    printf("k1 malloc failed.\n");
+    fprintf(diag_log,"k1 malloc failed.\n");
   k2    = malloc(sizeof(field1)*SQR(size));
   if (!k2)
-    printf("k2 malloc failed.\n");
+    fprintf(diag_log,"k2 malloc failed.\n");
   k3    = malloc(sizeof(field1)*SQR(size));
   if (!k3)
-    printf("k3 malloc failed.\n");
+    fprintf(diag_log,"k3 malloc failed.\n");
 
   gridsize = (maxX-minX)/size;
 
@@ -219,7 +222,7 @@ double RHE_RK4(double **circs, int gridn, double s2)
 	/* You only need to create a new field if you want to keep the old one. */
 	field1 = malloc(sizeof(h)*SQR(gridn));
 	if (!field1)
-	  printf("field1 malloc failed.\n");
+	  fprintf(diag_log,"field1 malloc failed.\n");
 	interp_fine_grid(i, j, levels, gridn, field1);
 	circs[j*size+i] = field1;
       }
@@ -237,9 +240,9 @@ double RHE_RK4(double **circs, int gridn, double s2)
 	field1 = malloc(sizeof(h)*SQR(gridn));
 	field2 = malloc(sizeof(h)*SQR(gridn));
 	if (!field1)
-	  printf("field1 malloc failed.\n");
+	  fprintf(diag_log,"field1 malloc failed.\n");
 	if (!field2)
-	  printf("field2 malloc failed.\n");
+	  fprintf(diag_log,"field2 malloc failed.\n");
 	/* printf("%d %d\n",i,j); */
 	for (l=0; l<gridn; ++l)
 	  for (k=0; k<gridn; ++k)
@@ -333,9 +336,9 @@ double RHE_RK4(double **circs, int gridn, double s2)
 	field1 = malloc(sizeof(h)*SQR(gridn));
 	field2 = malloc(sizeof(h)*SQR(gridn));
 	if (!field1)
-	  printf("field1 malloc failed.\n");
+	  fprintf(diag_log,"field1 malloc failed.\n");
 	if (!field2)
-	  printf("field2 malloc failed.\n");
+	  fprintf(diag_log,"field2 malloc failed.\n");
 	for (l=0; l<gridn; ++l)
 	  for (k=0; k<gridn; ++k)
 	    {
@@ -427,9 +430,9 @@ double RHE_RK4(double **circs, int gridn, double s2)
 	field1 = malloc(sizeof(h)*SQR(gridn));
 	field2 = malloc(sizeof(h)*SQR(gridn));
 	if (!field1)
-	  printf("field1 malloc failed.\n");
+	  fprintf(diag_log,"field1 malloc failed.\n");
 	if (!field2)
-	  printf("field2 malloc failed.\n");
+	  fprintf(diag_log,"field2 malloc failed.\n");
 	for (l=0; l<gridn; ++l)
 	  for (k=0; k<gridn; ++k)
 	    {
@@ -520,7 +523,7 @@ double RHE_RK4(double **circs, int gridn, double s2)
 	circ = circs[j*size+i];
 	field4 = malloc(sizeof(h)*SQR(gridn));
 	if (!field4)
-	  printf("field4 malloc failed.\n");
+	  fprintf(diag_log,"field4 malloc failed.\n");
 	field1 = k1[j*size+i];
 	field2 = k2[j*size+i];
 	field3 = k3[j*size+i];
@@ -623,6 +626,161 @@ double RHE_RK4(double **circs, int gridn, double s2)
   return(h);
 }
 
+double RHE_RK4_grd_init(double X0, double X1, double Y0, double Y1,
+			int gridn, double *circs)
+
+{
+  int    i,j,k,l;
+  double h,s2;
+  double *g1,*g2,*g3,*k1,*k2,*k3;
+  double *field1,*field2,*field3,*field4;
+  double v[13];
+  double alpha;
+
+  /* CAUTION: right now the code only works at the finest level. */
+  /*  levels = mplevels;  
+      size = (int) ldexp(1.0,levels); */
+
+  h = (X1-X0)/gridn;
+
+  if (fabs((h-(Y1-Y0)/gridn)/h) < 1.0e-6)
+    {
+      fprintf(diag_log,"The initialization grid must be square.\n");
+      exit(-1);
+    }
+
+  s2 = h*h;
+
+  alpha = s2/h/h;
+
+  /* Initialize the circulations. */
+
+  /* v_1-6   = v_i-3,j...v_i+3,j */
+  /* v_7-9   = v_i,j-3...v_i,j-1 */
+  /* v_10-12 = v_i,j+1...v_i,j+3 */
+
+  /* Half step FCE */
+
+  field1 = malloc(sizeof(h)*SQR(gridn));
+  field2 = malloc(sizeof(h)*SQR(gridn));
+  if (!field1)
+    fprintf(diag_log,"field1 malloc failed.\n");
+  if (!field2)
+    fprintf(diag_log,"field2 malloc failed.\n");
+  for (l=0; l<gridn; ++l)
+    for (k=0; k<gridn; ++k)
+      {
+	fill_vec(v,k,l,gridn,NULL,circs,NULL,NULL,NULL);
+
+	*(field1+k+gridn*l) = 
+	  -alpha/180*
+	  (2*v[0] - 27*v[1] + 
+	   270*v[2] - 980*v[3] + 270*v[4] -27*v[5] + 
+	   2*v[6] + 2*v[7] - 27*v[8] + 270*v[9] + 
+	   270*v[10] - 27*v[11] + 2*v[12]);
+	
+	*(field2+k+gridn*l) = *(circs+k+gridn*l) + 
+	  0.5*(*(field1+k+gridn*l));
+      }
+  
+  k1 = field1;
+  g1 = field2;
+
+  /* Half step BCE */
+
+  field1 = malloc(sizeof(h)*SQR(gridn));
+  field2 = malloc(sizeof(h)*SQR(gridn));
+  if (!field1)
+    fprintf(diag_log,"field1 malloc failed.\n");
+  if (!field2)
+    fprintf(diag_log,"field2 malloc failed.\n");
+  for (l=0; l<gridn; ++l)
+    for (k=0; k<gridn; ++k)
+      {
+	fill_vec(v,k,l,gridn,NULL,circs,NULL,NULL,NULL);
+
+	*(field1+k+gridn*l) = 
+	  -alpha/180*
+	  (2*v[0] - 27*v[1] + 
+	   270*v[2] - 980*v[3] + 270*v[4] -27*v[5] + 
+	   2*v[6] + 2*v[7] - 27*v[8] + 270*v[9] + 
+	   270*v[10] - 27*v[11] + 2*v[12]);
+	
+	*(field2+k+gridn*l) = *(circs+k+gridn*l) + 
+	  0.5*(*(field1+k+gridn*l));
+	
+      }
+  k2 = field1;
+  g2 = field2;
+
+  /* Midpoint */
+
+  field1 = malloc(sizeof(h)*SQR(gridn));
+  field2 = malloc(sizeof(h)*SQR(gridn));
+  if (!field1)
+    fprintf(diag_log,"field1 malloc failed.\n");
+  if (!field2)
+    fprintf(diag_log,"field2 malloc failed.\n");
+  for (l=0; l<gridn; ++l)
+    for (k=0; k<gridn; ++k)
+      {
+	fill_vec(v,k,l,gridn,NULL,circs,NULL,NULL,NULL);
+	
+	*(field1+k+gridn*l) = 
+	  -alpha/180*
+	  (2*v[0] - 27*v[1] + 
+	   270*v[2] - 980*v[3] + 270*v[4] -27*v[5] + 
+	   2*v[6] + 2*v[7] - 27*v[8] + 270*v[9] + 
+	   270*v[10] - 27*v[11] + 2*v[12]);
+	
+	*(field2+k+gridn*l) = *(circs+k+gridn*l) + 
+	  (*(field1+k+gridn*l));
+      }
+  k3 = field1;
+  g3 = field2;
+
+  /* Simpsons corrector */
+
+  field4 = malloc(sizeof(h)*SQR(gridn));
+  if (!field4)
+    fprintf(diag_log,"field4 malloc failed.\n");
+  field1 = k1;
+  field2 = k2;
+  field3 = k3;
+
+  for (l=0; l<gridn; ++l)
+    for (k=0; k<gridn; ++k)
+      {
+	fill_vec(v,k,l,gridn,NULL,circs,NULL,NULL,NULL);
+
+	*(field4+k+gridn*l) = 
+	  -alpha/180*
+	  (2*v[0] - 27*v[1] + 
+	   270*v[2] - 980*v[3] + 270*v[4] -27*v[5] + 
+	   2*v[6] + 2*v[7] - 27*v[8] + 270*v[9] + 
+	   270*v[10] - 27*v[11] + 2*v[12]);
+	
+	/* Update the circulations */
+	*(circs+k+gridn*l) +=
+	  *(field1+k+gridn*l)/6 +
+	  *(field2+k+gridn*l)/3 +
+	  *(field3+k+gridn*l)/3 +
+	  *(field4+k+gridn*l)/6;
+      }
+
+  /* Don't forget to free up all these pointers. */
+
+  free(g1);
+  free(g2);
+  free(g3);
+  free(k1);
+  free(k2);
+  free(k3);
+  free(field4);
+
+  return(h);
+}
+
 void RHE_interp(double s2, double pop_control)
 {
   double **circs,*circ;
@@ -640,7 +798,7 @@ void RHE_interp(double s2, double pop_control)
 
   circs = malloc(sizeof(circ)*SQR(size));
   if (!circs)
-    printf("circ malloc failed.\n");
+    fprintf(diag_log,"circ malloc failed.\n");
 
   gridsize = (maxX-minX)/size;
 
