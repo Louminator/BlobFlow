@@ -26,5 +26,5 @@
 extern double InterpStep,InterpPopulationControl,InterpVar;
 extern int    Interps;
 
-extern void RHE_interp(double,double);
-extern void RHE_RK4_grd_init(double,double,double,double,int,double *);
+extern void   RHE_interp(double,double);
+extern double RHE_RK4_grd_init(double,double,double,double,int,double *);

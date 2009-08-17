@@ -1,0 +1,9 @@
+FrameStep: 0.1
+EndTime: 2.0
+Viscosity: 0.0e-4
+GrdInit: w.grd
+GrdX0: -1
+GrdX1: 1
+GrdY0: -1
+GrdY1: 1
+GrdNumPts: 50

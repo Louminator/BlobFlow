@@ -97,7 +97,8 @@ void check_sim(char *vtxfilename,char *grdfilename)
   if ( (FrameStep <= 0.0) ||
        (EndTime <= 0.0) ||
        (visc < 0.0) ||
-       (strcmp(vtxfilename,"") == 0) )
+       ( (strcmp(vtxfilename,"") == 0) &&
+	 (strcmp(grdfilename,"") == 0) ) )
     {
       printf("Simulation file error.\n");
 
@@ -133,11 +134,10 @@ void read_sim(char inputdir[])
   FILE      *sim_file,*bdy_file;
   char      *word,*p1;
   int       i,k,l,count,scan_test,inputs_size;
-  double    grdX0=0.0,grdX1=0.0,grdY0=0.0,grdY1=0.0,h,*circs;
+  double    grdX0=0.0,grdX1=0.0,grdY0=0.0,grdY1=0.0,h,*circs,x,y;
   int       gridn=0;
    
   sprintf(sim_name,"%s%s",filename,".sim");
-  fprintf(diag_log,"Reading simfile...\n");
   sim_file = fopen(sim_name,"r");
    
   /* ASSUME a 32-bit word. */
@@ -298,7 +298,7 @@ void read_sim(char inputdir[])
     {
       h = (grdX1-grdX0)/gridn;
 
-      if (fabs((h-(grdY1-grdY0)/gridn)/h) < 1.0e-6)
+      if (fabs((h-(grdY1-grdY0)/gridn)/h) > 1.0e-6)
 	{
 	  fprintf(diag_log,"The initialization grid must be square.\n");
 	  exit(-1);
@@ -307,15 +307,19 @@ void read_sim(char inputdir[])
       circs = malloc(sizeof(double)*SQR(gridn));
 
       sprintf(temp,"%s/%s",inputdir,grdfilename);
+
       sim_file = fopen(temp,"r");
       
       for (i=0; i<gridn*gridn; ++i)
-	if (fscanf(sim_file,"%lf",(circs+i)) != 1)
-	  {
-	    printf("Error: Expected %d values in %s, but only read %d.",
-		    SQR(gridn),grdfilename,i);
-	    exit(-1);
-	  }
+	{
+	  if (fscanf(sim_file,"%lf",(circs+i)) != 1)
+	    {
+	      printf("Error: Expected %d values in %s, but only read %d.",
+		     SQR(gridn),grdfilename,i);
+	      exit(-1);
+	    }
+	  *(circs+i) *= h*h;
+	}
    
       fclose(sim_file);
 
@@ -325,7 +329,7 @@ void read_sim(char inputdir[])
       for (k=0; k<gridn; ++k)
 	for (l=0; l<gridn; ++l)
 	  {
-	    if (fabs(circs[l*gridn+k])/h/h>pop_control)
+	    if (fabs(circs[l*gridn+k])/h/h>InterpPopulationControl)
 	      {
 		x = grdX0+(k+0.5)*h;
 		y = grdY0+(l+0.5)*h;
@@ -347,8 +351,8 @@ void read_sim(char inputdir[])
 		    fprintf(diag_log,"Time to sleep.\n");
 		  }
 	      }
+	    N = count;
 	  }
-
       free(circs);
     }
 

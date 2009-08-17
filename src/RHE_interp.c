@@ -643,7 +643,7 @@ double RHE_RK4_grd_init(double X0, double X1, double Y0, double Y1,
 
   h = (X1-X0)/gridn;
 
-  if (fabs((h-(Y1-Y0)/gridn)/h) < 1.0e-6)
+  if (fabs((h-(Y1-Y0)/gridn)/h) > 1.0e-6)
     {
       fprintf(diag_log,"The initialization grid must be square.\n");
       exit(-1);
