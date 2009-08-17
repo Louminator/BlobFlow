@@ -132,7 +132,7 @@ void read_sim(char inputdir[])
     xantisymmyn[5];
   FILE      *sim_file,*bdy_file;
   char      *word,*p1;
-  int       i,scan_test,inputs_size;
+  int       i,k,l,count,scan_test,inputs_size;
   double    grdX0=0.0,grdX1=0.0,grdY0=0.0,grdY1=0.0,h,*circs;
   int       gridn=0;
    
@@ -319,7 +319,35 @@ void read_sim(char inputdir[])
    
       fclose(sim_file);
 
-      RHE_RK4_grd_init(grdX0,grdX1,grdY0,grdY1,gridn,circs);
+      h = RHE_RK4_grd_init(grdX0,grdX1,grdY0,grdY1,gridn,circs);
+      count = 0;
+
+      for (k=0; k<gridn; ++k)
+	for (l=0; l<gridn; ++l)
+	  {
+	    if (fabs(circs[l*gridn+k])/h/h>pop_control)
+	      {
+		x = grdX0+(k+0.5)*h;
+		y = grdY0+(l+0.5)*h;
+		
+		mblob[count].blob0.x = x;
+		mblob[count].blob0.y = y;
+		mblob[count].blob0.strength = circs[l*gridn+k]/2/M_PI;
+		blobguts[count].s2 = h*h;
+		blobguts[count].a2 = 1.0;
+		blobguts[count].th = 0.0;
+		
+		set_blob(&(blobguts[count]),&(tmpparms[count]));
+
+		++count;
+
+		if (count==NMAX)
+		  {
+		    fprintf(diag_log,"Out of memory in RHE remesh.\n");
+		    fprintf(diag_log,"Time to sleep.\n");
+		  }
+	      }
+	  }
 
       free(circs);
     }
@@ -767,11 +795,13 @@ void init(int argc, char *argv[])
 
   /* Read in the simulation parameters. */
 
-  fprintf(diag_log,"Reading simfile...\n");
-  read_sim(inputdir);
-
   fprintf(diag_log,"Reading ctlfile...\n");
   read_ctl();
+
+  /* Read in the simulation parameters. */
+
+  fprintf(diag_log,"Reading simfile...\n");
+  read_sim(inputdir);
 
   fprintf(diag_log,"Finished reading files.\n");
    
