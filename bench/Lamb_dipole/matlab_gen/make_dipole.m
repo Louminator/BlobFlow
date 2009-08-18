@@ -17,7 +17,7 @@ k = fsolve(@(s) besselj(1,s*R),3.8/R);
 
 % Dipole velocity (=1).
 U = 1;
-C = - 2*U/k/besselj(0,k*R);
+C = 2*U/k/besselj(0,k*R);
 
 [xa,ya] = meshgrid(x,y);
 
@@ -37,6 +37,5 @@ end
 surf(xa,ya,wa);
 
 w = wa';
-
 w = w(:);
 save w.grd w -ASCII
