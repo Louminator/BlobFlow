@@ -46,6 +46,7 @@ static char *inputs[] =
   "FrameStep:",
   "EndTime:",
   "Viscosity:",
+
   "VtxInit:",
   "GrdInit:",
   "GrdX0:",
@@ -692,6 +693,8 @@ void init(int argc, char *argv[])
     temp[FILENAME_LEN],*p1,inputdir[FILENAME_LEN],config[FILENAME_LEN];
   int       i,inputdirread=0,configread=0,domdirread=0;
 
+  xantisymm = 0;
+
 #ifdef MULTIPROC
   if (rank == 0)
     {
@@ -882,7 +885,6 @@ void init(int argc, char *argv[])
   BoundaryFrame=1;
   TimeStep = PrefStep;
   SimTime = 0.0;
-  xantisymm = 0;
 
   /*
   if (BoundaryStep>0.0)
