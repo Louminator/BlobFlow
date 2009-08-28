@@ -45,7 +45,7 @@
 #undef  LINEAR
 #undef  cashkarp
 
-#define NMAX 25000       /* Maximum number of computational elements. */
+#define NMAX 50000       /* Maximum number of computational elements. */
 #define PMAX 30          /* Maximum number of multipole coefficients. */
 #define LMAX 7           /* Maximum number of levels of refinement in 
                             multipole summation */

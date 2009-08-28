@@ -1,0 +1,10 @@
+FrameStep: 0.1
+EndTime: 10.0
+Viscosity: 0.0e-4
+XAntiSymmetry: Y
+GrdInit: w.grd
+GrdX0: -3
+GrdX1: 3
+GrdY0: 0
+GrdY1: 6
+GrdNumPts: 150
