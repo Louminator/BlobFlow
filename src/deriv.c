@@ -24,6 +24,9 @@
  * Newark, DE 19716                                                     */
 
 #include "global.h"
+#include "particle.h"
+#include "biot-savart.h"
+#include "linear_velocity.h"
 
 #ifdef MULTIPROC
 #include "multiproc.h"

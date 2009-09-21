@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "global.h"
+#include "particle.h"
 
 Tensor induced_veldev(Blob_external *the_blob,Blob_internal *the_blobguts,
 		      Blob_parms *parms,double tmpdx,double tmpdy,

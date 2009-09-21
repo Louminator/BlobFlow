@@ -33,7 +33,8 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "global.h"
+#include "global_min.h"
+#include "particle.h"
 
 /* Clip the domain by removing elements that beyond reasonable bounds. */
 void remove_vtx(int i)

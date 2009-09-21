@@ -32,6 +32,10 @@
  * Newark, DE 19715-2553                                                */
 
 #include "global.h"
+#include "particle.h"
+
+/* We just need the data structure from the FMM code. */
+#include "biot-savart.h"
 
 void cache_resort()
 {

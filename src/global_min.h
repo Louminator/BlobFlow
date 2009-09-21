@@ -37,3 +37,27 @@
 #define MIN(A,B) ((A) < (B) ? (A) : (B))
 #define SGN(X) ((X) < (0.0) ? (-1) : (1))
 
+typedef struct
+{
+   double re,im;
+}
+Complex;
+
+typedef struct
+{
+    double x,y;
+}
+Vector;
+
+typedef struct
+{
+   double du11,du12,du21;  
+}
+Tensor;
+
+#define FILENAME_LEN 500 /* Maximum file name length */
+
+extern FILE          *comp_log,*diag_log,*mpi_log,*cpu_log;
+
+extern int           xantisymm;
+

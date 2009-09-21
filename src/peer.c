@@ -3,6 +3,8 @@
 #ifdef MULTIPROC
 
 #include "global.h"
+#include "particle.h"
+#include "biot-savart.h"
 #include "multiproc.h"
 #define SmallWork 5
 

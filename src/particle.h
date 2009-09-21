@@ -33,12 +33,6 @@
 typedef struct
 {
     double x,y;
-}
-Vector;
-
-typedef struct
-{
-    double x,y;
     double strength;
     double dx,dy;
 }
@@ -59,17 +53,9 @@ Blob_parms;
 
 typedef struct
 {
-   double du11,du12,du21;  
-}
-Tensor;
-
-typedef struct
-{
     Blob_external blob0,blob1;
 }
 Metablob;
-
-extern FILE          *comp_log,*diag_log,*mpi_log,*cpu_log;
 
 extern int           N;
 extern Metablob      mblob[NMAX];

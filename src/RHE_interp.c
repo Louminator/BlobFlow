@@ -23,6 +23,11 @@
  * Newark, DE 19716                                                     */
 
 #include "global.h"
+#include "particle.h"
+
+/* We only need the partition function from biot-savart. */
+
+#include "biot-savart.h"
 
 /* Interpolate blobs onto the finest multipole grid with a gridn X
    gridn regular grid. */

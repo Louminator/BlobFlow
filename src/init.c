@@ -26,6 +26,8 @@
 /* Initialization subroutines for eflow. */
 
 #include "global.h"
+#include "particle.h"
+#include "biot-savart.h"
 #include "field_interp.h"
 #include "global_matrices.h"
 
@@ -896,7 +898,6 @@ void init(int argc, char *argv[])
   */
 
   nsplit   = 0;
-  refinestack = 0;
   nmerge   = 0;
   totsplit = 0;
   totmerge = 0;

@@ -24,6 +24,7 @@
  * Newark, DE 19716-2553                                                */
 
 #include "global.h"
+#include "particle.h"
 
 #ifdef MULTIPROC
 #include "multiproc.h"
@@ -81,8 +82,6 @@ double intu(double a,double ba,double ca,double bb,double cb,
 
   return(y);
 }
-
-
 
 double intv(double a,double ba,double ca,double bb,
 	    double cb,double Aa,double Ab,

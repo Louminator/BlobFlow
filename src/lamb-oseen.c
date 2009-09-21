@@ -24,6 +24,7 @@
  * Newark, DE 19715-2553                                                */
 
 #include "global.h"
+#include "particle.h"
 
 #ifdef XANTISYMM
 #define CARDINALITY  N/2

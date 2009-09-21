@@ -84,7 +84,7 @@ dummy:
 $(TARGET): $(OBJECTS)
 	$(LN)  $(CPROF_FLAGS) -o $(TARGET) $(OBJECTS) $(CLIBS)
 
-$(OBJECTS): global.h multiproc.h global_matrices.h
+$(OBJECTS): global.h multiproc.h global_matrices.h global_min.h particle.h
 
 .c.o:
 	$(CC) -c $(CFLAGS) $(CPROF_FLAGS) $<

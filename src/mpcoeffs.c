@@ -32,6 +32,8 @@
  * Newark, DE 19716                                                     */
 
 #include "global.h"
+#include "particle.h"
+#include "biot-savart.h"
 
 #define R2 256.0
 

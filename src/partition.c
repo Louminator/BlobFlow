@@ -24,6 +24,8 @@
  * Newark, DE 19715-2553                                                */
 
 #include "global.h"
+#include "particle.h"
+#include "biot-savart.h"
 #ifdef MULTIPROC
 #include "multiproc.h"
 #endif

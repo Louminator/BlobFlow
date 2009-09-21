@@ -26,14 +26,8 @@
 #include <stdio.h>
 #include <math.h>
 #include "global.h"
-
-void induced_v(Blob_external *the_blob,Blob_internal *the_blobguts,
-	       Blob_parms *parms,double tmpdx,double tmpdy,
-	       double result[9])
-{
-  /* induced_v_asympt(the_blob,the_blobguts,parms,tmpdx,tmpdy,result); */
-  induced_v_platte(the_blob,the_blobguts,parms,tmpdx,tmpdy,result);
-}
+#include "particle.h"
+#include "biot-savart.h"
 
 void induced_v_asympt(Blob_external *the_blob,Blob_internal *the_blobguts,
 		      Blob_parms *parms,double tmpdx,double tmpdy,
@@ -228,3 +222,12 @@ void induced_v_platte(Blob_external *the_blob,Blob_internal *the_blobguts,
 
 #endif
 }
+
+void induced_v(Blob_external *the_blob,Blob_internal *the_blobguts,
+	       Blob_parms *parms,double tmpdx,double tmpdy,
+	       double result[9])
+{
+  /* induced_v_asympt(the_blob,the_blobguts,parms,tmpdx,tmpdy,result); */
+  induced_v_platte(the_blob,the_blobguts,parms,tmpdx,tmpdy,result);
+}
+

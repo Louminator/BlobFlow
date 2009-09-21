@@ -33,7 +33,8 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "global.h"
+#include "global_min.h"
+#include "particle.h"
 
 void flip_blob(Blob_internal *the_blobguts)
 {

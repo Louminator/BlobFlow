@@ -23,9 +23,11 @@
   * University of Delaware                                               *
   * Newark, DE 19716                                                     */
 
- #include <stdio.h>
- #include <math.h>
- #include "global.h"
+#include <stdio.h>
+#include <math.h>
+#include "global_min.h"
+#include "particle.h"
+#include "biot-savart.h"
 
 /* This is (3.47) of UDel Math Tech Report 2001-4 */
 double expint(double c[MAXPOLYN],double s2,double r2)

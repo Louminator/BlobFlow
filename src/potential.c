@@ -22,10 +22,8 @@
  * University of Delaware                                               *
  * Newark, DE 19716                                                     */
 
-#undef DEBUG_MP
-
-
 #include "global.h"
+#include "particle.h"
 
 /* Enter potential flow field information here. */
 Vector potential_vel(double x,double y)

@@ -24,6 +24,8 @@
  * Newark, DE 19715-2553                                                */
 
 #include "global.h"
+#include "particle.h"
+#include "biot-savart.h"
 #include "field_interp.h"
 
 #ifdef MULTIPROC
@@ -60,10 +62,6 @@ int       BoundaryFrame;
 char      filename[FILENAME_LEN];
 
 Blob_parms tmpparms[NMAX];
-
-/* Dynamic memory allocation might be better here. Nah! */
-Vector       refinevels[NMAX][3][MAX_SPLIT_CONF];
-int          refineindex[NMAX],refinestack;
 
 /*Fast multipole variables*/
 

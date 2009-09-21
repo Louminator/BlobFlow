@@ -26,6 +26,7 @@
 #ifdef MULTIPROC
 
 #include "global.h"
+#include "particle.h"
 #include "multiproc.h"
 #define WorkSize 25
 

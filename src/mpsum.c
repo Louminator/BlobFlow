@@ -24,8 +24,9 @@
 
 #undef DEBUG_MP
 
-
 #include "global.h"
+#include "particle.h"
+#include "biot-savart.h"
 
 void vort_vort_interaction(int i,int j)
 {
