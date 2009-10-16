@@ -1,4 +1,0 @@
-FrameStep: 0.05
-EndTime: 2.0
-Viscosity: 0.0e-4
-VtxInit: MZM.vtx 
