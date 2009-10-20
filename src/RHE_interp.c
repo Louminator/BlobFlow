@@ -841,6 +841,7 @@ void RHE_interp(double s2, double pop_control)
 		    {
 		      fprintf(diag_log,"Out of memory in RHE remesh.\n");
 		      fprintf(diag_log,"Time to sleep.\n");
+		      fflush(diag_log);
 		    }
 		}
 	    }
