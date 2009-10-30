@@ -1,0 +1,15 @@
+This is output from a Lamb dipole simulation.  The initial
+conditions are produced using reverse heat equation field interpolation.
+You can project the particle positions on a regular mesh 
+egrid -q -x test0000 
+egrid -q -x test0005
+etc
+
+To view the dipole using matlab, you can use the vortpos_con() script.
+For example,
+
+matlab
+vortpos_con('lamb_dipole',0);
+vortpos_con('lamb_dipole',5);
+etc
+

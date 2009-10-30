@@ -1,7 +1,9 @@
 This is output from the testCz Lamb dipole simulation.  The initial
 conditions are produced using exact desingularization of an initial Gaussian.
-You can project the particle positions on a regular mesh egrid -q
-test0000 egrid -q test0005 etc
+You can project the particle positions on a regular mesh 
+egrid -q test0000 
+egrid -q test0005 
+etc
 
 To compare the computation to the exact solution using matlab, use the errpic script
 
