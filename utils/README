@@ -1,0 +1,4 @@
+egrid.c projects .vtx data onto a regular mesh (see documentation).
+egrid_par.c is an mpi version of egrid.c.
+egrid.py is a Python GUI for egrid.
+egrid_par.py is a Python GUI for egrid_par.
