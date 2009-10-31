@@ -1,15 +1,15 @@
 %% Creation cell.
 
 % User supplied basis function core size for computations.
-sigma = 0.05/2/sqrt(2);
+sigma = 0.05/2/sqrt(9);
 
 % Base symmetric MZM disk.
-Ri = 0.0;
-Ro = 1.6/sqrt(2);
+Ri = 0.75*1.6/sqrt(9);
+Ro = 1.6/sqrt(9);
 
 % Aspect ratio of the deformed disk.
 
-aspect = 2.0;
+aspect = 9.0;
 
 a = sqrt(aspect);
 b = 1/sqrt(aspect);
