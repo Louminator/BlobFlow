@@ -1,7 +1,7 @@
 %% Creation cell.
 
 % User supplied basis function core size for computations.
-sigma = 0.05/2/sqrt(9);
+sigma = 0.25*2/9/8;
 
 % Base symmetric MZM disk.
 Ri = 0.75*1.6/sqrt(9);

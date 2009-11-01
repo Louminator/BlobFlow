@@ -2,8 +2,8 @@ FrameStep: 0.02
 EndTime: 2.0
 Viscosity: 1.0e-4
 GrdInit: w.grd
-GrdX0: -1.6467
-GrdX1:  1.6467
-GrdY0: -1.6467
-GrdY1:  1.6467
-GrdNumPts: 389
+GrdX0: -1.6181
+GrdX1:  1.6181
+GrdY0: -1.6181
+GrdY1:  1.6181
+GrdNumPts: 467
