@@ -180,11 +180,13 @@ I tried to make \BF~as simple as possible to use.  This is short list of what
 you will need.
 
 \begin{itemize}
+\item The source code.
+\item The lookup table binary files for \BF.
  \item A C compiler.
 \item The \texttt{lapack} and \texttt{blas} libraries.  These libraries freely
 available and easy to install.
 \item The GNU make utility or a compatible make utility.  The make utility is
-ubiquitous
+ubiquitous.
 \item If you choose to use multiple cores with the MPI option, you will need
 the MPI libraries.  Again, these are freely available to download.
 \end{itemize}
@@ -199,6 +201,14 @@ and build it.
 tar xzf blobflow.tgz
 cd BlobFlow_3.x
 make eflow
+\end{verbatim}
+
+You will also need to unpack the look-up tables somewhere.  When you run \BF,
+you will need to tell \BF~ where to find the look-up tables.
+
+\begin{verbatim}
+# Remember you put these files.
+tar xzf domain.tgz
 \end{verbatim}
 
 \section{Build options}
@@ -287,7 +297,8 @@ eflow -inputdir <INPUT_DIR> -config <CONFIG_FILE> -domdir <DOM_DIR>
 with names CONFIG\_FILE.sim and CONFIG\_FILE.ctl, respectively.  \BF~also uses a
 lookup table when it evaluates the velocity field contributions from the
 deformed blobs \cite{platte-rossi-mitchell}.  It expects to find these files in
-the directory DOM\_DIR.
+the directory DOM\_DIR.  (This is where you unpacked the \texttt{domain.tgz}
+archive.)
 
 \section{The simulation and control files}
 
