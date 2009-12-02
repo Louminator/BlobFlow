@@ -31,6 +31,9 @@
 #include "field_interp.h"
 #include "global_matrices.h"
 
+#include <sys/time.h>
+#include <sys/resource.h>
+
 #ifdef MULTIPROC
 #include "multiproc.h"
 #endif
@@ -94,6 +97,20 @@ enum ScriptItems
    INTERP_STEP,INTERP_POPULATION_CONTROL,INTERP_VAR,
    BOUNDARY_STEP
   };
+
+/* A routine to remove stack size limits. */
+
+void unlimit_stack(void) 
+{
+
+  struct rlimit rlim = { RLIM_INFINITY, RLIM_INFINITY };
+  
+  if ( setrlimit(RLIMIT_STACK, &rlim) == -1 ) 
+    {
+      perror("setrlimit error");
+      exit(1);
+    }
+}
 
 void check_sim(char *vtxfilename,char *grdfilename)
 {
@@ -694,6 +711,8 @@ void init(int argc, char *argv[])
   char      sim_name[FILENAME_LEN],control_name[FILENAME_LEN],
     temp[FILENAME_LEN],*p1,inputdir[FILENAME_LEN],config[FILENAME_LEN];
   int       i,inputdirread=0,configread=0,domdirread=0;
+
+  unlimit_stack();
 
   xantisymm = 0;
 
