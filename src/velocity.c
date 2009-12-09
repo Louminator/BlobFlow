@@ -25,7 +25,7 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "global.h"
+#include "global_min.h"
 #include "particle.h"
 #include "biot-savart.h"
 

@@ -1,5 +1,5 @@
-/* POTENTIAL.C */
-/* Copyright (c) 2005 Louis F. Rossi                                    *
+/* POTENTIAL.H */
+/* Copyright (c) 2009 Louis F. Rossi                                    *
  * Elliptical Corrected Core Spreading Vortex Method (ECCSVM) for the   *
  * simulation/approximation of incompressible flows.                    *
 
@@ -17,42 +17,14 @@
  * along with this program; if not, write to the Free Software          *
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 *
  * USA                                                                  *
+ *                                                                      *
  * Louis Rossi                                                          *
  * Department of Mathematical Sciences                                  *
  * University of Delaware                                               *
  * Newark, DE 19716                                                     */
 
-#include "global_min.h"
-#include "potential.h"
-#include "particle.h"
+/* If you are not able to install the BLAS/LAPACK libraries, you can
+   set this flag which will remove all references to the library calls. */
 
-/* Enter potential flow field information here. */
-Vector potential_vel(double x,double y)
-{
-  Vector v;
-
-  v.x = 0.0;
-  v.y = 0.0;
-
-  return(v);
-}
-
-void potential_flow(int vort)
-{
-  Vector v;
-
-  v = potential_vel(mblob[vort].blob0.x,mblob[vort].blob0.y);
-
-  mblob[vort].blob0.dx += v.x;
-  mblob[vort].blob0.dy += v.y;
-
-  tmpparms[vort].du11 += 0.0;
-  tmpparms[vort].du12 += 0.0;
-  tmpparms[vort].du21 += 0.0;
-
-  tmpparms[vort].u_xx += 0.0;
-  tmpparms[vort].u_xy += 0.0;
-  tmpparms[vort].u_yy += 0.0;
-  tmpparms[vort].v_xx += 0.0;
-}
-
+extern void potential_flow(int);
+extern Vector potential_vel(double,double);

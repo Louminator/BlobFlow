@@ -31,7 +31,7 @@
  * University of Delaware                                               *
  * Newark, DE 19715-2553                                                */
 
-#include "global.h"
+#include "global_min.h"
 #include "particle.h"
 
 /* We just need the data structure from the FMM code. */
@@ -44,8 +44,7 @@ void cache_resort()
    
    if (N > NMAX/2+1)
      fprintf(comp_log,
-	     "Time %12.4e: Cache resorting is not possible.  Problem size is too large.\n",
-	     SimTime);
+	     "Cache resorting is not possible.  Problem size is too large.\n");
    else
      {
 	for (i=0; i<N; ++i)

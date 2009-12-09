@@ -23,9 +23,10 @@
  * University of Delaware                                               *
  * Newark, DE 19715-2553                                                */
 
-#include "global.h"
+#include "global_min.h"
 #include "particle.h"
 #include "biot-savart.h"
+#include "boundary.h"
 #include "field_interp.h"
 
 #ifdef MULTIPROC
@@ -36,8 +37,8 @@
 
 FILE *comp_log,*diag_log,*mpi_log,*cpu_log;
 
-int N,oldN;
-Metablob mblob[NMAX];
+int       N;
+Metablob  mblob[NMAX];
 Blob_internal blobguts[NMAX];
 double    visc;
 int       xantisymm;

@@ -47,8 +47,6 @@
 
 #define NMAX 65000       /* Maximum number of computational elements. */
 #define BMAX 250
-#define MAX_SPLIT_CONF 8 /* Maximum number of elements that a single element */
-                         /* can split into. */
 #define FILENAME_LEN 500 /* Maximum file name length */
 
 typedef struct

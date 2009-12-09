@@ -2,7 +2,7 @@
 
 #ifdef MULTIPROC
 
-#include "global.h"
+#include "global_min.h"
 #include "particle.h"
 #include "biot-savart.h"
 #include "multiproc.h"

@@ -25,9 +25,10 @@
 
 /* Initialization subroutines for eflow. */
 
-#include "global.h"
+#include "global_min.h"
 #include "particle.h"
 #include "biot-savart.h"
+#include "boundary.h"
 #include "field_interp.h"
 #include "global_matrices.h"
 

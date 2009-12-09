@@ -128,6 +128,11 @@ extern int          gridx[LMAX][NMAX], gridy[LMAX][NMAX], mplevels;
 extern FineGridLink **FineGridLinks;
 extern int          numk2;
 
+extern clock_t tot_cputime_ref,tot_cputime,
+  vel_cputime_ref,vel_cputime,velsum_cputime_ref,velsum_cputime,
+  veldirect_cputime_ref,veldirect_cputime,
+  mp_cputime,mp_cputime_ref;
+
 
 extern void Create_Hierarchy();
 extern void Release_Links(int);

@@ -64,7 +64,7 @@ extern Blob_parms    tmpparms[NMAX];
 extern double        visc;                       /* Physical constants */
 extern double        alpha,l2tol,dtth_delta;     /* Numerical parameters */
 
-extern void vel_field();
+extern void   vel_field();
 
 extern double dta2(Blob_internal*,Blob_parms*);
 extern double dts2(Blob_internal*);

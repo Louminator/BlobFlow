@@ -23,10 +23,12 @@
  * University of Delaware                                               *
  * Newark, DE 19716                                                     */
 
-#include "global.h"
+#include "global_min.h"
 #include "particle.h"
+#include "boundary.h"
 #include "biot-savart.h"
 #include "linear_velocity.h"
+#include "potential.h"
 
 #ifdef MULTIPROC
 #include "multiproc.h"

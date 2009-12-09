@@ -55,9 +55,29 @@ typedef struct
 }
 Tensor;
 
+/* Parameters */
+extern int           xantisymm;
+
+/* Time integration parameters */
+extern double TimeStep,PrefStep,FrameStep,EndTime,SimTime;
+extern int    Frame,MaxOrder;
+
+/*Data export variables */
+
 #define FILENAME_LEN 500 /* Maximum file name length */
 
 extern FILE          *comp_log,*diag_log,*mpi_log,*cpu_log;
+extern char filename[];
 
-extern int           xantisymm;
+
+/* Splitting parameters DEPRECATED */
+extern int    split_method;
+extern double *split_parm_ptr;
+
+
+/* Fusion parameters DEPRECATED */
+extern double merge_budget,merge_p,merge_a2tol,merge_thtol;
+extern double merge_mom3wt,merge_mom4wt,clusterR,aM2;
+extern double MergeStep,merge_c,merge_growth_rate;
+extern int    merge_estimator,nsplit,nmerge,totsplit,totmerge,MergeFrame;
 

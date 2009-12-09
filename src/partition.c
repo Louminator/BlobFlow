@@ -23,7 +23,7 @@
  * University of Delaware                                               *
  * Newark, DE 19715-2553                                                */
 
-#include "global.h"
+#include "global_min.h"
 #include "particle.h"
 #include "biot-savart.h"
 #ifdef MULTIPROC

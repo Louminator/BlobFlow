@@ -23,8 +23,9 @@
  * University of Delaware                                               *
  * Newark, DE 19716-2553                                                */
 
-#include "global.h"
+#include "global_min.h"
 #include "particle.h"
+#include "boundary.h"
 
 #ifdef MULTIPROC
 #include "multiproc.h"

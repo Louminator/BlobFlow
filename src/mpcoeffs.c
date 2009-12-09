@@ -31,7 +31,7 @@
  * University of Delaware                                               *
  * Newark, DE 19716                                                     */
 
-#include "global.h"
+#include "global_min.h"
 #include "particle.h"
 #include "biot-savart.h"
 
