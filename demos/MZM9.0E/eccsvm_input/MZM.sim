@@ -1,5 +1,5 @@
 FrameStep: 0.02
-EndTime: 2.0
+EndTime: 4.0
 Viscosity: 1.0e-4
 GrdInit: w.grd
 GrdX0: -1.6181
