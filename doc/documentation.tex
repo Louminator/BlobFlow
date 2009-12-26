@@ -471,6 +471,21 @@ parameters, will repeatedly run {\tt egrid}.
 % vorticity or velocity field wherever one wants by rewriting the top
 % level subroutines.
 
+\section{Benchmarks}
+
+For benchmarks, I use fluid dynamic problems for which the exact solution is
+known.  The benchmarks include a decaying viscous Lamb-Oseen monopole and an
+inviscid Lamb dipole.  While it is a straightforward exercise to verify that the
+mathematical expressions for these vortical structures solve
+the Navier-Stokes equations, they are challenging to compute for various
+reasons to be discussed in each specific case.
+
+The viscous Lamb-Oseen monopole is a simple vortical structure that rotates in
+place and spreads.  The vorticity distribution is a Gaussian.  The
+computational implementation...
+
+The inviscid translating Lamb dipole...
+
 \section{Credits}
 
 Vortex methods and \BF~have been a passion of mine for more than a decade. 
