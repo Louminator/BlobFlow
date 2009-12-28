@@ -1,5 +1,9 @@
 \documentclass[12pt]{report}
-\usepackage{graphicx,palatino}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{palatino}
+
+\graphicspath{{./}{figs/}}
 
 \def\v#1{\vec{#1}}
 \def\h#1{\widehat{#1}}
@@ -8,6 +12,7 @@
 
 \newcommand{\eqn}[1]{equation (\ref{#1})} 
 \newcommand{\eqnn}[1]{(\ref{#1})}
+\newcommand{\fig}[1]{Figure \ref{#1}}
 \newcommand{\BF}{BlobFlow}
 
 \newcommand{\OneFigure}[1]{\begin{center}
@@ -484,7 +489,50 @@ The viscous Lamb-Oseen monopole is a simple vortical structure that rotates in
 place and spreads.  The vorticity distribution is a Gaussian.  The
 computational implementation...
 
-The inviscid translating Lamb dipole...
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=2in]{lamb_dipole0000} \hspace{0.2in}
+\includegraphics[width=2in]{lamb_dipole0010}
+
+\includegraphics[width=2in]{lamb_dipole0020} \hspace{0.2in}
+\includegraphics[width=2in]{lamb_dipole0030}
+\end{center}
+\caption{The motion of a Lamb dipole simulated using the benchmark provided
+with BlobFlow.\label{fig:Lamb-dipole}}
+\end{figure}
+Vortex dipoles are fluid structures that can transport fluid and momentum
+through an unbounded domain.
+The inviscid translating Lamb dipole is an inviscid, translating coherent
+dipole, meaning that the structure itself does not change aside from
+its movement. The exact form of this solution in polar coordinates is
+\begin{equation}
+ \omega = \begin{cases}
+-C k^2 {\rm J}_1(k r) \sin(\theta), & r<1, \\
+0, & r \geq 1,
+\end{cases}
+\end{equation}
+where $U$ is the speed of the dipole, $k$ is the first zero of the
+Bessel function of the first kind of order one 
+${\rm J}_1(x)$, $C=\frac{2 U}{k {\rm J}_0(k)}$.  Initially, we can consider
+the origin is at $(0,0)$, but this expression remains exact for all time if we
+choose coordinates $(U t,0)$.  Computationally, this is a very challenging
+problem for a general method because an accurate computation will confine the
+vorticity to the unit disk $r<1$ around the moving origin $(Ut,0)$.  The
+BlobFlow benchmark sets the physical viscosity to zero so that the only
+diffusion is computational.  As we see in \fig{fig:Lamb-dipole}, BlobFlow
+resolves the flow accurately with no observable numerical diffusion.  However,
+if we focus on the vorticity field away from the support of the dipole where
+the vorticity field should be zero, we see in \fig{fig:Lamb-dipole-err} that
+some vorticity has leaked out.
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=4in]{lamb_dipole0040err}
+\end{center}
+\caption{One look at erroneous diffusion of
+vorticity in the Lamb dipole.  This is a plot of
+$\log(\omega)$ {\em outside} of the support of the Lamb dipole (i.e. $(x-4)^2 +
+y^2 > 1$. \label{fig:Lamb-dipole-err}}
+\end{figure}
 
 \section{Credits}
 
@@ -875,6 +923,50 @@ number of this License, you may choose any version ever published (not
 as a draft) by the Free Software Foundation.
 
 
+\end{verbatim}
+
+\chapter{Matlab code for generating a Lamb dipole}
+
+\begin{verbatim}
+% Domain (=[-1,1]^2)
+N= 50;
+x0 = -1;
+x1 =  1;
+
+h = (x1-x0)/N
+var = h*h
+
+x = x0+((1:N)-0.5)*h;
+y = x;
+
+% Dipole radius (=1).
+R = 1;
+k = fsolve(@(s) besselj(1,s*R),3.8/R);
+
+% Dipole velocity (=1).
+U = 1;
+C = 2*U/k/besselj(0,k*R);
+
+[xa,ya] = meshgrid(x,y);
+
+ra = sqrt(xa.^2+ya.^2);
+
+wa = - C*k^2*(besselj(1,k*ra).*ya./ra).*(ra<=R);
+
+% Clean up pesky problems at the origin.
+for k=1:N
+    for l=1:N
+        if (isnan(wa(k,l)))
+                wa(k,l) = 0.0;
+        end
+    end
+end
+
+surf(xa,ya,wa);
+
+w = wa';
+w = w(:);
+save w.grd w -ASCII
 \end{verbatim}
 
 
