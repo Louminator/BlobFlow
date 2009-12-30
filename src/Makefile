@@ -30,6 +30,7 @@ endif
 # data files at compile time.
 #COPTFLAGS	= -fast  -D'DATA_ROOT="/home/rossi/ugh/"'
 COPTFLAGS	= -O3
+CWARNFLAGS	= -Wall
 
 ifeq ($(ccsvm),on)
 CCSVM   = -DCCSVM
@@ -66,7 +67,7 @@ ifeq ($(xantisymm),on)
 XANTISYMMCFLAGS  = -DXANTISYMM
 endif
 
-CFLAGS = $(CCSVM) $(COPTFLAGS) $(MPICFLAGS) $(XANTISYMMCFLAGS)  
+CFLAGS = $(CCSVM) $(COPTFLAGS) $(MPICFLAGS) $(XANTISYMMCFLAGS) $(CWARNFLAGS)
 
 OBJECTS = deriv.o evolve.o files.o flip.o init.o \
 	removal.o solve.o veldev.o deform.o \

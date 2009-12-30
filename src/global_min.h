@@ -81,3 +81,7 @@ extern double merge_mom3wt,merge_mom4wt,clusterR,aM2;
 extern double MergeStep,merge_c,merge_growth_rate;
 extern int    merge_estimator,nsplit,nmerge,totsplit,totmerge,MergeFrame;
 
+/* Functions and subroutines */
+
+void rk4();
+void init();

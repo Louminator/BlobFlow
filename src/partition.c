@@ -238,7 +238,7 @@ void Init_Fine_Grid(int levels)
    Complex *Coeff_Array,tmpz,dz,mp[PMAX];
 
 #ifdef MULTIPROC
-   int start,end,rank,total_processes,buffsize;
+   int     start,end,rank,total_processes,buffsize;
    Complex *Coeff_buff;
 #endif
    
@@ -340,7 +340,7 @@ void Advance_Coeffs(int levels)
    Complex *Coeff_Array,*Coeff_Array_Finer,tmpz,dz[PMAX+1];
    
 #ifdef MULTIPROC
-   int start,end,rank,total_processes,buffsize;
+   int rank,total_processes,buffsize;
    Complex *Coeff_buff;
 #endif
    

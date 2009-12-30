@@ -44,7 +44,7 @@ void reflect_X()
 	fprintf(comp_log,"Note: If you use XANTISYMMETRY, NMAX must be adjusted to buffer twice\n");
 	fprintf(comp_log,"the size of the half-problem.\n");
 
-	stop(-1);
+	exit(-1);
      }
    
    for (i=0; i<N; ++i)

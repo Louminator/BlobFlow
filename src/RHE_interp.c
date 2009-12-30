@@ -635,7 +635,7 @@ double RHE_RK4_grd_init(double X0, double X1, double Y0, double Y1,
 			int gridn, double *circs)
 
 {
-  int    i,j,k,l;
+  int    k,l;
   double h,s2;
   double *g1,*g2,*g3,*k1,*k2,*k3;
   double *field1,*field2,*field3,*field4;

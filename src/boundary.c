@@ -25,6 +25,7 @@
 
 #include "global_min.h"
 #include "particle.h"
+#include "biot-savart.h"
 #include "boundary.h"
 
 #ifdef MULTIPROC
@@ -274,7 +275,7 @@ void buildrhs_master(Panel wall[BMAX],double b[BMAX],int n)
 
 void buildrhs_slave(Panel wall[BMAX],double b[BMAX],int n)
 {
-  int iters,leftover,worksize,k,index;
+  int iters,leftover,k,index;
 
   iters    = B/(total_processes-1);
   leftover = B % (total_processes-1);
@@ -300,7 +301,9 @@ void buildrhs_slave(Panel wall[BMAX],double b[BMAX],int n)
 /* Calculate the flux out of the walls from the fluid flow. */
 void buildrhs(Panel wall[BMAX],double b[BMAX],int n)
 {
+#ifndef MULTIPROC
   int    k;
+#endif
 
 #ifdef MULTIPROC  
   if (rank == 0) 
@@ -341,7 +344,7 @@ void solve_bdy_matrix(Panel walls[BMAX],int ipiv[BMAX],double A[BMAX][BMAX])
   
   /* dgesv_(&n,&nrhs,A,&lda,ipiv,b,&ldb,&info); */
 #ifndef NOBOUNDARY
-  dgetrs_(trans,&B,&nrhs,A,&lda,ipiv,b,&ldb,&info);
+  dgetrs_(trans,&n,&nrhs,A,&lda,ipiv,b,&ldb,&info);
 #endif
   
   for (k=0; k<B; ++k)

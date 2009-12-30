@@ -153,7 +153,7 @@ void read_sim(char inputdir[])
     bdyfilename[FILENAME_LEN]="",temp[FILENAME_LEN],
     xantisymmyn[5];
   FILE      *sim_file,*bdy_file;
-  char      *word,*p1;
+  char      *word;
   int       i,k,l,count,scan_test,inputs_size;
   double    grdX0=0.0,grdX1=0.0,grdY0=0.0,grdY1=0.0,h,*circs,x,y;
   int       gridn=0;
@@ -379,7 +379,7 @@ void read_sim(char inputdir[])
 
   if (!(strcmp(bdyfilename,"") == 0))
     {
-      sprintf(temp,"%s/%s",p1,bdyfilename);
+      sprintf(temp,"%s/%s",inputdir,bdyfilename);
    
       bdy_file = fopen(temp,"r");
       
@@ -432,8 +432,6 @@ void read_sim(char inputdir[])
 
 void check_ctl()
 {
-  int i;
-
   if ( (PrefStep <= 0.0) ||
        /* These are no longer relevant. */
        /*
@@ -710,7 +708,7 @@ void read_ctl()
 void init(int argc, char *argv[]) 
 {
   char      sim_name[FILENAME_LEN],control_name[FILENAME_LEN],
-    temp[FILENAME_LEN],*p1,inputdir[FILENAME_LEN],config[FILENAME_LEN];
+    temp[FILENAME_LEN],inputdir[FILENAME_LEN],config[FILENAME_LEN];
   int       i,inputdirread=0,configread=0,domdirread=0;
 
   unlimit_stack();

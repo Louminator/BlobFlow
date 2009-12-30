@@ -362,7 +362,7 @@ void Setup_mpi (int argc, char *argv[]) {
   if (total_processes < 2) 
     {       
       fprintf(comp_log,"Expecting at least 2 processes for execution.\n");
-      stop(-100);
+      exit(-100);
     }
   
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
