@@ -320,34 +320,37 @@ void finish ( void ) {
 
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   
-  if (rank == 0) {
-    for (j=0; j<joblimit; j++) 
-      blob_to_buffer(&(mblob[j].blob0),&(tmpparms[j]),
-		     &(wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j]));
-  }
-
-  MPI_Bcast ( wicked_big_vectah, N*PARTICLE_DATA_PACKET_SIZE, MPI_DOUBLE, 0, MPI_COMM_WORLD );
-
-  /* If you do not trust Bcast, try this. */
-  /*
-    if (rank == 0)
+  if (rank == 0) 
     {
-    for (j=1; j<total_processes; ++j)
-    MPI_Send(wicked_big_vectah,N*PARTICLE_DATA_PACKET_SIZE,MPI_DOUBLE,j,
-    RESERVED_TAGS+j,MPI_COMM_WORLD);
+      for (j=0; j<joblimit; j++)
+	blob_to_buffer(&(mblob[j].blob0),&(tmpparms[j]),
+		       &(wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j]));
     }
+#define BCAST_PROB 1
+
+#ifndef BCAST_PROB
+  MPI_Bcast ( wicked_big_vectah, N*PARTICLE_DATA_PACKET_SIZE, MPI_DOUBLE, 
+	      0, MPI_COMM_WORLD );
+
+#else
+  /* If you do not trust Bcast, try this. */
+    if (rank == 0)
+      for (j=1; j<total_processes; ++j)
+	MPI_Send(wicked_big_vectah,N*PARTICLE_DATA_PACKET_SIZE,MPI_DOUBLE,j,
+		 RESERVED_TAGS+j,MPI_COMM_WORLD);
     else
-    MPI_Recv(wicked_big_vectah, N*PARTICLE_DATA_PACKET_SIZE, MPI_DOUBLE, 0, RESERVED_TAGS+rank,
-    MPI_COMM_WORLD,&mpistatus);
-  */
-  
+      MPI_Recv(wicked_big_vectah, N*PARTICLE_DATA_PACKET_SIZE, MPI_DOUBLE, 
+	       0, RESERVED_TAGS+rank,
+	       MPI_COMM_WORLD,&mpistatus);
+#endif
+
   if (rank != 0)  
     {
       for (j=0; j<joblimit; j++)
 	buffer_to_blob(&(wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j]),
 		       &(mblob[j].blob0),&(tmpparms[j]));
     }
-  
+
   /*  explicit synchronization before next timestep  */
 
   /* MPI_Barrier (MPI_COMM_WORLD); */
