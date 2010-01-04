@@ -326,12 +326,10 @@ void finish ( void ) {
 	blob_to_buffer(&(mblob[j].blob0),&(tmpparms[j]),
 		       &(wicked_big_vectah[PARTICLE_DATA_PACKET_SIZE*j]));
     }
-#define BCAST_PROB 1
 
 #ifndef BCAST_PROB
   MPI_Bcast ( wicked_big_vectah, N*PARTICLE_DATA_PACKET_SIZE, MPI_DOUBLE, 
 	      0, MPI_COMM_WORLD );
-
 #else
   /* If you do not trust Bcast, try this. */
     if (rank == 0)

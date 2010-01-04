@@ -1,0 +1,3 @@
+On Nutkin (dual quad core Opteron), MPI_Bcast under openmpi hangs unless you use the directive
+
+-mca btl_sm_num_fifos 16
