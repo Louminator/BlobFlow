@@ -12,10 +12,6 @@ ifeq ($(ccsvm),on)
 TARGET := $(addsuffix .ccsvm,$(TARGET))
 endif
 
-ifeq ($(xantisymm),on) 
-TARGET := $(subst eflow,eflow.xanti,$(TARGET))
-endif
-
 .PHONY: $(TARGET) clean
 
 #==============================================================================#

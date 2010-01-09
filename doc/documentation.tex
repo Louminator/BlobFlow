@@ -33,6 +33,8 @@ User's Guide \\ Version $1.0$ for BlobFlow v3.x.}
 
 \maketitle
 
+\tableofcontents
+
 \chapter{Formalities}
 
 \section{Copyright}
@@ -182,7 +184,7 @@ In a Lagrangian scheme, no such assumptions can be made.
 \section{Requirements}
 
 I tried to make \BF~as simple as possible to use.  This is short list of what
-you will need.
+is required.
 
 \begin{itemize}
 \item The source code.
@@ -197,24 +199,27 @@ the MPI libraries.  Again, these are freely available to download.
 \end{itemize}
 
 
-\section{For the impatient}
+\section{A basic build}
 
-\BF~is built using the GNU make utility.  One can simply unpack the distribution
-and build it.
-
+\BF~is built using the GNU make utility.  To build \BF, one unpacks the
+distribution
+and builds it.
 \begin{verbatim}
 tar xzf blobflow.tgz
 cd BlobFlow_3.x
-make eflow
+make
 \end{verbatim}
+This will create \BF in the form of a binary executable named {\tt eflow}. 
+There is no {\tt make install}; the user can leave it in place or move it to
+whereever they like in their directory tree.
 
 You will also need to unpack the look-up tables somewhere.  When you run \BF,
 you will need to tell \BF~ where to find the look-up tables.
-
 \begin{verbatim}
 # Remember you put these files.
 tar xzf domain.tgz
 \end{verbatim}
+
 
 \section{Build options}
 
@@ -229,27 +234,35 @@ the makefile.
 \begin{enumerate}
 
 \item Use the Message Passing Interface (MPI) to parallelize across multiple
-processors (mpi=on): Many aspects of the algorithm are parallelizable, and
+processors ({\tt mpi=on}): Many aspects of the algorithm are parallelizable, and
 this feature spreads the work among many processors.  To use this
-capability, you must install and configure a version of MPI (available at {\tt
+capability, one must install and configure a version of MPI (available at {\tt
 http://www.openmpi.org} for instance) properly on the machines that you wish to
 use.
-You should also familiarize yourself running programs with MPI calls.  It's
+Executing a parallel program requires some familiarity with commands like {\tt
+mpiexec} and {\tt mpirun} which vary slightly from one distribution to the next.
+It is
 easy to learn and worth the time.  \BF~uses two algorithms under MPI.
-If only two processors are available, it uses a peer based scheme to evenly
+If only two processors are available, it uses a peer scheme to evenly
 spread the work between the two processors.  If there are more than two
 CPU's available, \BF~uses a worker-manager algorithm with a receive and
-dispatch scheme to balance the work amongst all available processors.  This
+algorithm to balance the work amongst all available processors.  This
 means that one process oversees activities
 without doing any number crunching.  In principle, a two processor peer-based
 system will run about as fast, and perhaps a little faster, than a three
 processor manager-worker system.  However, if one has $N+1$ processors, the
 total computation time should scale like $1/N$ for small groups of processors.
 
+\item Use an axisymmetric method ({\tt ccsvm=on}):  The default algorithm is
+based on elliptical Gaussian basis functions and has fourth order spatial
+accuracy. If for some reason one would rather use less accurate, low order
+symmetric Gaussians, one can set this option.  CCSVM refers to the Corrected
+Core Spreading Vortex Method.
+
 \item Cache resorting (CFLAGS = -DCACHERESORT): Though CPU speeds have increased
 substantially in recent years, front side bus and memory speeds have not
-kept pace.  In fact, most of the memory is orders of
-magnitude slower than the CPU.  A small reserve, called cache, is fast
+kept pace.  In fact, ordinary memory read/writes are much slower than the CPU
+operations. A small reserve, called cache, is fast
 memory.  When instructions and data for calculations are resident in this
 cache, codes will run substantially faster.  Computer architects and
 compiler authors are pretty crafty and optimizing the use of cache, but
@@ -268,13 +281,12 @@ small but quantifiable errors.  This can be disabled with the NOFASTMP flag.
 To use these options either together or separately, under the GNU make
 utility, you just set the switches on the command line. For instance,
 \begin{verbatim}
-make mpi=on xantisymm=on
+make mpi=on ccsvm=on
 \end{verbatim}
-will build an executable with both options.
-
-If you do not have the GNU make utility on your system, you must edit the
-vanilla Makefile.  It is easy to do.  Just follow the instructions and
-comment/uncomment the appropriate sections of flags.
+will build an executable with both options.  The executable binary will have
+suffixed attached to indicate the options used.  For instance, the binary file
+{\tt eflow.mpi.ccsvm} is compiled for parallel execution using low order
+axisymmetric blobs.
 
 \chapter{Using \BF}
 
@@ -363,13 +375,17 @@ There is one optional simulation parameter.
 \begin{itemize}
 
 \item XAntiSymmetry: [string=y/Y/yes/Yes] - Set this option if you want the code
-to assume that $\omega(x,y,t) = -\omega(x,-y,t)$  When
-using this feature, the code only requires half of the usual amount of
-information, and there is a savings of a factor of two in CPU time for a
-calculation.  When this flag is set, one should only initialize the code with
+to assume that $\omega(x,y,t) = -\omega(x,-y,t)$.  In other words, the vorticity
+in the upper half plane is the
+negative of the vorticity in the lower half plane.  When this flag is set, one
+should only initialize the code with
 $\omega$ defined on half the domain.  The code will automatically produce the
 full vorticity field using the antisymmetric extension of the initial
-conditions.
+conditions.  Only half the
+calculations are
+required so the code will run twice as fast.  The output files will
+contain particles for half of the flow field, and one must include this
+information in whatever postprocessing one does.  
 
 \end{itemize}
 
@@ -485,8 +501,14 @@ parameters, will repeatedly run {\tt egrid}.
 
 For benchmarks, I use fluid dynamic problems for which the exact solution is
 known.  The benchmarks include a decaying viscous Lamb-Oseen monopole and an
-inviscid Lamb dipole.  While it is a straightforward exercise to verify that the
-mathematical expressions for these vortical structures solve
+inviscid Lamb dipole.  These are well-studied structures, and in some ways, it
+is possible to think of them as the basic building blocks of vorticity
+dominated flows.  The monopole is a natural, stable aggregation of vorticity
+that generates a rotating field, and the dipole is a robust structure that 
+transports momentum throughout the domain.  These two basic structures can
+interact with each other in different combinations in all sorts of exciting
+and unexpected ways.  While it is a straightforward exercise to verify that the
+mathematical expressions for these benchmark vortical structures solve
 the Navier-Stokes equations, they are challenging to compute for various
 reasons to be discussed in each specific case.
 
