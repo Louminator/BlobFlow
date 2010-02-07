@@ -730,6 +730,8 @@ void init(int argc, char *argv[])
 		      ++i;
 		      strcpy(inputdir,argv[i]);
 		      inputdirread = 1;
+		      if (inputdir[strlen(inputdir)-1] != '/')
+			strcat(inputdir,"/");
 		    }
 		}
 
@@ -750,6 +752,8 @@ void init(int argc, char *argv[])
 		      ++i;
 		      strcpy(datarootname,argv[i]);
 		      domdirread = 1;
+		      if (datarootname[strlen(datarootname)-1] != '/')
+			strcat(datarootname,"/");
 		    }
 		}
 	    }

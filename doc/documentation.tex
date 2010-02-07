@@ -311,7 +311,9 @@ bulletproof.
 eflow -inputdir <INPUT_DIR> -config <CONFIG_FILE> -domdir <DOM_DIR>
 \end{verbatim}
 \BF~will look in the directory INPUT\_DIR for the simulation and control files,
-with names CONFIG\_FILE.sim and CONFIG\_FILE.ctl, respectively.  \BF~also uses a
+with names $\langle$CONFIG\_FILE$\rangle$.sim and
+$\langle$CONFIG\_FILE$\rangle$.ctl, respectively.  In other words, \BF~will add
+the suffixes and look for the simulation and control files.  \BF~also uses a
 lookup table when it evaluates the velocity field contributions from the
 deformed blobs \cite{platte-rossi-mitchell}.  It expects to find these files in
 the directory DOM\_DIR.  (This is where you unpacked the \texttt{domain.tgz}
