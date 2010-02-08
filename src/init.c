@@ -88,7 +88,7 @@ static char *inputs[] =
   "BoundaryStep:"
 };
 
-enum ScriptItems 
+enum ScriptItems
   {FRAME_STEP,END_TIME,VISCOSITY,VTX_INIT,
    GRD_INIT,GRD_X0,GRD_X1,GRD_Y0,GRD_Y1,GRD_NUM_PTS,
    TIME_STEP,BDY_INIT,XANTISYMM,
@@ -101,12 +101,12 @@ enum ScriptItems
 
 /* A routine to remove stack size limits. */
 
-void unlimit_stack(void) 
+void unlimit_stack(void)
 {
 
   struct rlimit rlim = { RLIM_INFINITY, RLIM_INFINITY };
-  
-  if ( setrlimit(RLIMIT_STACK, &rlim) == -1 ) 
+
+  if ( setrlimit(RLIMIT_STACK, &rlim) == -1 )
     {
       perror("setrlimit error");
       exit(1);
@@ -131,7 +131,7 @@ void check_sim(char *vtxfilename,char *grdfilename)
 
       if (visc < 0.0)
 	printf("Viscosity not set properly.\n");
-      
+
       if ( (strcmp(vtxfilename,"") == 0) &&
 	   (strcmp(grdfilename,"") == 0) )
 	printf("No initialization file set.\n");
@@ -157,14 +157,14 @@ void read_sim(char inputdir[])
   int       i,k,l,count,scan_test,inputs_size;
   double    grdX0=0.0,grdX1=0.0,grdY0=0.0,grdY1=0.0,h,*circs,x,y;
   int       gridn=0;
-   
+
   sprintf(sim_name,"%s%s",filename,".sim");
   sim_file = fopen(sim_name,"r");
-   
+
   /* ASSUME a 32-bit word. */
   inputs_size = sizeof(inputs)/4;
   word = malloc(100*sizeof(char));
-   
+
   if (fscanf(sim_file,"%s",word) == 0)
     {
       printf("Fatal error: Cannot read sim file keyword.\n");
@@ -173,18 +173,18 @@ void read_sim(char inputdir[])
 
   while (!feof(sim_file))
     {
-	
+
       /*Keep this just in case.  On gcc, the memcmp automatically skips
        * over whitespace.  I am not sure if everyone does this.*/
       while ((isspace(*word)) && (word != '\0'))
 	++word;
-	
+
       if (*word == '#')
 	{
 	  while (*word != '\n')
 	    *word = fgetc(sim_file);
 	}
-      else	
+      else
 	if (*word != '\0')
 	  {
 	    for (i=0; i<inputs_size; ++i)
@@ -197,7 +197,7 @@ void read_sim(char inputdir[])
 			bailout_simfile(i);
 		      i=inputs_size+1;
 		      break;
-		    case END_TIME:  
+		    case END_TIME:
 		      if (fscanf(sim_file,"%lf",&EndTime) != 1)
 			bailout_simfile(i);
 		      i=inputs_size+1;
@@ -279,7 +279,7 @@ void read_sim(char inputdir[])
       sprintf(temp,"%s/%s",inputdir,vtxfilename);
 
       sim_file = fopen(temp,"r");
-      
+
       if (fscanf(sim_file,"%lf%lf%lf%lf%lf%lf",
 		 &mblob[0].blob0.x,
 		 &mblob[0].blob0.y,
@@ -289,11 +289,11 @@ void read_sim(char inputdir[])
 	  printf("Fatal error reading initial data.\n");
 	  exit(-1);
 	}
-      
+
       set_blob(&(blobguts[0]),&(tmpparms[0]));
-      
+
       N = 1;
-      
+
       while (!feof(sim_file))
 	{
 	  scan_test = fscanf(sim_file,"%lf%lf%lf%lf%lf%lf",
@@ -306,15 +306,15 @@ void read_sim(char inputdir[])
 	      printf("Fatal error reading initial data. ");
 	      printf("Read %d numbers.\n",scan_test);
 	      exit(-1);
-	    } 
+	    }
 	  set_blob(&(blobguts[N]),&(tmpparms[N]));
 	  ++N;
 	}
       --N;
-   
+
       fclose(sim_file);
     }
-   
+
   if (strcmp(grdfilename,"") != 0)
     {
       h = (grdX1-grdX0)/gridn;
@@ -330,7 +330,7 @@ void read_sim(char inputdir[])
       sprintf(temp,"%s/%s",inputdir,grdfilename);
 
       sim_file = fopen(temp,"r");
-      
+
       for (i=0; i<gridn*gridn; ++i)
 	{
 	  if (fscanf(sim_file,"%lf",(circs+i)) != 1)
@@ -341,7 +341,7 @@ void read_sim(char inputdir[])
 	    }
 	  *(circs+i) *= h*h;
 	}
-   
+
       fclose(sim_file);
 
       h = RHE_RK4_grd_init(grdX0,grdX1,grdY0,grdY1,gridn,circs);
@@ -354,14 +354,14 @@ void read_sim(char inputdir[])
 	      {
 		x = grdX0+(k+0.5)*h;
 		y = grdY0+(l+0.5)*h;
-		
+
 		mblob[count].blob0.x = x;
 		mblob[count].blob0.y = y;
 		mblob[count].blob0.strength = circs[l*gridn+k]/2/M_PI;
 		blobguts[count].s2 = h*h;
 		blobguts[count].a2 = 1.0;
 		blobguts[count].th = 0.0;
-		
+
 		set_blob(&(blobguts[count]),&(tmpparms[count]));
 
 		++count;
@@ -380,9 +380,9 @@ void read_sim(char inputdir[])
   if (!(strcmp(bdyfilename,"") == 0))
     {
       sprintf(temp,"%s/%s",inputdir,bdyfilename);
-   
+
       bdy_file = fopen(temp,"r");
-      
+
       if (fscanf(bdy_file,"%lf%lf%lf%lf%lf",
 	     &walls[0].x,
 	     &walls[0].y,
@@ -395,7 +395,7 @@ void read_sim(char inputdir[])
 	};
 
       B = 1;
-      
+
       while (!feof(bdy_file))
 	{
 	  scan_test = fscanf(bdy_file,"%lf%lf%lf%lf%lf",
@@ -412,17 +412,17 @@ void read_sim(char inputdir[])
 	  ++B;
 	}
       --B;
-   
+
       fclose(bdy_file);
     }
-   
+
   fprintf(comp_log,"Simulation parameters.\n");
   fprintf(comp_log,"%s %12.4e\n",inputs[FRAME_STEP],FrameStep);
   fprintf(comp_log,"%s %12.4e\n",inputs[END_TIME],EndTime);
   fprintf(comp_log,"%s %12.4e\n",inputs[VISCOSITY],visc);
-  if (strcmp(vtxfilename,"") == 0)  
+  if (strcmp(vtxfilename,"") == 0)
     fprintf(comp_log,"%s %s\n",inputs[VTX_INIT],vtxfilename);
-  if (strcmp(grdfilename,"") == 0)  
+  if (strcmp(grdfilename,"") == 0)
     fprintf(comp_log,"%s %s\n",inputs[GRD_INIT],grdfilename);
   fprintf(comp_log,"%d vortices read from %s.\n",N,temp);
   if (B != 0)
@@ -502,14 +502,14 @@ void read_ctl()
   Interps      = 0;
 
   sprintf(control_name,"%s%s",filename,".ctl");
-   
+
   /* ASSUME a 32-bit word. */
   inputs_size = sizeof(inputs)/4;
-   
+
   word = malloc(100*sizeof(char));
 
   control_file = fopen(control_name,"r");
-   
+
   if (fscanf(control_file,"%s",word) == 0)
     {
       printf("Fatal error: Cannot read ctl file keyword.\n");
@@ -518,18 +518,18 @@ void read_ctl()
 
   while (!feof(control_file))
     {
-	
+
       /*Keep this just in case.  On gcc, the memcmp automatically skips
        * over whitespace.  I am not sure if everyone does this.*/
       while ((isspace(*word)) && (word != '\0'))
 	++word;
-	
+
       if (*word == '#')
 	{
 	  while (*word != '\n')
 	    *word = fgetc(control_file);
 	}
-      else	
+      else
 	if (*word != '\0')
 	  {
 	    for (i=0; i<inputs_size; ++i)
@@ -705,7 +705,7 @@ void read_ctl()
   fflush(comp_log);
 }
 
-void init(int argc, char *argv[]) 
+void init(int argc, char *argv[])
 {
   char      sim_name[FILENAME_LEN],control_name[FILENAME_LEN],
     temp[FILENAME_LEN],inputdir[FILENAME_LEN],config[FILENAME_LEN];
@@ -785,25 +785,25 @@ void init(int argc, char *argv[])
   /* Defaults */
   dtth_delta = 1.0e-3;
   MaxOrder   = 3;
-   
+
   /*Allocate memory for multipole coefficients.*/
   for (i=0; i<LMAX; ++i)
-    Level_Ptr[i] = 
+    Level_Ptr[i] =
       malloc(sizeof(Complex)*PMAX*((int) ldexp(1.0,2*(i+1))));
- 
-  sprintf(filename,"%s/%s",inputdir,config);
+
+  sprintf(filename,"%s%s",inputdir,config);
 
 #ifdef MULTIPROC
   /* set up log files with process number embedded in names */
-  sprintf(temp,"%s_comp.%d.log",filename, rank);   
-  comp_log = fopen(temp,"w");   
+  sprintf(temp,"%s_comp.%d.log",filename, rank);
+  comp_log = fopen(temp,"w");
   sprintf(temp,"%s_diag.%d.log",filename, rank);
-  diag_log = fopen(temp,"w");   
+  diag_log = fopen(temp,"w");
   sprintf(temp,"%s_mpi.%d.log",filename, rank);
-  mpi_log = fopen(temp,"w");   
+  mpi_log = fopen(temp,"w");
   sprintf(temp,"%s_cpu.%d.log",filename, rank);
-  cpu_log = fopen(temp,"w");   
-#else 
+  cpu_log = fopen(temp,"w");
+#else
   /*  log file names will NOT have process rank # embedded  */
   sprintf(temp,"%s_comp.log",filename);
   comp_log = fopen(temp,"w");
@@ -818,9 +818,9 @@ void init(int argc, char *argv[])
   fprintf(diag_log,"Reading spectral coefficients\n");
 
   read_data();
-   
+
   fprintf(comp_log,"ECCSVM base: %s\n",filename);
-   
+
   sprintf(sim_name,"%s%s",filename,".sim");
   sprintf(control_name,"%s%s",filename,".ctl");
 
@@ -835,7 +835,7 @@ void init(int argc, char *argv[])
   read_sim(inputdir);
 
   fprintf(diag_log,"Finished reading files.\n");
-   
+
   fprintf(diag_log,"Initializing elements...\n");
 
   /* Go ahead and merge redundant elements from the initial conditions. */
@@ -866,12 +866,12 @@ void init(int argc, char *argv[])
 
 #ifdef CORRECTVEL4
   fprintf(comp_log,"Using fourth order curvature corrections.\n");
-#endif 
+#endif
 
 #ifdef LINEAR
   fprintf(comp_log,"Operating as a particle tracking code with a known velocity field\n");
-#endif 
-   
+#endif
+
 #ifdef MULTIPROC
   fprintf(mpi_log,"Detected %d processes.\n",total_processes);
   if (total_processes == 2)
@@ -884,7 +884,7 @@ void init(int argc, char *argv[])
       else
 	fprintf(mpi_log,"Slave #%d is alive and kicking.\n",rank);
     }
-  
+
 #endif
 
   fflush(mpi_log);
@@ -894,11 +894,11 @@ void init(int argc, char *argv[])
 #ifdef MULTIPROC
   /* Have only the 'root' node do the writes */
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  if (rank == 0) {   
+  if (rank == 0) {
     write_vorts(0);
     write_partition(0);
   }
-#else 
+#else
   /* there is only one processor anyway */
   write_vorts(0);
   write_partition(0);
@@ -926,7 +926,7 @@ void init(int argc, char *argv[])
   Interps  = 1;
 
   fprintf(comp_log,"Initialization complete.\n");
-    
+
   fflush(mpi_log);
   fflush(comp_log);
   fflush(diag_log);
