@@ -54,6 +54,30 @@ void wipe_vort_vel_field()
     }  
 }
 
+void neg_a2_check()
+{
+  int j;
+  int failure = 0;
+
+  for (j=0; j<N; ++j)
+    if (blobguts[j].a2<0.0)
+      {
+	fprintf(diag_log,"Blob %d has a negative aspect ratio of %lf",
+		j,blobguts[j].a2);
+	failure = 1;
+      }
+
+  if (failure==1)
+    {
+      printf("BlobFlow is halting because at least one blob has an aspect ratio that is\n");
+      printf("negative. This is generally a sign that BlobFlow is not capturing the\n");
+      printf("the flow dynamics with the chosen TimeStep, and you will need to decrease it\n");
+      printf("to resolve the flow.\n");
+      printf("It is time to sleep.\n");
+      exit(-1);
+    }
+}
+
 void vel_field()
 {
    int j;
