@@ -179,6 +179,25 @@ grid.  A regular grid has more than aesthetic advantages.  Having a regular
 grid means that memory can be allocated in a geometrically relevant way.
 In a Lagrangian scheme, no such assumptions can be made.
 
+This particular vortex method approximates the vorticity equations
+\begin{equation}
+\frac{\partial \omega}{\partial t} + \vec{u} \cdot \nabla \omega =
+\nu \nabla^2 \omega, \ \ \nabla \cdot \vec{u} = 0
+\label{eq:vorticity}
+\end{equation}
+where $u$ is the fluid velocity, $\nu$ is its viscosity and $\omega =
+(\nabla \times \vec{u}) \cdot \hat{z}$ is the fluid vorticity.  In two
+dimensions, the vorticity always points in the $\hat{z}$ direction.  These
+equations are derived from and are equivalent to the Navier-Stokes equations
+which are a tremendously successful model for the motions of gasses and
+liquids.  It can be shown that this particular algorithm is a forth order
+correct method.  Loosely speaking, this means that if you had an exact
+solution to \eqnn{eq:vorticity} and found that a \BF\ computation using
+particles of width $\sigma$ had an error of $e_1$, you could repeat the
+calculation with particles of size $\sigma/2$ and produce a result with an
+error of roughly $e_1/2^4$ or one sixteenth the error from the first
+calculation.
+
 \chapter{Building \BF}
 
 \section{Requirements}
@@ -515,8 +534,12 @@ the Navier-Stokes equations, they are challenging to compute for various
 reasons to be discussed in each specific case.
 
 The viscous Lamb-Oseen monopole is a simple vortical structure that rotates in
-place and spreads.  The vorticity distribution is a Gaussian.  The
-computational implementation...
+place and spreads.  The exact solution is a self-similar Gaussian distribution
+of vorticity.  One example of a Lamb-Oseen vortex is
+\begin{equation}
+\omega \frac{1}{4\pi (1+t/Re)} \exp\left[-\frac{x^2+y^2}{4 (1+t/Re)} \right].
+\end{equation}
+
 
 \begin{figure}[t]
 \begin{center}
