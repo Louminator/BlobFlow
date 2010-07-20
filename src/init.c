@@ -161,6 +161,12 @@ void read_sim(char inputdir[])
   sprintf(sim_name,"%s%s",filename,".sim");
   sim_file = fopen(sim_name,"r");
 
+  if(sim_file == NULL)
+    {
+      printf("Fatal error: Sim file cannot be found.\n");
+      exit(-1);
+    };
+   
   /* ASSUME a 32-bit word. */
   inputs_size = sizeof(inputs)/4;
   word = malloc(100*sizeof(char));
@@ -510,6 +516,12 @@ void read_ctl()
 
   control_file = fopen(control_name,"r");
 
+  if(control_file == NULL)
+    {
+      printf("Fatal error: ctl file cannot be found.\n");
+      exit(-1);
+    };
+
   if (fscanf(control_file,"%s",word) == 0)
     {
       printf("Fatal error: Cannot read ctl file keyword.\n");
@@ -729,9 +741,11 @@ void init(int argc, char *argv[])
 		    {
 		      ++i;
 		      strcpy(inputdir,argv[i]);
+		      if(inputdir[(strlen(inputdir)-1)] != '/')
+			{
+			  inputdir[(strlen(inputdir))] = '/';
+			}
 		      inputdirread = 1;
-		      if (inputdir[strlen(inputdir)-1] != '/')
-			strcat(inputdir,"/");
 		    }
 		}
 
@@ -751,9 +765,11 @@ void init(int argc, char *argv[])
 		    {
 		      ++i;
 		      strcpy(datarootname,argv[i]);
+		      if(datarootname[(strlen(datarootname)-1)] != '/')
+			{
+			  datarootname[(strlen(datarootname))] = '/';
+			}
 		      domdirread = 1;
-		      if (datarootname[strlen(datarootname)-1] != '/')
-			strcat(datarootname,"/");
 		    }
 		}
 	    }
