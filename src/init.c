@@ -743,6 +743,8 @@ void init(int argc, char *argv[])
 		      strcpy(inputdir,argv[i]);
 		      if(inputdir[(strlen(inputdir)-1)] != '/')
 			{
+			  inputdir[strlen(inputdir)+1] = 
+			    inputdir[strlen(inputdir)];
 			  inputdir[(strlen(inputdir))] = '/';
 			}
 		      inputdirread = 1;
@@ -767,6 +769,8 @@ void init(int argc, char *argv[])
 		      strcpy(datarootname,argv[i]);
 		      if(datarootname[(strlen(datarootname)-1)] != '/')
 			{
+			  datarootname[strlen(datarootname)+1] = 
+			    datarootname[strlen(datarootname)];
 			  datarootname[(strlen(datarootname))] = '/';
 			}
 		      domdirread = 1;
