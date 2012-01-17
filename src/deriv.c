@@ -166,12 +166,14 @@ void vel_field()
      }
 
    vel_cputime += clock()-vel_cputime_ref;
-   fprintf(cpu_log,"%07d %12.4e %12.4e %12.4e %12.4e\n",
+   fprintf(cpu_log,"%07d %12.4e %12.4e %12.4e %12.4e %12.4e %12.4e\n",
 	   N,
 	   ((double)(vel_cputime))/((double)CLOCKS_PER_SEC),
 	   ((double)(velsum_cputime))/((double)CLOCKS_PER_SEC),
 	   ((double)(veldirect_cputime))/((double)CLOCKS_PER_SEC),
-	   ((double)(mp_cputime))/((double)CLOCKS_PER_SEC)
+	   ((double)(mp_cputime))/((double)CLOCKS_PER_SEC),
+	   ((double)(mp_Init_Fine_Grid))/((double)CLOCKS_PER_SEC),
+	   ((double)(mp_Advance_Coeffs))/((double)CLOCKS_PER_SEC)
 	   );
    fflush(cpu_log);
 }

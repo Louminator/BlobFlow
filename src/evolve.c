@@ -89,7 +89,10 @@ double phase,mxx,mxy,myy,old_mxx,old_mxy,old_myy;
 clock_t tot_cputime_ref,tot_cputime,
   vel_cputime_ref,vel_cputime,velsum_cputime_ref,velsum_cputime,
   veldirect_cputime_ref,veldirect_cputime,
-  mp_cputime,mp_cputime_ref;
+  mp_cputime,mp_cputime_ref,
+  mp_Init_Fine_Grid,mp_Init_Fine_Grid_ref,
+  mp_Advance_Coeffs,mp_Advance_Coeffs_ref;
+
 
 #ifdef MULTIPROC
 int total_processes, rank;

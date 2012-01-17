@@ -340,8 +340,7 @@ void Advance_Coeffs(int levels)
    Complex *Coeff_Array,*Coeff_Array_Finer,tmpz,dz[PMAX+1];
    
 #ifdef MULTIPROC
-   int rank,total_processes,buffsize;
-   Complex *Coeff_buff;
+   int rank,total_processes;
 #endif
    
    /* These need to be explicitly determined here for some reason.*/
@@ -355,11 +354,6 @@ void Advance_Coeffs(int levels)
 
    for (l=levels-2; l>=0; --l)
      {
-#ifdef MULTIPROC
-       buffsize = PMAX*((int) ldexp(1.0,2*(l+1)));
-       Coeff_buff = malloc(sizeof(Complex)*buffsize);
-#endif
-
 	Coeff_Array = Level_Ptr[l];
 	Coeff_Array_Finer = Level_Ptr[l+1];
 	size = ldexp(1.0,l+1);
@@ -392,7 +386,7 @@ void Advance_Coeffs(int levels)
 	  for (j=0; j<size; ++j)
 #ifdef MULTIPROC
 	    /* Split up the work. */
-	    if ( ( (i*size+j) % total_processes) == rank)
+	    if ( ( (i+j*size) % total_processes) == rank)
 	      {
 #endif
 	    for (p=0; p<PMAX; ++p)
@@ -426,7 +420,7 @@ void Advance_Coeffs(int levels)
 	  for (j=0; j<size; ++j)
 #ifdef MULTIPROC
 	    /* Split up the work. */
-	    if ( ( (i*size+j) % total_processes) == rank)
+	    if ( ( (i+j*size) % total_processes) == rank)
 	      {
 #endif
 	    for (p=0; p<PMAX; ++p)
@@ -460,7 +454,7 @@ void Advance_Coeffs(int levels)
 	  for (j=0; j<size; ++j)
 #ifdef MULTIPROC
 	    /* Split up the work. */
-	    if ( ( (i*size+j) % total_processes) == rank)
+	    if ( ( (i+j*size) % total_processes) == rank)
 	      {
 #endif
 	    for (p=0; p<PMAX; ++p)
@@ -494,7 +488,7 @@ void Advance_Coeffs(int levels)
 	  for (j=0; j<size; ++j)
 #ifdef MULTIPROC
 	    /* Split up the work. */
-	    if ( ( (i*size+j) % total_processes) == rank)
+	    if ( ( (i+j*size) % total_processes) == rank)
 	      {
 #endif
 	    for (p=0; p<PMAX; ++p)
@@ -512,14 +506,17 @@ void Advance_Coeffs(int levels)
 #endif
 
 #ifdef MULTIPROC
-	MPI_Allreduce(Coeff_Array,Coeff_buff,2*buffsize,MPI_DOUBLE,
-		      MPI_SUM,MPI_COMM_WORLD);
-	
-	for (j=0; j<PMAX*size*size; ++j)
-	  *(Coeff_Array+j) = *(Coeff_buff+j);
-
-	free(Coeff_buff);
+	for (i=0; i<size; ++i)
+	  for (j=0; j<size; ++j)
+	    {
+	      /* The pointer is of Complex type but we are sending it as 
+		 an MPI_DOUBLE so the length is twice the displacement 
+		 increment. */
+	      MPI_Bcast(Coeff_Array+(i+j*size)*PMAX, 2*PMAX, MPI_DOUBLE, 
+			((i+j*size) % total_processes), MPI_COMM_WORLD);
+	    }
 #endif
+
      }
 }
 
@@ -549,7 +546,14 @@ void Create_Hierarchy()
    mp_cputime_ref = clock();
    mplevels = Set_Level();
    partition(mplevels);
+
+   mp_Init_Fine_Grid_ref = clock();
    Init_Fine_Grid(mplevels);
+   mp_Init_Fine_Grid = clock()-mp_Init_Fine_Grid_ref;
+
+   mp_Advance_Coeffs_ref = clock();
    Advance_Coeffs(mplevels);
+   mp_Advance_Coeffs = clock() - mp_Advance_Coeffs_ref;
+
    mp_cputime += clock()-mp_cputime_ref;
 }
