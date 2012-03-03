@@ -83,5 +83,5 @@ extern int    merge_estimator,nsplit,nmerge,totsplit,totmerge,MergeFrame;
 
 /* Functions and subroutines */
 
-void rk4();
-void init();
+extern void rk4(double);
+extern void init();
