@@ -70,6 +70,23 @@ Complex cmult(Complex c1,Complex c2)
    return(result);
 }
 
+/* Returns the cpu for the kth item of N total items with T cpus. */
+int sort_cpu(int k, int N, int T)
+{
+  int l,m,n,cpu;
+
+  l = N % T;
+  m = N/T;
+  n = N/T + (l != 0);
+
+  if (k < n*l)
+    cpu = k/n;
+  else
+    cpu = (k-n*l)/m + l;
+
+  return(cpu);
+}
+
 int Set_Level()
 {
    int i;
@@ -236,10 +253,10 @@ void Init_Fine_Grid(int levels)
 {
    int i,j,p,size;
    Complex *Coeff_Array,tmpz,dz,mp[PMAX];
+   int cpu,cpu_k,cpu_m,cpu_n,lower_limit,upper_limit;
 
 #ifdef MULTIPROC
-   int     start,end,rank,total_processes,buffsize;
-   Complex *Coeff_buff;
+   int     rank,total_processes;
 #endif
    
    /* These need to be explicitly determined here for some reason.*/
@@ -266,50 +283,61 @@ void Init_Fine_Grid(int levels)
    MPI_Comm_size(MPI_COMM_WORLD, &total_processes);
    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-   buffsize = PMAX*((int) ldexp(1.0,2*(levels)));
+   cpu_k = (size*size) % total_processes;
+   cpu_m = (size*size) / total_processes;
+   cpu_n = cpu_m + (cpu_k != 0);
 
-   Coeff_buff = malloc(sizeof(Complex)*buffsize);
-
-   start = rank*((int) N/total_processes);
-   end   = (rank+1)*((int) N/total_processes);
-   
-   if (rank==total_processes-1)
-     end = N;
-
-   for (i=start; i<end; ++i)
+   if (rank< cpu_k)
      {
-	dz.re=(minX+(gridx[levels-1][i]+0.5)*(distX/size))-mblob[i].blob0.x;
-	dz.im=(minY+(gridy[levels-1][i]+0.5)*(distY/size))-mblob[i].blob0.y;
-
-	Calc_Coeffs(i,dz,mp);
-	
-	for (p=0; p<PMAX; ++p)
-	  {
-	     (*(Coeff_Array+
-	       (gridx[levels-1][i]+gridy[levels-1][i]*size)*PMAX+p)).re +=
-	       mp[p].re;
-	     (*(Coeff_Array+
-	       (gridx[levels-1][i]+gridy[levels-1][i]*size)*PMAX+p)).im +=
-	       mp[p].im;
-	  }
+       lower_limit = rank*cpu_n;
+       upper_limit = (rank+1)*cpu_n;
+     }
+   else
+     {
+       lower_limit = cpu_k*cpu_n+(rank     - cpu_k)*cpu_m;
+       upper_limit = cpu_k*cpu_n+(rank + 1 - cpu_k)*cpu_m;
      }
 
-   MPI_Allreduce(Coeff_Array,Coeff_buff,2*buffsize,MPI_DOUBLE,
-	      MPI_SUM,MPI_COMM_WORLD);
+   for (i=0; i<N; ++i)
+     if ( (gridx[levels-1][i] + gridy[levels-1][i]*size >= lower_limit) &&
+	  (gridx[levels-1][i] + gridy[levels-1][i]*size <  upper_limit) )
+       {
+	 dz.re=(minX+(gridx[levels-1][i]+0.5)*(distX/size))-mblob[i].blob0.x;
+	 dz.im=(minY+(gridy[levels-1][i]+0.5)*(distY/size))-mblob[i].blob0.y;
 
-   /*  This is the equivalent of an MPI_All_Reduce and should be
-       removed if the line above works properly. */
-   /*
-   MPI_Reduce(Coeff_Array,Coeff_buff,2*buffsize,MPI_DOUBLE,
-	      MPI_SUM,0,MPI_COMM_WORLD);
+	 Calc_Coeffs(i,dz,mp);
+	
+	 for (p=0; p<PMAX; ++p)
+	   {
+	     (*(Coeff_Array+
+		(gridx[levels-1][i]+gridy[levels-1][i]*size)*PMAX+p)).re +=
+	       mp[p].re;
+	     (*(Coeff_Array+
+		(gridx[levels-1][i]+gridy[levels-1][i]*size)*PMAX+p)).im +=
+	       mp[p].im;
+	   }
+       }
 
-   MPI_Bcast (Coeff_buff, 2*buffsize, MPI_DOUBLE, 0, MPI_COMM_WORLD );
-   */
+   /* Now share your results. */
 
-   for (j=0; j<PMAX*size*size; ++j)
-     *(Coeff_Array+j) = *(Coeff_buff+j);
-
-   free(Coeff_buff);
+   for (cpu=0; cpu<total_processes; ++cpu)
+     {
+       if (cpu< cpu_k)
+	 {
+	   lower_limit = cpu*cpu_n;
+	   upper_limit = (cpu+1)*cpu_n;
+	 }
+       else
+	 {
+	   lower_limit = cpu_k*cpu_n+(cpu - cpu_k)*cpu_m;
+	   upper_limit = cpu_k*cpu_n+(cpu+1 - cpu_k)*cpu_m;
+	 }
+       
+       if (upper_limit != lower_limit)
+	 MPI_Bcast(Coeff_Array+lower_limit*PMAX, 
+		   (upper_limit-lower_limit)*2*PMAX, MPI_DOUBLE, 
+		   cpu, MPI_COMM_WORLD);
+     }
 #else
    for (i=0; i<N; ++i)
      {
@@ -338,6 +366,7 @@ void Advance_Coeffs(int levels)
 {
    int i,j,p,p1,l,size;
    Complex *Coeff_Array,*Coeff_Array_Finer,tmpz,dz[PMAX+1];
+   int cpu,cpu_k,cpu_m,cpu_n,lower_limit,upper_limit;
    
 #ifdef MULTIPROC
    int rank,total_processes;
@@ -357,7 +386,7 @@ void Advance_Coeffs(int levels)
 	Coeff_Array = Level_Ptr[l];
 	Coeff_Array_Finer = Level_Ptr[l+1];
 	size = ldexp(1.0,l+1);
-	
+
 	/* Wipe the current layer */
 	tmpz.re = 0.0; tmpz.im = 0.0;
 	for (i=0; i<size; ++i)
@@ -386,7 +415,7 @@ void Advance_Coeffs(int levels)
 	  for (j=0; j<size; ++j)
 #ifdef MULTIPROC
 	    /* Split up the work. */
-	    if ( ( (i+j*size) % total_processes) == rank)
+	    if (sort_cpu(i+j*size,size*size,total_processes) == rank)
 	      {
 #endif
 	    for (p=0; p<PMAX; ++p)
@@ -420,7 +449,7 @@ void Advance_Coeffs(int levels)
 	  for (j=0; j<size; ++j)
 #ifdef MULTIPROC
 	    /* Split up the work. */
-	    if ( ( (i+j*size) % total_processes) == rank)
+	    if (sort_cpu(i+j*size,size*size,total_processes) == rank)
 	      {
 #endif
 	    for (p=0; p<PMAX; ++p)
@@ -454,7 +483,7 @@ void Advance_Coeffs(int levels)
 	  for (j=0; j<size; ++j)
 #ifdef MULTIPROC
 	    /* Split up the work. */
-	    if ( ( (i+j*size) % total_processes) == rank)
+	    if (sort_cpu(i+j*size,size*size,total_processes) == rank)
 	      {
 #endif
 	    for (p=0; p<PMAX; ++p)
@@ -488,7 +517,7 @@ void Advance_Coeffs(int levels)
 	  for (j=0; j<size; ++j)
 #ifdef MULTIPROC
 	    /* Split up the work. */
-	    if ( ( (i+j*size) % total_processes) == rank)
+	    if (sort_cpu(i+j*size,size*size,total_processes) == rank)
 	      {
 #endif
 	    for (p=0; p<PMAX; ++p)
@@ -506,15 +535,29 @@ void Advance_Coeffs(int levels)
 #endif
 
 #ifdef MULTIPROC
-	for (i=0; i<size; ++i)
-	  for (j=0; j<size; ++j)
-	    {
-	      /* The pointer is of Complex type but we are sending it as 
-		 an MPI_DOUBLE so the length is twice the displacement 
-		 increment. */
-	      MPI_Bcast(Coeff_Array+(i+j*size)*PMAX, 2*PMAX, MPI_DOUBLE, 
-			((i+j*size) % total_processes), MPI_COMM_WORLD);
-	    }
+	cpu_k = (size*size) % total_processes;
+	cpu_m = (size*size) / total_processes;
+	cpu_n = cpu_m + (cpu_k != 0);
+	for (cpu=0; cpu<total_processes; ++cpu)
+	  {
+	    if (cpu< cpu_k)
+	      {
+		lower_limit = cpu*cpu_n;
+		upper_limit = (cpu+1)*cpu_n;
+	      }
+	    else
+	      {
+		lower_limit = cpu_k*cpu_n+(cpu - cpu_k)*cpu_m;
+		upper_limit = cpu_k*cpu_n+(cpu+1 - cpu_k)*cpu_m;
+	      }
+	    /* The pointer is of Complex type but we are sending it as 
+	       an MPI_DOUBLE so the length is twice the displacement 
+	       increment. */
+	    if (upper_limit != lower_limit)
+	      MPI_Bcast(Coeff_Array+lower_limit*PMAX, 
+			(upper_limit-lower_limit)*2*PMAX, MPI_DOUBLE, 
+			cpu, MPI_COMM_WORLD);
+	  }
 #endif
 
      }
