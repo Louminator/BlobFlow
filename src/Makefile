@@ -5,6 +5,9 @@
 # terms of the GNU Public License        #
 # included in this package.              #
 ##########################################
+#
+# example: make eflow BINNAME=eflow
+
 
 HOSTTYPE 	:= $(shell arch)
 
@@ -69,8 +72,8 @@ endif
 
 CFLAGS = $(CCSVM) $(COPTFLAGS) $(MPICFLAGS) $(XANTISYMMCFLAGS) $(CWARNFLAGS)
 
-OBJECTS = deriv.o evolve.o files.o flip.o init.o \
-	removal.o solve.o veldev.o deform.o \
+OBJECTS = deriv.o solve.o evolve.o files.o flip.o init.o \
+	removal.o veldev.o deform.o \
 	velocity.o partition.o mpsum.o mpcoeffs.o \
 	reflect.o master-slave.o peer.o cache_resort.o \
 	stream_fn.o potential.o boundary.o\
@@ -85,7 +88,7 @@ dummy:
 eflow: $(OBJECTS)
 	$(LN)  $(CPROF_FLAGS) -o $(BINNAME) $(OBJECTS) $(CLIBS)
 
-$(OBJECTS): global.h multiproc.h global_matrices.h global_min.h particle.h \
+$(OBJECTS): multiproc.h global_matrices.h global_min.h particle.h \
 	biot-savart.h boundary.h field_interp.h linear_velocity.h potential.h
 
 .c.o:
