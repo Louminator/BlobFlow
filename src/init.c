@@ -85,7 +85,11 @@ static char *inputs[] =
   "InterpStep:",
   "InterpPopulationControl:",
   "InterpVar:",
-  "BoundaryStep:"
+  "BoundaryStep:",
+
+  "WriteVtx:",
+  "WritePartitions:",
+  "WriteVel:"
 };
 
 enum ScriptItems
@@ -96,7 +100,7 @@ enum ScriptItems
    MERGE_BUDGET,MERGE_STEP,CLUSTER_RADIUS,MERGE_A2_TOL,MERGE_TH_TOL,
    MERGE_MOM3_WT,MERGE_MOM4_WT,MERGE_C,MERGE_GROWTH_RATE,
    INTERP_STEP,INTERP_POPULATION_CONTROL,INTERP_VAR,
-   BOUNDARY_STEP
+   BOUNDARY_STEP,WRITE_VTX,WRITE_PARTITIONS,WRITE_VEL
   };
 
 /* A routine to remove stack size limits. */
@@ -507,6 +511,10 @@ void read_ctl()
   InterpStep   = -1.0;
   Interps      = 0;
 
+  write_vtx = 1;
+  write_partitions = 0;
+  write_vel=0;
+
   sprintf(control_name,"%s%s",filename,".ctl");
 
   /* ASSUME a 32-bit word. */
@@ -691,6 +699,21 @@ void read_ctl()
 		      break;
 		    case BOUNDARY_STEP:
 		      if (fscanf(control_file,"%lf",&BoundaryStep) != 1)
+			bailout_ctlfile(i);
+		      i=inputs_size+1;
+		      break;
+		    case WRITE_VTX:
+		      if (fscanf(control_file,"%d",&write_vtx) != 1)
+			bailout_ctlfile(i);
+		      i=inputs_size+1;
+		      break;
+		    case WRITE_PARTITIONS:
+		      if (fscanf(control_file,"%d",&write_partitions) != 1)
+			bailout_ctlfile(i);
+		      i=inputs_size+1;
+		      break;
+		    case WRITE_VEL:
+		      if (fscanf(control_file,"%d",&write_vel) != 1)
 			bailout_ctlfile(i);
 		      i=inputs_size+1;
 		      break;
@@ -915,13 +938,15 @@ void init(int argc, char *argv[])
   /* Have only the 'root' node do the writes */
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
-    write_vorts(0);
-    write_partition(0);
+    if (write_vtx) write_vorts(0);
+    if (write_vel) write_vels(0);
+    if (write_partitions) write_partition(0);
   }
 #else
   /* there is only one processor anyway */
-  write_vorts(0);
-  write_partition(0);
+  if (write_vtx) write_vorts(0);
+  if (write_vel) write_vels(0);
+  if (write_partitions) write_partition(0);
 #endif
 
   Frame = 1;

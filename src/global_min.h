@@ -69,6 +69,7 @@ extern int    Frame,MaxOrder;
 extern FILE          *comp_log,*diag_log,*mpi_log,*cpu_log;
 extern char filename[];
 
+extern int write_vtx,write_partitions,write_vel;
 
 /* Splitting parameters DEPRECATED */
 extern int    split_method;

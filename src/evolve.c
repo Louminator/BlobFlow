@@ -61,6 +61,7 @@ double    BoundaryStep;
 int       BoundaryFrame;
 
 char      filename[FILENAME_LEN];
+int       write_vtx,write_partitions,write_vel;
 
 Blob_parms tmpparms[NMAX];
 
@@ -171,14 +172,17 @@ void run()
 #ifdef MULTIPROC
 	  /* Have only the 'root' node do the writes */
 	  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	  if (rank == 0) {
-	    write_vorts(Frame);
-	    write_partition(Frame);
-	  }
+	  if (rank == 0) 
+	    {
+	      if (write_vtx) write_vorts(Frame);
+	      if (write_vel) write_vels(Frame);
+	      if (write_partitions) write_partition(Frame);
+	    }
 #else 
 	  /* single processor */
-	  write_vorts(Frame);
-	  write_partition(Frame);	    
+	  if (write_vtx) write_vorts(Frame);
+	  if (write_vel) write_vels(Frame);
+	  if (write_partitions) write_partition(Frame);	    
 #endif
 
 	  ++Frame; 

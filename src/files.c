@@ -55,6 +55,26 @@ void write_vorts(int frameno)
   fclose(vortex_file);
 }
 
+void write_vels(int frameno)
+{
+  int         i;
+  char        velocity_name[FILENAME_LEN];
+  FILE        *velocity_file,*fopen();
+   
+  vel_field();
+
+  sprintf(velocity_name,"%s%04d%s",filename,frameno,".vel");
+
+  velocity_file = fopen(velocity_name,"w");
+
+  for (i=0; i<N; ++i)
+      fprintf(velocity_file,"%10.4e %10.4e %10.4e %10.4e\n",
+	      mblob[i].blob0.x,mblob[i].blob0.y,
+	      mblob[i].blob0.dx,mblob[i].blob0.dy);
+
+  fclose(velocity_file);
+}
+
 void write_partition(int frameno)
 {
    int i,l;
