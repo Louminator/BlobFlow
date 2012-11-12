@@ -934,18 +934,18 @@ void init(int argc, char *argv[])
   fflush(comp_log);
   fflush(diag_log);
 
+  if (write_vel) write_vels(0);
 #ifdef MULTIPROC
   /* Have only the 'root' node do the writes */
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  if (rank == 0) {
-    if (write_vtx) write_vorts(0);
-    if (write_vel) write_vels(0);
-    if (write_partitions) write_partition(0);
-  }
+  if (rank == 0) 
+    {
+      if (write_vtx) write_vorts(0);
+      if (write_partitions) write_partition(0);
+    }
 #else
   /* there is only one processor anyway */
   if (write_vtx) write_vorts(0);
-  if (write_vel) write_vels(0);
   if (write_partitions) write_partition(0);
 #endif
 
