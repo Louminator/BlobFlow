@@ -29,6 +29,10 @@
 
 #include "biot-savart.h"
 
+#ifdef MULTIPROC
+#include "multiproc.h"
+#endif
+
 /* Interpolate blobs onto the finest multipole grid with a gridn X
    gridn regular grid. */
 
@@ -992,8 +996,8 @@ void RHE_interp2(double s2, double pop_control)
       else
 	mesh_reach = ceil(sqrt(64*blobguts[i].s2/blobguts[0].a2)/h);
 
-      cen_j = (mblob[i].blob0.x-minX)/h;
-      cen_k = (mblob[i].blob0.y-minY)/h;
+      cen_j = (int) ((mblob[i].blob0.x-minX)/h + 0.5);
+      cen_k = (int) ((mblob[i].blob0.y-minY)/h + 0.5);
 
       for (j=-mesh_reach; j<mesh_reach+1; ++ j)
 	for (k=-mesh_reach; k<mesh_reach+1; ++ k)
@@ -1025,6 +1029,10 @@ void RHE_interp2(double s2, double pop_control)
 	    }
 	      
     }
+
+  printf("Mesh: rank %d %d %d %12.8e %12.8e %12.8e %12.8e\n",
+	 rank,MeshM,MeshN,
+	 minX,maxX,minY,maxY);
 
   /* Now walk it back in time. */
 
