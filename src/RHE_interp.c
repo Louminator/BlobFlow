@@ -856,3 +856,278 @@ void RHE_interp(double s2, double pop_control)
   N = count;
 }
 
+void laplacian(double *field, double *del2_field, double c, int MeshM, int MeshN)
+{
+  int i,j;
+
+  double *padded_field;
+
+  for (i=0; i<MeshM; ++i)
+    for (j=0; j<MeshN; ++j)
+      *(del2_field + i + j*MeshM) = 0.0;
+
+  /* Pad the field with 0's on the boundary for Dirichlet BCs*/
+  padded_field = malloc(sizeof(c)*(MeshM+6)*(MeshN+6));
+  for (i=0; i<MeshM+6; ++i)
+    for (j=0; j<MeshN+6; ++j)
+      if ( (i<3) || (i>MeshM+2) || (j<3) || (j > MeshN+2) )
+	*(padded_field + i + j*(MeshM+6)) = 0.0;
+      else
+	*(padded_field + i + j*(MeshM+6)) =
+	  *(field + (i-3) + (j-3)*(MeshM+6));
+
+  for (i=0; i<MeshM; ++i)
+    for (j=0; j<MeshN; ++j)
+      {
+	*(del2_field + i + j*MeshM) +=
+	  -c/180.0*(
+		    2.0*    (*(padded_field + (i)   + (j)*(MeshM+6)))
+		    - 27.0* (*(padded_field + (i+1) + (j)*(MeshM+6)))
+		    + 270.0*(*(padded_field + (i+2) + (j)*(MeshM+6)))
+		    - 490.0*(*(padded_field + (i+3) + (j)*(MeshM+6)))
+		    + 270.0*(*(padded_field + (i+4) + (j)*(MeshM+6)))
+		    - 27.0* (*(padded_field + (i+5) + (j)*(MeshM+6)))
+		    + 2.0*  (*(padded_field + (i+6) + (j)*(MeshM+6))) );
+	*(del2_field + i + j*MeshM) +=
+	  -c/180.0*(
+		    2.0*    (*(padded_field + (i) + (j)  *(MeshM+6)))
+		    - 27.0* (*(padded_field + (i) + (j+1)*(MeshM+6)))
+		    + 270.0*(*(padded_field + (i) + (j+2)*(MeshM+6)))
+		    - 490.0*(*(padded_field + (i) + (j+3)*(MeshM+6)))
+		    + 270.0*(*(padded_field + (i) + (j+4)*(MeshM+6)))
+		    - 27.0* (*(padded_field + (i) + (j+5)*(MeshM+6)))
+		    + 2.0*  (*(padded_field + (i) + (j+6)*(MeshM+6))) );
+      }
+  free(padded_field);
+}
+
+void RHE_interp2(double s2, double pop_control)
+{
+  double h,alpha;
+  int MeshM,MeshN,mesh_reach,i,j,k,cen_j,cen_k,count;
+
+  double maxa2,maxs2,bounding_buffer;
+  double minX,maxX,minY,maxY,distX,distY;
+
+  double x,y,posx,posy,s,c,circ,cos2,sin2,a2,var,dx,dy,temp;
+
+  double *field,*field1,*field2,*field3,*field4;
+  double *L_field1,*L_field2,*L_field3,*L_field4;
+   
+  /* Create a bounding box similar to Set_Level. */
+
+  printf("RHE interp2\n");
+
+  maxa2 = MAX(blobguts[0].a2,1.0/blobguts[0].a2);
+  maxs2 = blobguts[0].s2;
+   
+  for (i=1; i<N; ++i)
+    {
+      if (1.0/blobguts[i].a2 > maxa2)
+	maxa2 = 1.0/blobguts[i].a2;
+      else
+	if (blobguts[i].a2 > maxa2)
+	  maxa2 = blobguts[i].a2;
+      if (blobguts[i].s2 > maxs2)
+	maxs2 = blobguts[i].s2;
+    }
+
+  minX = mblob[0].blob0.x;
+  maxX = mblob[0].blob0.x;
+  minY = mblob[0].blob0.y;
+  maxY = mblob[0].blob0.y;
+  for (i=1; i<N; ++i)
+    {
+      if (mblob[i].blob0.x<minX) minX = mblob[i].blob0.x; 
+      if (mblob[i].blob0.x>maxX) maxX = mblob[i].blob0.x; 
+      if (mblob[i].blob0.y<minY) minY = mblob[i].blob0.y; 
+      if (mblob[i].blob0.y>maxY) maxY = mblob[i].blob0.y; 
+    }
+
+  bounding_buffer = sqrt(64*maxa2*maxs2);
+  minX -= bounding_buffer;
+  maxX += bounding_buffer;
+  minY -= bounding_buffer;
+  maxY += bounding_buffer;
+   
+  distX = maxX-minX;
+  distY = maxY-minY;
+
+  /*
+  cX = (maxX+minX)/2.0;
+  cY = (maxY+minY)/2.0;
+
+  if (distY > distX)
+    {
+      minX -= (distY-distX)/2.0;
+      maxX += (distY-distX)/2.0;
+      distX = distY;
+    }
+  else
+    {
+      minY -= (distX-distY)/2.0;
+      maxY += (distX-distY)/2.0;
+      distY = distX;
+    }
+  */
+   
+   /* end of bounding box */
+
+  h = sqrt(s2);
+
+  MeshM = ceil(distX/h);
+  MeshN = ceil(distY/h);
+
+  /* Project the old field onto the mesh */
+
+  field = malloc(sizeof(h)*MeshM*MeshN);
+
+  for (k=0; k<MeshM*MeshN; ++k)
+    *(field+k) = 0.0;
+
+  for (i=0; i<N; ++i)
+    {
+      if (blobguts[i].a2>1.0)
+	mesh_reach = ceil(sqrt(64*blobguts[i].s2*blobguts[0].a2)/h);
+      else
+	mesh_reach = ceil(sqrt(64*blobguts[i].s2/blobguts[0].a2)/h);
+
+      cen_j = (mblob[i].blob0.x-minX)/h;
+      cen_k = (mblob[i].blob0.y-minY)/h;
+
+      for (j=-mesh_reach; j<mesh_reach+1; ++ j)
+	for (k=-mesh_reach; k<mesh_reach+1; ++ k)
+	  if ( ( (cen_j+j >= 0) && (cen_j+j < MeshM) ) &&
+	       ( (cen_k+k >= 0) && (cen_k+k < MeshN) ) )
+	    {
+	      posx = mblob[i].blob0.x;
+	      posy = mblob[i].blob0.y;
+	      circ = mblob[i].blob0.strength;
+	      c    = tmpparms[i].costh;
+	      s    = tmpparms[i].sinth;
+	      cos2 = tmpparms[i].cos2;
+	      sin2 = tmpparms[i].sin2;
+	      a2   = blobguts[i].a2;
+	      var  = blobguts[i].s2;
+		  
+	      dx = minX+(cen_j+j)*h - posx;
+	      dy = minY+(cen_k+k)*h - posy;
+		  
+	      /* Evaluation of omega here. */
+		  
+	      temp = -(SQR(dx)*(cos2/a2+sin2*a2)+
+		       SQR(dy)*(sin2/a2+cos2*a2)+
+		       2.0*dx*dy*c*s*(1.0/a2-a2))/
+		(4.0*var);
+	      /* A little code to avoid underflow handling. */
+	      if (-temp<16)
+		*(field+(j+cen_j) + (k+cen_k)*MeshM) += circ*exp(temp)/(2.0*var);
+	    }
+	      
+    }
+
+  /* Now walk it back in time. */
+
+  alpha = s2/h/h;
+
+  field1 = malloc(sizeof(h)*MeshM*MeshN);
+  field2 = malloc(sizeof(h)*MeshM*MeshN);
+  field3 = malloc(sizeof(h)*MeshM*MeshN);
+  field4 = malloc(sizeof(h)*MeshM*MeshN);
+  L_field1 = malloc(sizeof(h)*MeshM*MeshN);
+  L_field2 = malloc(sizeof(h)*MeshM*MeshN);
+  L_field3 = malloc(sizeof(h)*MeshM*MeshN);
+  L_field4 = malloc(sizeof(h)*MeshM*MeshN);
+
+
+  /* FCE */
+  laplacian(field,L_field1,MeshM,MeshN,alpha);
+  
+  for (i=0; i<MeshM; ++i)
+    for (j=0; j<MeshN; ++j)
+      {
+	*(field2 + i + j*MeshM) = 
+	  *(field + i + j*MeshM) + 0.5*(*(L_field1 + i + j*MeshM));
+      }
+
+  /* BCE */
+  laplacian(field2,L_field2,MeshM,MeshN,alpha);
+  
+  for (i=0; i<MeshM; ++i)
+    for (j=0; j<MeshN; ++j)
+      {
+	*(field3 + i + j*MeshM) = 
+	  *(field + i + j*MeshM) + 0.5*(*(L_field2 + i + j*MeshM));
+      }
+
+  /* Midpoint */
+  laplacian(field3,L_field3,MeshM,MeshN,alpha);
+  
+  for (i=0; i<MeshM; ++i)
+    for (j=0; j<MeshN; ++j)
+      {
+	*(field4 + i + j*MeshM) = 
+	  *(field + i + j*MeshM) + (*(L_field3 + i + j*MeshM));
+      }
+
+  /* Simpson's */
+  laplacian(field4,L_field4,MeshM,MeshN,alpha);
+  
+  for (i=0; i<MeshM; ++i)
+    for (j=0; j<MeshN; ++j)
+      {
+	*(field + i + j*MeshM) += 
+	  (*(L_field1 + i + j*MeshM))/6.0 +
+	  (*(L_field2 + i + j*MeshM))/3.0 +
+	  (*(L_field3 + i + j*MeshM))/3.0 +
+	  (*(L_field4 + i + j*MeshM))/6.0;
+      }
+
+  count = 0;
+
+  printf("Done walking.\n");
+
+  for (i=0; i<MeshM; ++i)
+    for (j=0; j<MeshN; ++j)
+      {
+	if (fabs(*(field + i + j*MeshM))/h/h>pop_control)
+	  {
+	    x = minX+i*h;
+	    y = minY+j*h;
+		  
+	    mblob[count].blob0.x = x;
+	    mblob[count].blob0.y = y;
+	    mblob[count].blob0.strength = *(field + i + j*MeshM)/2/M_PI;
+	    blobguts[count].s2 = s2;
+	    blobguts[count].a2 = 1.0;
+	    blobguts[count].th = 0.0;
+		  
+	    set_blob(&(blobguts[count]),&(tmpparms[count]));
+
+	    ++count;
+
+	    if (count==NMAX)
+	      {
+		fprintf(diag_log,"Out of memory in RHE remesh.\n");
+		fprintf(diag_log,"Time to sleep.\n");
+		fflush(diag_log);
+	      }
+	  }
+      }
+
+  free(field1);
+  free(field2);
+  free(field3);
+  free(field4);
+  free(L_field1);
+  free(L_field2);
+  free(L_field3);
+  free(L_field4);
+  free(field);
+
+  N = count;
+  printf("Done reworking elements %d.\n",N);
+
+  printf("Exiting RHE interp.\n");
+}
+
