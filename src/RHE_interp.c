@@ -881,22 +881,22 @@ void laplacian(double *field, double *del2_field, double c, int MeshM, int MeshN
       {
 	*(del2_field + i + j*MeshM) +=
 	  -c/180.0*(
-		    2.0*    (*(padded_field + (i)   + (j)*(MeshM+6)))
-		    - 27.0* (*(padded_field + (i+1) + (j)*(MeshM+6)))
-		    + 270.0*(*(padded_field + (i+2) + (j)*(MeshM+6)))
-		    - 490.0*(*(padded_field + (i+3) + (j)*(MeshM+6)))
-		    + 270.0*(*(padded_field + (i+4) + (j)*(MeshM+6)))
-		    - 27.0* (*(padded_field + (i+5) + (j)*(MeshM+6)))
-		    + 2.0*  (*(padded_field + (i+6) + (j)*(MeshM+6))) );
+		    2.0*    (*(padded_field + (i)   + (j+3)*(MeshM+6)))
+		    - 27.0* (*(padded_field + (i+1) + (j+3)*(MeshM+6)))
+		    + 270.0*(*(padded_field + (i+2) + (j+3)*(MeshM+6)))
+		    - 490.0*(*(padded_field + (i+3) + (j+3)*(MeshM+6)))
+		    + 270.0*(*(padded_field + (i+4) + (j+3)*(MeshM+6)))
+		    - 27.0* (*(padded_field + (i+5) + (j+3)*(MeshM+6)))
+		    + 2.0*  (*(padded_field + (i+6) + (j+3)*(MeshM+6))) );
 	*(del2_field + i + j*MeshM) +=
 	  -c/180.0*(
-		    2.0*    (*(padded_field + (i) + (j)  *(MeshM+6)))
-		    - 27.0* (*(padded_field + (i) + (j+1)*(MeshM+6)))
-		    + 270.0*(*(padded_field + (i) + (j+2)*(MeshM+6)))
-		    - 490.0*(*(padded_field + (i) + (j+3)*(MeshM+6)))
-		    + 270.0*(*(padded_field + (i) + (j+4)*(MeshM+6)))
-		    - 27.0* (*(padded_field + (i) + (j+5)*(MeshM+6)))
-		    + 2.0*  (*(padded_field + (i) + (j+6)*(MeshM+6))) );
+		    2.0*    (*(padded_field + (i+3) + (j)  *(MeshM+6)))
+		    - 27.0* (*(padded_field + (i+3) + (j+1)*(MeshM+6)))
+		    + 270.0*(*(padded_field + (i+3) + (j+2)*(MeshM+6)))
+		    - 490.0*(*(padded_field + (i+3) + (j+3)*(MeshM+6)))
+		    + 270.0*(*(padded_field + (i+3) + (j+4)*(MeshM+6)))
+		    - 27.0* (*(padded_field + (i+3) + (j+5)*(MeshM+6)))
+		    + 2.0*  (*(padded_field + (i+3) + (j+6)*(MeshM+6))) );
       }
   free(padded_field);
 }
@@ -1041,7 +1041,7 @@ void RHE_interp2(double s2, double pop_control)
 
 
   /* FCE */
-  laplacian(field,L_field1,MeshM,MeshN,alpha);
+  laplacian(field,L_field1,alpha,MeshM,MeshN);
   
   for (i=0; i<MeshM; ++i)
     for (j=0; j<MeshN; ++j)
@@ -1051,7 +1051,7 @@ void RHE_interp2(double s2, double pop_control)
       }
 
   /* BCE */
-  laplacian(field2,L_field2,MeshM,MeshN,alpha);
+  laplacian(field2,L_field2,alpha,MeshM,MeshN);
   
   for (i=0; i<MeshM; ++i)
     for (j=0; j<MeshN; ++j)
@@ -1061,7 +1061,7 @@ void RHE_interp2(double s2, double pop_control)
       }
 
   /* Midpoint */
-  laplacian(field3,L_field3,MeshM,MeshN,alpha);
+  laplacian(field3,L_field3,alpha,MeshM,MeshN);
   
   for (i=0; i<MeshM; ++i)
     for (j=0; j<MeshN; ++j)
@@ -1071,7 +1071,7 @@ void RHE_interp2(double s2, double pop_control)
       }
 
   /* Simpson's */
-  laplacian(field4,L_field4,MeshM,MeshN,alpha);
+  laplacian(field4,L_field4,alpha,MeshM,MeshN);
   
   for (i=0; i<MeshM; ++i)
     for (j=0; j<MeshN; ++j)
