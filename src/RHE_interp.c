@@ -998,6 +998,8 @@ void RHE_interp2(double s2, double pop_control)
 
       cen_j = (int) ((mblob[i].blob0.x-minX)/h + 0.5);
       cen_k = (int) ((mblob[i].blob0.y-minY)/h + 0.5);
+      
+      printf("%d %d %d %d\n",rank,i,cen_j,cen_k);
 
       for (j=-mesh_reach; j<mesh_reach+1; ++ j)
 	for (k=-mesh_reach; k<mesh_reach+1; ++ k)
