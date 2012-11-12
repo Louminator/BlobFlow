@@ -169,18 +169,17 @@ void run()
 
       if ((SimTime+0.499*TimeStep) >= FrameStep*Frame)
 	{
+	  if (write_vel) write_vels(Frame);
 #ifdef MULTIPROC
 	  /* Have only the 'root' node do the writes */
 	  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	  if (rank == 0) 
 	    {
 	      if (write_vtx) write_vorts(Frame);
-	      if (write_vel) write_vels(Frame);
 	      if (write_partitions) write_partition(Frame);
 	    }
 #else 
 	  /* single processor */
-	  if (write_vtx) write_vorts(Frame);
 	  if (write_vel) write_vels(Frame);
 	  if (write_partitions) write_partition(Frame);	    
 #endif
