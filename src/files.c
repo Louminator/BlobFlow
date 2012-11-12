@@ -34,6 +34,10 @@
 #include "global_min.h"
 #include "particle.h"
 #include "biot-savart.h"
+#ifdef MULTIPROC
+#include "multiproc.h"
+#endif
+
 
 void write_vorts(int frameno)
 {
@@ -63,6 +67,10 @@ void write_vels(int frameno)
    
   vel_field();
 
+#ifdef MULTIPROC
+  if (rank == 0)
+    {
+#endif
   sprintf(velocity_name,"%s%04d%s",filename,frameno,".vel");
 
   velocity_file = fopen(velocity_name,"w");
@@ -73,6 +81,9 @@ void write_vels(int frameno)
 	      mblob[i].blob0.dx,mblob[i].blob0.dy);
 
   fclose(velocity_file);
+#ifdef MULTIPROC
+    }
+#endif
 }
 
 void write_partition(int frameno)
