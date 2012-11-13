@@ -866,6 +866,8 @@ void laplacian(double *field, double *del2_field, double c, int MeshM, int MeshN
 
   double *padded_field;
 
+  printf("alpha %lf\n",c);
+
   for (i=0; i<MeshM; ++i)
     for (j=0; j<MeshN; ++j)
       *(del2_field + i + j*MeshM) = 0.0;
@@ -999,8 +1001,6 @@ void RHE_interp2(double s2, double pop_control)
       cen_j = (int) ((mblob[i].blob0.x-minX)/h + 0.5);
       cen_k = (int) ((mblob[i].blob0.y-minY)/h + 0.5);
       
-      printf("%d %d %d %d\n",rank,i,cen_j,cen_k);
-
       for (j=-mesh_reach; j<mesh_reach+1; ++ j)
 	for (k=-mesh_reach; k<mesh_reach+1; ++ k)
 	  if ( ( (cen_j+j >= 0) && (cen_j+j < MeshM) ) &&
@@ -1035,6 +1035,9 @@ void RHE_interp2(double s2, double pop_control)
   printf("Mesh: rank %d %d %d %12.8e %12.8e %12.8e %12.8e\n",
 	 rank,MeshM,MeshN,
 	 minX,maxX,minY,maxY);
+
+  printf("%d %d %d %14.8e\n",
+	 rank,MeshM/2,MeshN/2,*(field + MeshM/2 + (MeshN/2)*MeshM));
 
   /* Now walk it back in time. */
 
@@ -1096,6 +1099,9 @@ void RHE_interp2(double s2, double pop_control)
   count = 0;
 
   printf("Done walking.\n");
+
+  printf("%d %d %d %14.8e\n",
+	 rank,0,MeshN/2,*(field + 0/2 + (MeshN/2)*MeshM));
 
   for (i=0; i<MeshM; ++i)
     for (j=0; j<MeshN; ++j)
