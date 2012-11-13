@@ -163,7 +163,7 @@ void run()
       if ( (InterpStep > 0.0) &&
 	   ((SimTime+0.499*TimeStep) >= InterpStep*Interps) )
 	{
-	  RHE_interp(InterpVar,InterpPopulationControl);
+	  RHE_interp2(InterpVar,InterpPopulationControl);
 	  ++Interps;
 	}
 

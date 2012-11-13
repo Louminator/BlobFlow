@@ -880,7 +880,7 @@ void laplacian(double *field, double *del2_field, double c, int MeshM, int MeshN
 	*(padded_field + i + j*(MeshM+6)) = 0.0;
       else
 	*(padded_field + i + j*(MeshM+6)) =
-	  *(field + (i-3) + (j-3)*(MeshM+6));
+	  *(field + (i-3) + (j-3)*MeshM);
 
   for (i=0; i<MeshM; ++i)
     for (j=0; j<MeshN; ++j)
@@ -1032,6 +1032,9 @@ void RHE_interp2(double s2, double pop_control)
 	      
     }
 
+  for (k=0; k<MeshM*MeshN; ++k)
+    *(field+k) *= (h*h);
+
   printf("Mesh: rank %d %d %d %12.8e %12.8e %12.8e %12.8e\n",
 	 rank,MeshM,MeshN,
 	 minX,maxX,minY,maxY);
@@ -1056,6 +1059,15 @@ void RHE_interp2(double s2, double pop_control)
   /* FCE */
   laplacian(field,L_field1,alpha,MeshM,MeshN);
   
+  FILE *testfile;
+  char testname[80];
+  sprintf(testname,"w%04d.dat",rank*1000);
+  testfile = fopen(testname,"w");
+  for (i=0; i<MeshM*MeshN; ++i)
+    fprintf(testfile,"%lf\n",*(L_field1+i));
+  fclose(testfile);
+
+
   for (i=0; i<MeshM; ++i)
     for (j=0; j<MeshN; ++j)
       {
@@ -1143,6 +1155,7 @@ void RHE_interp2(double s2, double pop_control)
 
   N = count;
   printf("Done reworking elements %d.\n",N);
+  write_vorts(rank*1000);
 
   printf("Exiting RHE interp.\n");
 }
