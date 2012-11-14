@@ -866,8 +866,6 @@ void laplacian(double *field, double *del2_field, double c, int MeshM, int MeshN
 
   double *padded_field;
 
-  printf("alpha %lf\n",c);
-
   for (i=0; i<MeshM; ++i)
     for (j=0; j<MeshN; ++j)
       *(del2_field + i + j*MeshM) = 0.0;
@@ -922,8 +920,6 @@ void RHE_interp2(double s2, double pop_control)
    
   /* Create a bounding box similar to Set_Level. */
 
-  printf("RHE interp2\n");
-
   maxa2 = MAX(blobguts[0].a2,1.0/blobguts[0].a2);
   maxs2 = blobguts[0].s2;
    
@@ -959,25 +955,7 @@ void RHE_interp2(double s2, double pop_control)
   distX = maxX-minX;
   distY = maxY-minY;
 
-  /*
-  cX = (maxX+minX)/2.0;
-  cY = (maxY+minY)/2.0;
-
-  if (distY > distX)
-    {
-      minX -= (distY-distX)/2.0;
-      maxX += (distY-distX)/2.0;
-      distX = distY;
-    }
-  else
-    {
-      minY -= (distX-distY)/2.0;
-      maxY += (distX-distY)/2.0;
-      distY = distX;
-    }
-  */
-   
-   /* end of bounding box */
+  /* end of bounding box */
 
   h = sqrt(s2);
 
@@ -1035,13 +1013,6 @@ void RHE_interp2(double s2, double pop_control)
   for (k=0; k<MeshM*MeshN; ++k)
     *(field+k) *= (h*h);
 
-  printf("Mesh: rank %d %d %d %12.8e %12.8e %12.8e %12.8e\n",
-	 rank,MeshM,MeshN,
-	 minX,maxX,minY,maxY);
-
-  printf("%d %d %d %14.8e\n",
-	 rank,MeshM/2,MeshN/2,*(field + MeshM/2 + (MeshN/2)*MeshM));
-
   /* Now walk it back in time. */
 
   alpha = s2/h/h;
@@ -1059,15 +1030,6 @@ void RHE_interp2(double s2, double pop_control)
   /* FCE */
   laplacian(field,L_field1,alpha,MeshM,MeshN);
   
-  FILE *testfile;
-  char testname[80];
-  sprintf(testname,"w%04d.dat",rank*1000);
-  testfile = fopen(testname,"w");
-  for (i=0; i<MeshM*MeshN; ++i)
-    fprintf(testfile,"%lf\n",*(L_field1+i));
-  fclose(testfile);
-
-
   for (i=0; i<MeshM; ++i)
     for (j=0; j<MeshN; ++j)
       {
@@ -1108,12 +1070,9 @@ void RHE_interp2(double s2, double pop_control)
 	  (*(L_field4 + i + j*MeshM))/6.0;
       }
 
+  /* Project the circulations back onto the particles. */
+
   count = 0;
-
-  printf("Done walking.\n");
-
-  printf("%d %d %d %14.8e\n",
-	 rank,0,MeshN/2,*(field + 0/2 + (MeshN/2)*MeshM));
 
   for (i=0; i<MeshM; ++i)
     for (j=0; j<MeshN; ++j)
@@ -1154,9 +1113,5 @@ void RHE_interp2(double s2, double pop_control)
   free(field);
 
   N = count;
-  printf("Done reworking elements %d.\n",N);
-  write_vorts(rank*1000);
-
-  printf("Exiting RHE interp.\n");
 }
 
