@@ -253,10 +253,10 @@ void Init_Fine_Grid(int levels)
 {
    int i,j,p,size;
    Complex *Coeff_Array,tmpz,dz,mp[PMAX];
-   int cpu,cpu_k,cpu_m,cpu_n,lower_limit,upper_limit;
 
 #ifdef MULTIPROC
-   int     rank,total_processes;
+   int     start,end,rank,total_processes,buffsize,proc;
+   Complex *Coeff_vort_buff;
 #endif
    
    /* These need to be explicitly determined here for some reason.*/
@@ -264,6 +264,8 @@ void Init_Fine_Grid(int levels)
       total_processes, they get wolloped for some reason */
 
 #ifdef MULTIPROC
+   MPI_Status mpistatus;
+
    MPI_Comm_size(MPI_COMM_WORLD, &total_processes);
    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 #endif
@@ -283,61 +285,73 @@ void Init_Fine_Grid(int levels)
    MPI_Comm_size(MPI_COMM_WORLD, &total_processes);
    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-   cpu_k = (size*size) % total_processes;
-   cpu_m = (size*size) / total_processes;
-   cpu_n = cpu_m + (cpu_k != 0);
+   buffsize = PMAX*((int) ldexp(1.0,2*(levels)));
 
-   if (rank< cpu_k)
+   start = rank*((int) N/total_processes);
+   end   = (rank+1)*((int) N/total_processes);
+   if (rank==total_processes-1)
+     end = N;
+   
+   Coeff_vort_buff = 
+     malloc(sizeof(Complex)*(((int) (N/total_processes))+(N % total_processes))*PMAX);
+
+   for (i=start; i<end; ++i)
      {
-       lower_limit = rank*cpu_n;
-       upper_limit = (rank+1)*cpu_n;
+	dz.re=(minX+(gridx[levels-1][i]+0.5)*(distX/size))-mblob[i].blob0.x;
+	dz.im=(minY+(gridy[levels-1][i]+0.5)*(distY/size))-mblob[i].blob0.y;
+	Calc_Coeffs(i,dz,mp);
+
+	if (rank==0)
+	  {
+	    for (p=0; p<PMAX; ++p)
+	      {
+		(*(Coeff_Array+
+		   (gridx[levels-1][i]+gridy[levels-1][i]*size)*PMAX+p)).re +=
+		  mp[p].re;
+		(*(Coeff_Array+
+		   (gridx[levels-1][i]+gridy[levels-1][i]*size)*PMAX+p)).im +=
+		  mp[p].im;
+	      }
+	  }
+	else
+	  for (p=0; p<PMAX; ++p)
+	    *(Coeff_vort_buff+(i-start)*PMAX+p) = mp[p];
+     }
+
+   if (rank != 0)
+     {
+       /* Send the coefficients to rank 0. */
+       MPI_Send(Coeff_vort_buff,(end-start)*2*PMAX,MPI_DOUBLE,0,0,MPI_COMM_WORLD);
      }
    else
      {
-       lower_limit = cpu_k*cpu_n+(rank     - cpu_k)*cpu_m;
-       upper_limit = cpu_k*cpu_n+(rank + 1 - cpu_k)*cpu_m;
+       for (proc=1; proc<total_processes; ++proc)
+	 {
+	   start = proc*((int) N/total_processes);
+	   end   = (proc+1)*((int) N/total_processes);
+	   if (proc == total_processes-1)
+	     end = N;
+
+	   MPI_Recv(Coeff_vort_buff,(end-start)*2*PMAX,MPI_DOUBLE,proc,0,MPI_COMM_WORLD,&mpistatus);
+	   for (i=start; i<end; ++i)
+	     {
+	       for (p=0; p<PMAX; ++p)
+		 {
+		   mp[p] = *(Coeff_vort_buff+(i-start)*PMAX+p);
+		   (*(Coeff_Array+
+		      (gridx[levels-1][i]+gridy[levels-1][i]*size)*PMAX+p)).re +=
+		     mp[p].re;
+		   (*(Coeff_Array+
+		      (gridx[levels-1][i]+gridy[levels-1][i]*size)*PMAX+p)).im +=
+		     mp[p].im;
+		 }
+	     }
+	  }
      }
 
-   for (i=0; i<N; ++i)
-     if ( (gridx[levels-1][i] + gridy[levels-1][i]*size >= lower_limit) &&
-	  (gridx[levels-1][i] + gridy[levels-1][i]*size <  upper_limit) )
-       {
-	 dz.re=(minX+(gridx[levels-1][i]+0.5)*(distX/size))-mblob[i].blob0.x;
-	 dz.im=(minY+(gridy[levels-1][i]+0.5)*(distY/size))-mblob[i].blob0.y;
+   MPI_Bcast (Coeff_Array, 2*buffsize, MPI_DOUBLE, 0, MPI_COMM_WORLD );
 
-	 Calc_Coeffs(i,dz,mp);
-	
-	 for (p=0; p<PMAX; ++p)
-	   {
-	     (*(Coeff_Array+
-		(gridx[levels-1][i]+gridy[levels-1][i]*size)*PMAX+p)).re +=
-	       mp[p].re;
-	     (*(Coeff_Array+
-		(gridx[levels-1][i]+gridy[levels-1][i]*size)*PMAX+p)).im +=
-	       mp[p].im;
-	   }
-       }
-
-   /* Now share your results. */
-
-   for (cpu=0; cpu<total_processes; ++cpu)
-     {
-       if (cpu< cpu_k)
-	 {
-	   lower_limit = cpu*cpu_n;
-	   upper_limit = (cpu+1)*cpu_n;
-	 }
-       else
-	 {
-	   lower_limit = cpu_k*cpu_n+(cpu - cpu_k)*cpu_m;
-	   upper_limit = cpu_k*cpu_n+(cpu+1 - cpu_k)*cpu_m;
-	 }
-       
-       if (upper_limit != lower_limit)
-	 MPI_Bcast(Coeff_Array+lower_limit*PMAX, 
-		   (upper_limit-lower_limit)*2*PMAX, MPI_DOUBLE, 
-		   cpu, MPI_COMM_WORLD);
-     }
+   free(Coeff_vort_buff);
 #else
    for (i=0; i<N; ++i)
      {
