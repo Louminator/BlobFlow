@@ -107,5 +107,5 @@ for n in frameList:
                 fill=False,ls='dotted')
             
                 ax.add_patch(circ)
-
+axes().set_aspect('equal')
 show()

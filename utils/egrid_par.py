@@ -103,18 +103,20 @@ class egrid_front:
 
     def project(self):
 	tmp = self.ll_entry.get()
+
         patternA = re.compile('\([-,+]*\d*\.*\d*,')
         patternB = re.compile(',[-,+]*\d*\.*\d*\)')
         searchA  = patternA.search(tmp)
         searchB  = patternB.search(tmp)
-        x0 = atof(tmp[searchA.start()+1:searchA.end()-2])
-	y0 = atof(tmp[searchB.start()+1:searchB.end()-2])
+
+        x0 = atof(tmp[searchA.start()+1:searchA.end()-1])
+	y0 = atof(tmp[searchB.start()+1:searchB.end()-1])
 
 	tmp = self.ur_entry.get()
         searchA  = patternA.search(tmp)
         searchB  = patternB.search(tmp)
-	x1 = atof(tmp[searchA.start()+1:searchA.end()-2])
-	y1 = atof(tmp[searchB.start()+1:searchB.end()-2])
+	x1 = atof(tmp[searchA.start()+1:searchA.end()-1])
+	y1 = atof(tmp[searchB.start()+1:searchB.end()-1])
 
 	n = atoi(self.n_entry.get())
 
