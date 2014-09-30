@@ -1,4 +1,0 @@
-Had some difficulty with matlab figure rendering...
-
-This command worked wonders: 
-print(gcf, '-depsc', '-zbuffer', 'lamb_dipole0010.eps');
