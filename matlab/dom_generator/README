@@ -1,0 +1,9 @@
+Usage: 
+
+Execute coeffs_data_generator.m in Matlab.  
+
+Save resulting Dom*.dat files in a directory somewhere.  Remember the
+name of the directory.
+
+When running blobflow, provide the name of the dom directory as a
+command line argument.
